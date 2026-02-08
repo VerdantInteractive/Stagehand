@@ -1,3 +1,7 @@
+🚧 February 2026 update: Godot-Flecs is now Stagehand. It is now turning into a full-featured framework. Watch this space! 🚧
+
+Old readme contents below.
+
 # Godot-Flecs
 
 A basic demostration of how to integrate the [Flecs](https://www.flecs.dev/) [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) as a Godot GDExtension.
