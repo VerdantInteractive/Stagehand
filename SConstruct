@@ -1,10 +1,25 @@
 #!/usr/bin/env python
 
-import os, sys
+import os, sys, shutil
 from SCons.Script import Glob, ARGUMENTS
 
 CPP_STANDARD = "c++23"
-PROJECT_DIRECTORY = "project" # Relative path to the Godot project directory
+PROJECT_DIRECTORY = os.path.abspath("../../") # Relative path to the Godot project directory
+PROJECT_FILE_PATH = os.path.join(PROJECT_DIRECTORY, "project.godot")
+
+if not os.path.isfile(PROJECT_FILE_PATH):
+    print(f"Error: Godot project file not found in '{PROJECT_FILE_PATH}'. Ensure that the directory '{PROJECT_DIRECTORY}' contains a valid Godot project and that Stagehand files are placed in '{PROJECT_DIRECTORY}/addons/stagehand'.")
+    exit(1)
+
+# Ensure the project cpp subdirectory exists
+cpp_dir = os.path.join(PROJECT_DIRECTORY, "cpp")
+if not os.path.exists(cpp_dir):
+    os.makedirs(cpp_dir)
+
+# Create .gdignore in project/cpp/ if it doesn't exist
+gdignore_path = os.path.join(cpp_dir, ".gdignore")
+if not os.path.exists(gdignore_path):
+    with open(gdignore_path, "w") as f: pass
 
 # For reference:
 # - CCFLAGS are compilation flags shared between C and C++
