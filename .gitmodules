@@ -1,6 +1,6 @@
 [submodule "godot-cpp"]
-	path = godot-cpp
+	path = dependencies/godot-cpp
 	url = https://github.com/godotengine/godot-cpp
 [submodule "flecs"]
-	path = flecs
+	path = dependencies/flecs
 	url = https://github.com/SanderMertens/flecs.git

@@ -12,8 +12,8 @@ def check_and_init_submodules():
     # Get the workspace root (two directories up from this script)
     workspace_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     
-    flecs_path = os.path.join(workspace_root, "flecs")
-    godot_cpp_path = os.path.join(workspace_root, "godot-cpp")
+    flecs_path = os.path.join(workspace_root, "dependencies", "flecs")
+    godot_cpp_path = os.path.join(workspace_root, "dependencies", "godot-cpp")
     
     # Check if submodule directories are empty or missing
     flecs_empty = not os.path.exists(flecs_path) or not os.listdir(flecs_path)

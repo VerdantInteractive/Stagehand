@@ -26,7 +26,7 @@ if sys.platform.startswith("win"):
     if "use_llvm" not in ARGUMENTS:
         ARGUMENTS["use_llvm"] = "yes"
 
-env = SConscript("godot-cpp/SConstruct")
+env = SConscript("dependencies/godot-cpp/SConstruct")
 
 # Apply macOS-specific build arguments automatically
 if env["platform"] == "macos":
@@ -83,9 +83,9 @@ def find_source_files(base_dir):
 sources, include_paths = find_source_files("stagehand")
 project_cpp_sources, project_cpp_include_paths = find_source_files(f"{PROJECT_DIRECTORY}/cpp")
 
-env.Append(CPPPATH=["godot-cpp/include", "godot-cpp/gen/include", "flecs/distr/", ".", f"{PROJECT_DIRECTORY}/cpp"])
+env.Append(CPPPATH=["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr/", ".", f"{PROJECT_DIRECTORY}/cpp"])
 
-flecs_c_source = "flecs/distr/flecs.c"
+flecs_c_source = "dependencies/flecs/distr/flecs.c"
 
 # Clone the env for everything *outside* of godot-cpp so our flags/defines don't leak into godot-cpp builds.
 project_env = env.Clone()
