@@ -90,10 +90,11 @@ def check_and_setup_project_file_structure(relative_path):
                     new_cpp_gitignore_lines.append("\n")
                 new_cpp_gitignore_lines.extend(block_content)
             
-            with open(gitignore_path, "w") as f:
-                f.writelines(new_cpp_gitignore_lines)
-            
-            print(f"Notice: Updated {gitignore_path} with C++ build artifacts block.")
+            if new_cpp_gitignore_lines != cpp_gitignore_lines:
+                with open(gitignore_path, "w") as f:
+                    f.writelines(new_cpp_gitignore_lines)
+                
+                print(f"Notice: Updated {gitignore_path} with C++ build artifacts block.")
         else:
             print(f"Warning: Could not find C++ build artifacts block in {root_gitignore_path}")
         
