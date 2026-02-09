@@ -1,0 +1,80 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Game (Windows, cppvsdbg)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "symbolSearchPath": "${workspaceRoot}\\Game\\bin",
+            "cwd": "${workspaceRoot}",
+            //
+            "console": "internalConsole",
+            "program": "${userHome}\\Applications\\Godot\\Godot.exe",
+            "args": [
+                "--path",
+                "Game"
+            ],
+        },
+        {
+            "name": "Editor (Windows, cppvsdbg)",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "symbolSearchPath": "${workspaceRoot}\\Game\\bin",
+            "cwd": "${workspaceRoot}",
+            //
+            "console": "newExternalWindow",
+            "program": "${userHome}\\Applications\\Godot\\Godot_console.exe",
+            "args": [
+                "Game\\project.godot"
+            ],
+        },
+        {
+            "name": "Game (Mac, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "/Applications/Godot.app/Contents/MacOS/Godot",
+            "args": [
+                "--path",
+                "Game"
+            ],
+        },
+        {
+            "name": "Editor (Mac, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "/Applications/Godot.app/Contents/MacOS/Godot",
+            "args": [
+                "Game/project.godot"
+            ],
+        },
+        {
+            "name": "Game (Linux, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "${userHome}/Applications/Godot/godot",
+            "args": [
+                "--path",
+                "Game"
+            ],
+        },
+        {
+            "name": "Editor (Linux, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "${userHome}/Applications/Godot/godot",
+            "args": [
+                "Game/project.godot"
+            ],
+        }
+    ]
+}
