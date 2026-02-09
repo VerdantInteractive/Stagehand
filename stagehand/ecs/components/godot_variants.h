@@ -38,7 +38,7 @@ using godot::Vector3i;
 using godot::Vector4;
 using godot::Vector4i;
 
-// Helper to register Color layout for any type T that matches Color layout
+/// Helper to register Color layout for any type T that matches Color layout
 template <typename T>
 void register_color_members(flecs::component<T> c) {
     c.template member<float>("r");
@@ -47,21 +47,21 @@ void register_color_members(flecs::component<T> c) {
     c.template member<float>("a");
 }
 
-// Helper to register Vector2 layout for any type T that matches Vector2 layout
+/// Helper to register Vector2 layout for any type T that matches Vector2 layout
 template <typename T>
 void register_vector2_members(flecs::component<T> c) {
     c.template member<real_t>("x");
     c.template member<real_t>("y");
 }
 
-// Helper to register Vector2i layout for any type T that matches Vector2i layout
+/// Helper to register Vector2i layout for any type T that matches Vector2i layout
 template <typename T>
 void register_vector2i_members(flecs::component<T> c) {
     c.template member<int32_t>("x");
     c.template member<int32_t>("y");
 }
 
-// Helper to register Vector3 layout for any type T that matches Vector3 layout
+/// Helper to register Vector3 layout for any type T that matches Vector3 layout
 template <typename T>
 void register_vector3_members(flecs::component<T> c) {
     c.template member<real_t>("x");
@@ -69,7 +69,7 @@ void register_vector3_members(flecs::component<T> c) {
     c.template member<real_t>("z");
 }
 
-// Helper to register Vector3i layout for any type T that matches Vector3i layout
+/// Helper to register Vector3i layout for any type T that matches Vector3i layout
 template <typename T>
 void register_vector3i_members(flecs::component<T> c) {
     c.template member<int32_t>("x");
@@ -77,7 +77,7 @@ void register_vector3i_members(flecs::component<T> c) {
     c.template member<int32_t>("z");
 }
 
-// Helper to register Vector4 layout for any type T that matches Vector4 layout
+/// Helper to register Vector4 layout for any type T that matches Vector4 layout
 template <typename T>
 void register_vector4_members(flecs::component<T> c) {
     c.template member<real_t>("x");
@@ -86,7 +86,7 @@ void register_vector4_members(flecs::component<T> c) {
     c.template member<real_t>("w");
 }
 
-// Helper to register Vector4i layout for any type T that matches Vector4i layout
+/// Helper to register Vector4i layout for any type T that matches Vector4i layout
 template <typename T>
 void register_vector4i_members(flecs::component<T> c) {
     c.template member<int32_t>("x");
@@ -95,28 +95,28 @@ void register_vector4i_members(flecs::component<T> c) {
     c.template member<int32_t>("w");
 }
 
-// Helper to register Rect2 layout for any type T that matches Rect2 layout
+/// Helper to register Rect2 layout for any type T that matches Rect2 layout
 template <typename T>
 void register_rect2_members(flecs::component<T> c) {
     c.template member<Vector2>("position");
     c.template member<Vector2>("size");
 }
 
-// Helper to register Rect2i layout for any type T that matches Rect2i layout
+/// Helper to register Rect2i layout for any type T that matches Rect2i layout
 template <typename T>
 void register_rect2i_members(flecs::component<T> c) {
     c.template member<Vector2i>("position");
     c.template member<Vector2i>("size");
 }
 
-// Helper to register Plane layout for any type T that matches Plane layout
+/// Helper to register Plane layout for any type T that matches Plane layout
 template <typename T>
 void register_plane_members(flecs::component<T> c) {
     c.template member<Vector3>("normal");
     c.template member<real_t>("d");
 }
 
-// Helper to register Quaternion layout for any type T that matches Quaternion layout
+/// Helper to register Quaternion layout for any type T that matches Quaternion layout
 template <typename T>
 void register_quaternion_members(flecs::component<T> c) {
     c.template member<real_t>("x");
@@ -125,41 +125,41 @@ void register_quaternion_members(flecs::component<T> c) {
     c.template member<real_t>("w");
 }
 
-// Helper to register Basis layout for any type T that matches Basis layout
+/// Helper to register Basis layout for any type T that matches Basis layout
 template <typename T>
 void register_basis_members(flecs::component<T> c) {
     c.template member<Vector3>("rows", 3);
 }
 
-// Helper to register Transform2D layout for any type T that matches Transform2D layout
+/// Helper to register Transform2D layout for any type T that matches Transform2D layout
 template <typename T>
 void register_transform2d_members(flecs::component<T> c) {
     c.template member<Vector2>("columns", 3);
 }
 
-// Helper to register Transform3D layout for any type T that matches Transform3D layout
+/// Helper to register Transform3D layout for any type T that matches Transform3D layout
 template <typename T>
 void register_transform3d_members(flecs::component<T> c) {
     c.template member<Basis>("basis");
     c.template member<Vector3>("origin");
 }
 
-// Helper to register AABB layout for any type T that matches AABB layout
+/// Helper to register AABB layout for any type T that matches AABB layout
 template <typename T>
 void register_aabb_members(flecs::component<T> c) {
     c.template member<Vector3>("position");
     c.template member<Vector3>("size");
 }
 
-// Helper to register Projection layout for any type T that matches Projection layout
+/// Helper to register Projection layout for any type T that matches Projection layout
 template <typename T>
 void register_projection_members(flecs::component<T> c) {
     c.template member<Vector4>("columns", 4);
 }
 
 
-// Macro to define a component that wraps a Godot type, inheriting constructors and assignment
-// Components are defined in the namespace where the macro is invoked
+/// Macro to define a component that wraps a Godot type, inheriting constructors and assignment.
+/// Components are defined in the namespace where the macro is invoked.
 #define GODOT_VARIANT(Name, Base, ...) \
     struct Name : public Base { \
         using base_type = Base; \

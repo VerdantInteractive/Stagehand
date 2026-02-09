@@ -12,25 +12,33 @@
 
 namespace stagehand {
 
+    /// Callback function type for registering components and systems with the Flecs world.
     using RegistrationCallback = void (*)(flecs::world&);
 
-    // Call all registered callbacks to configure the ECS world.
+    /// Call all registered callbacks to configure the ECS world.
+    /// @param world The Flecs world to configure.
     void register_components_and_systems_with_world(flecs::world& world);
 
-    // Helper for static auto-registration from translation units.
+    /// Helper struct for static auto-registration from translation units.
+    /// Instantiating this struct with a callback will register it to be called during world initialization.
     struct Registry
     {
         explicit Registry(RegistrationCallback callback);
     };
 
-    // Runtime Component Reflection (Setters/Getters)
-
+    /// Function type for retrieving a component value as a Godot Variant.
     using ComponentGetter = std::function<godot::Variant(const flecs::world&, flecs::entity_t)>;
+
+    /// Function type for setting a component value from a Godot Variant.
     using ComponentSetter = std::function<void(flecs::world&, flecs::entity_t, const godot::Variant&)>;
 
+    /// Returns the global map of component getters, keyed by component name.
     std::unordered_map<std::string, ComponentGetter>& get_component_getters();
+
+    /// Returns the global map of component setters, keyed by component name.
     std::unordered_map<std::string, ComponentSetter>& get_component_setters();
 
+    /// Registers a getter function for a specific component type.
     template <typename T, typename StorageType = T>
     void register_component_getter(const char* name)
     {
@@ -57,6 +65,7 @@ namespace stagehand {
         };
     }
 
+    /// Registers a setter function for a specific component type.
     template <typename T, typename StorageType = T>
     void register_component_setter(const char* name)
     {

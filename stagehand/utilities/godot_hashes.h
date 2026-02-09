@@ -1,4 +1,4 @@
-// Centralized hash specializations for Godot types used as unordered_map keys
+/// Centralized hash specializations for Godot types used as unordered_map keys.
 #pragma once
 
 #include <functional>

@@ -7,6 +7,7 @@
 
 namespace stagehand {
 
+    /// Component used to signal events to Godot.
     struct Signal {
         godot::StringName name;
         godot::Dictionary data;
@@ -19,7 +20,11 @@ inline stagehand::Registry register_godot_signal_component([](flecs::world& worl
     world.component<stagehand::Signal>("stagehand::Signal");
 });
 
-// Helper function to emit Godot signals from Flecs systems safely
+/// Helper function to emit Godot signals from Flecs systems safely.
+/// @param world The Flecs world.
+/// @param source_entity The entity emitting the signal.
+/// @param name The name of the signal.
+/// @param data Optional dictionary of data associated with the signal.
 inline void emit_godot_signal(const flecs::world& world, flecs::entity source_entity, const godot::StringName& name, const godot::Dictionary& data = godot::Dictionary()) {
     stagehand::Signal signal{ name, data };
     // Defer the emission to ensure it happens at a safe synchronization point (main thread usually)

@@ -6,12 +6,14 @@ namespace stagehand {
 
     namespace
     {
+        /// Returns the static vector of registration callbacks.
         std::vector<RegistrationCallback>& get_callbacks()
         {
             static std::vector<RegistrationCallback> callbacks;
             return callbacks;
         }
 
+        /// Returns the static mutex used to protect the callback list.
         std::mutex& get_mutex()
         {
             static std::mutex mtx;

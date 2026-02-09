@@ -12,6 +12,7 @@ using std::int32_t;
 using std::uint32_t;
 
 
+/// Macro that defines a component wrapping a single-precision floating-point number.
 #define FLOAT(Name, ...) \
     struct Name { \
         float value{__VA_ARGS__}; \
@@ -28,6 +29,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping a double-precision floating-point number.
 #define DOUBLE(Name, ...) \
     struct Name { \
         double value{__VA_ARGS__}; \
@@ -44,6 +46,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping a signed 32-bit integer.
 #define INT32(Name, ...) \
     struct Name { \
         int32_t value{__VA_ARGS__}; \
@@ -60,6 +63,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping an unsigned 32-bit integer.
 #define UINT32(Name, ...) \
     struct Name { \
         uint32_t value{__VA_ARGS__}; \
@@ -76,6 +80,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping a signed 16-bit integer (-32,768 to 32,767).
 #define INT16(Name, ...) \
     struct Name { \
         int16_t value{__VA_ARGS__}; \
@@ -92,6 +97,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping an unsigned 16-bit integer (0 to 65,535).
 #define UINT16(Name, ...) \
     struct Name { \
         uint16_t value{__VA_ARGS__}; \
@@ -108,6 +114,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping a signed 8-bit integer (-128 to 127).
 #define INT8(Name, ...) \
     struct Name { \
         int8_t value{__VA_ARGS__}; \
@@ -124,6 +131,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping an unsigned 8-bit integer (0 to 255).
 #define UINT8(Name, ...) \
     struct Name { \
         uint8_t value{__VA_ARGS__}; \
@@ -140,6 +148,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a component wrapping a pointer type.
 #define POINTER(Name, Type, ...) \
     struct Name { \
         Type* ptr{__VA_ARGS__}; \
@@ -162,6 +171,7 @@ using std::uint32_t;
     })
 
 
+/// Macro that defines a tag component (empty struct).
 #define TAG(Name) \
     struct Name {}; \
     inline stagehand::Registry register_##Name##_tag([](flecs::world& world) { \
