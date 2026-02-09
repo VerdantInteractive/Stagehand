@@ -1,11 +1,13 @@
-.sconsign.dblite
-src/*.os
-demo/bin/*.exp
-
-# IDE-genreated files
+# IDE-generated files
 **/.idea/
 **/.vs/
 **/.vscode/
+
+# Build system caches
+.sconsign.dblite
+
+# OS-specific metadata files
+.DS_Store
 
 # Following are the default Github C++ gitignore entries
 
@@ -17,6 +19,8 @@ demo/bin/*.exp
 *.lo
 *.o
 *.obj
+*.os
+*.spv
 
 # Precompiled Headers
 *.gch

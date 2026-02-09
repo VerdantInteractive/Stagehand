@@ -1,12 +1,6 @@
-🚧 February 2026 update: Godot-Flecs is now Stagehand. It is now turning into a full-featured framework. Watch this space! 🚧
+# Stagehand
 
-Old readme contents below.
-
-# Godot-Flecs
-
-A basic demostration of how to integrate the [Flecs](https://www.flecs.dev/) [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) as a Godot GDExtension.
-
-The demo project is an implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
+TBC
 
 ## Flecs Explorer
 
