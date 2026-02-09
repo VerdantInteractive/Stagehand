@@ -23,16 +23,16 @@ def check_and_setup_project_file_structure(relative_path):
                      to integrate Stagehand into your project, its files should be placed in 'addons/stagehand' within the project root.
                      If needed, the base path of the project can be configured in SConstruct by modifying PROJECT_DIRECTORY.\n"""))
     else:
-        print(f"✓ Found Godot project file at '{project_file_path}'")
         # Ensure the project cpp subdirectory exists
         cpp_dir = os.path.join(project_directory, "cpp")
         if not os.path.exists(cpp_dir):
             os.makedirs(cpp_dir)
+            print(f"Notice: Created the {cpp_dir} directory. You can place your project-specific C++ source files and folders there.")
         
         # Create .gdignore in project/cpp/ if it doesn't exist
         gdignore_path = os.path.join(cpp_dir, ".gdignore")
         if not os.path.exists(gdignore_path):
             with open(gdignore_path, "w") as f:
-                pass
+                print(f"Notice: Created {gdignore_path} in 'cpp' directory to exclude it from Godot's asset scanning.", file=f)
     
     return project_directory
