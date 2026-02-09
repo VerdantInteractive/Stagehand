@@ -73,7 +73,7 @@ namespace stagehand {
             .event<Signal>()
             .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
             .each([this](flecs::iter& it, size_t index) {
-            Signal* signal = it.param<Signal>();
+            const Signal* signal = it.param<Signal>();
             if (signal) {
                 this->emit_signal("flecs_signal_emitted", signal->name, signal->data);
             }
@@ -95,7 +95,7 @@ namespace stagehand {
                 children[child_node->get_name()] = child_node;
             }
         }
-        world.set<SceneChildren>({ children });
+        world.set<SceneChildren>({ .nodes = children });
     }
 
 

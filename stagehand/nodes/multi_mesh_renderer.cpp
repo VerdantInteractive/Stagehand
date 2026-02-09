@@ -1,4 +1,5 @@
 #include <type_traits>
+#include <concepts>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/multi_mesh.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -9,18 +10,21 @@
 
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
 
+// Concept to constrain MultiMeshRenderer types
 template <typename T>
+concept MultiMeshRendererType = std::is_same_v<T, MultiMeshRenderer2D> || std::is_same_v<T, MultiMeshRenderer3D>;
+
+template <MultiMeshRendererType T>
 void register_multimesh_renderer(flecs::world& world, T* renderer, stagehand::entity_rendering::Renderers& renderers, int& renderer_count) {
     godot::RID multimesh_rid;
     godot::MultiMesh* multimesh = nullptr;
-    godot::PackedStringArray prefabs;
+    const godot::PackedStringArray prefabs = renderer->get_prefabs_rendered();
     char sort_axis = '\0';
 
-    godot::Ref<godot::MultiMesh> mm = renderer->get_multimesh();
+    const godot::Ref<godot::MultiMesh> mm = renderer->get_multimesh();
     if (mm.is_valid()) {
         multimesh = mm.ptr();
     }
-    prefabs = renderer->get_prefabs_rendered();
     switch (renderer->get_draw_order()) {
     case MULTIMESH_DRAW_ORDER_X: sort_axis = 'x'; break;
     case MULTIMESH_DRAW_ORDER_Y: sort_axis = 'y'; break;
@@ -158,7 +162,8 @@ void bind_multimesh_renderer_methods() {
 
     if constexpr (std::is_same_v<T, MultiMeshRenderer3D>) {
         godot::ClassDB::add_property(T::get_class_static(), godot::PropertyInfo(godot::Variant::INT, "draw_order", godot::PROPERTY_HINT_ENUM, "None,X,Y,Z"), "set_draw_order", "get_draw_order");
-    } else {
+    }
+    else {
         godot::ClassDB::add_property(T::get_class_static(), godot::PropertyInfo(godot::Variant::INT, "draw_order", godot::PROPERTY_HINT_ENUM, "None,X,Y"), "set_draw_order", "get_draw_order");
     }
 

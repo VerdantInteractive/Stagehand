@@ -36,7 +36,7 @@ public:
         prefabs_rendered = p_prefabs;
     }
 
-    godot::PackedStringArray get_prefabs_rendered() const {
+    [[nodiscard]] godot::PackedStringArray get_prefabs_rendered() const {
         return prefabs_rendered;
     }
 
@@ -44,7 +44,7 @@ public:
         draw_order = p_draw_order;
     }
 
-    MultiMeshDrawOrder get_draw_order() const {
+    [[nodiscard]] MultiMeshDrawOrder get_draw_order() const {
         return draw_order;
     }
 

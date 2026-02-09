@@ -38,7 +38,7 @@ namespace stagehand {
         void set_component(const godot::String& component_name, const godot::Variant& data, ecs_entity_t entity_id = 0);
 
         /// Gets a component value from an entity.
-        godot::Variant get_component(const godot::String& component_name, ecs_entity_t entity_id = 0);
+        [[nodiscard]] godot::Variant get_component(const godot::String& component_name, ecs_entity_t entity_id = 0);
 
         /// Enables or disables a system by name.
         bool enable_system(const godot::String& system_name, bool enabled = true);
