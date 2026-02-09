@@ -6,13 +6,11 @@ from SCons.Script import ARGUMENTS
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 from submodule_check import check_and_init_submodules
 from godot_project import check_and_setup_project_file_structure
-from vscode import sync_vscode_cpp_standard
 
 check_and_init_submodules()
 PROJECT_DIRECTORY = check_and_setup_project_file_structure("../../")
 
 CPP_STANDARD = "c++23"
-sync_vscode_cpp_standard(CPP_STANDARD)
 
 # For reference:
 # - CCFLAGS are compilation flags shared between C and C++
