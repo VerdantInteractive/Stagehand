@@ -11,7 +11,7 @@ __pycache__/
 .DS_Store
 
 
-### C++ build artifacts. The entries that follow will also be coped to the .gitignore file in the cpp/ subdirectory of the project.
+### C++ build artifacts. The entries that follow are copied from the Stagehand .gitignore file into the one in the cpp/ subdirectory of the project.
 bin/
 # Prerequisites
 *.d
