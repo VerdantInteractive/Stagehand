@@ -11,10 +11,10 @@ __pycache__/
 .DS_Store
 
 
-# C++ build artifacts
+### C++ build artifacts. The entries that follow will also be coped to the .gitignore file in the cpp/ subdirectory of the project.
+bin/
 # Prerequisites
 *.d
-
 # Compiled Object files
 *.slo
 *.lo
@@ -22,36 +22,29 @@ __pycache__/
 *.obj
 *.os
 *.spv
-
 # Precompiled Headers
 *.gch
 *.pch
-
 # Linker files
 *.ilk
-
 # Debugger Files
 *.pdb
-
 # Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
-
 # Fortran module files
 *.mod
 *.smod
-
 # Compiled Static libraries
 *.lai
 *.la
 *.a
 *.lib
-
 # Executables
 *.exe
 *.out
 *.app
-
 # debug information files
 *.dwo
+### End of C++ build artifacts section

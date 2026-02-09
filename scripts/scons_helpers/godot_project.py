@@ -18,7 +18,7 @@ def check_and_setup_project_file_structure(relative_path):
     
     if not os.path.isfile(project_file_path):
         print(dedent(f"""
-                     Notice: Godot project file not found at '{project_file_path}'. 
+                     Warning: Godot project file not found at '{project_file_path}'. 
                      Unless this build is for CI/CD, you should ensure that the directory '{project_directory}' contains a valid Godot project and 
                      to integrate Stagehand into your project, its files should be placed in 'addons/stagehand' within the project root.
                      If needed, the base path of the project can be configured in SConstruct by modifying PROJECT_DIRECTORY.\n"""))
@@ -36,20 +36,66 @@ def check_and_setup_project_file_structure(relative_path):
                 pass
             print(f"Notice: Created {gdignore_path} in 'cpp' directory to exclude it from Godot's asset scanning.")
     
-        # Create .gitignore in project/cpp/ if it doesn't exist, or ensure it contains bin/
+        # Update .gitignore in project/cpp/ with C++ build artifacts block from root .gitignore
         gitignore_path = os.path.join(cpp_dir, ".gitignore")
-        if not os.path.exists(gitignore_path):
+        
+        # Read the block from the project root .gitignore
+        # This script is in scripts/scons_helpers/godot_project.py, so root is 3 levels up
+        root_gitignore_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), ".gitignore")
+        
+        block_content = []
+        start_marker = "### C++ build artifacts."
+        end_marker = "### End of C++ build artifacts"
+
+        if os.path.exists(root_gitignore_path):
+            in_block = False
+            with open(root_gitignore_path, "r") as f:
+                for line in f:
+                    if line.startswith(start_marker):
+                        in_block = True
+                    
+                    if in_block:
+                        block_content.append(line)
+                        
+                    if in_block and line.startswith(end_marker):
+                        in_block = False
+                        break
+        
+        if block_content:
+            # Read existing cpp/.gitignore
+            cpp_gitignore_lines = []
+            if os.path.exists(gitignore_path):
+                with open(gitignore_path, "r") as f:
+                    cpp_gitignore_lines = f.readlines()
+            
+            # Reconstruct cpp/.gitignore with updated block
+            new_cpp_gitignore_lines = []
+            in_old_block = False
+            block_inserted = False
+            
+            for line in cpp_gitignore_lines:
+                if line.startswith(start_marker):
+                    in_old_block = True
+                    new_cpp_gitignore_lines.extend(block_content)
+                    block_inserted = True
+                
+                if not in_old_block:
+                    new_cpp_gitignore_lines.append(line)
+                
+                if in_old_block and line.startswith(end_marker):
+                    in_old_block = False
+            
+            if not block_inserted:
+                if new_cpp_gitignore_lines and not new_cpp_gitignore_lines[-1].endswith("\n"):
+                    new_cpp_gitignore_lines.append("\n")
+                new_cpp_gitignore_lines.extend(block_content)
+            
             with open(gitignore_path, "w") as f:
-                f.write("bin/\n")
-            print(f"Notice: Created {gitignore_path} with 'bin/' to exclude build artifacts from git.")
+                f.writelines(new_cpp_gitignore_lines)
+            
+            print(f"Notice: Updated {gitignore_path} with C++ build artifacts block.")
         else:
-            with open(gitignore_path, "r+") as f:
-                content = f.read()
-                if "bin/" not in [line.strip() for line in content.splitlines()]:
-                    if content and not content.endswith("\n"):
-                        f.write("\n")
-                    f.write("bin/\n")
-                    print(f"Notice: Added 'bin/' to {gitignore_path}.")
+            print(f"Warning: Could not find C++ build artifacts block in {root_gitignore_path}")
         
 
     return project_directory
