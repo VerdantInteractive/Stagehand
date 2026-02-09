@@ -1,10 +1,8 @@
-**/cpp/bin/*
-
+__pycache__/
 
 # IDE-generated files
 **/.idea/
 **/.vs/
-**/.vscode/
 
 # Build system caches
 .sconsign.dblite
@@ -12,8 +10,8 @@
 # OS-specific metadata files
 .DS_Store
 
-# Following are the default Github C++ gitignore entries
 
+# C++ build artifacts
 # Prerequisites
 *.d
 

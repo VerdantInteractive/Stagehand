@@ -1,25 +1,18 @@
 #!/usr/bin/env python
 
-import os, sys, shutil
-from SCons.Script import Glob, ARGUMENTS
+import os, sys
+from SCons.Script import ARGUMENTS
+
+sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
+from submodule_check import check_and_init_submodules
+from godot_project import check_and_setup_project_file_structure
+from vscode import sync_vscode_cpp_standard
+
+check_and_init_submodules()
+PROJECT_DIRECTORY = check_and_setup_project_file_structure("../../")
 
 CPP_STANDARD = "c++23"
-PROJECT_DIRECTORY = os.path.abspath("../../") # Relative path to the Godot project directory
-PROJECT_FILE_PATH = os.path.join(PROJECT_DIRECTORY, "project.godot")
-
-if not os.path.isfile(PROJECT_FILE_PATH):
-    print(f"Error: Godot project file not found in '{PROJECT_FILE_PATH}'. Ensure that the directory '{PROJECT_DIRECTORY}' contains a valid Godot project and that Stagehand files are placed in '{PROJECT_DIRECTORY}/addons/stagehand'.")
-    exit(1)
-
-# Ensure the project cpp subdirectory exists
-cpp_dir = os.path.join(PROJECT_DIRECTORY, "cpp")
-if not os.path.exists(cpp_dir):
-    os.makedirs(cpp_dir)
-
-# Create .gdignore in project/cpp/ if it doesn't exist
-gdignore_path = os.path.join(cpp_dir, ".gdignore")
-if not os.path.exists(gdignore_path):
-    with open(gdignore_path, "w") as f: pass
+sync_vscode_cpp_standard(CPP_STANDARD)
 
 # For reference:
 # - CCFLAGS are compilation flags shared between C and C++
