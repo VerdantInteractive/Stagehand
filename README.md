@@ -1,6 +1,12 @@
 # Stagehand
 
-TBC
+## Usage
+
+```
+git submodule add -b alpha https://github.com/VerdantInteractive/Stagehand.git addons/stagehand
+git submodule update --init --recursive addons/stagehand
+scons -C addons/stagehand
+```
 
 ## Flecs Explorer
 

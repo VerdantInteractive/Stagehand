@@ -33,6 +33,23 @@ def check_and_setup_project_file_structure(relative_path):
         gdignore_path = os.path.join(cpp_dir, ".gdignore")
         if not os.path.exists(gdignore_path):
             with open(gdignore_path, "w") as f:
-                print(f"Notice: Created {gdignore_path} in 'cpp' directory to exclude it from Godot's asset scanning.", file=f)
+                pass
+            print(f"Notice: Created {gdignore_path} in 'cpp' directory to exclude it from Godot's asset scanning.")
     
+        # Create .gitignore in project/cpp/ if it doesn't exist, or ensure it contains bin/
+        gitignore_path = os.path.join(cpp_dir, ".gitignore")
+        if not os.path.exists(gitignore_path):
+            with open(gitignore_path, "w") as f:
+                f.write("bin/\n")
+            print(f"Notice: Created {gitignore_path} with 'bin/' to exclude build artifacts from git.")
+        else:
+            with open(gitignore_path, "r+") as f:
+                content = f.read()
+                if "bin/" not in [line.strip() for line in content.splitlines()]:
+                    if content and not content.endswith("\n"):
+                        f.write("\n")
+                    f.write("bin/\n")
+                    print(f"Notice: Added 'bin/' to {gitignore_path}.")
+        
+
     return project_directory
