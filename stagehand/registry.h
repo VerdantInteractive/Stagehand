@@ -13,17 +13,85 @@
 namespace stagehand {
 
     /// Callback function type for registering components and systems with the Flecs world.
-    using RegistrationCallback = void (*)(flecs::world&);
+    using RegistrationCallback = std::function<void(flecs::world&)>;
 
     /// Call all registered callbacks to configure the ECS world.
     /// @param world The Flecs world to configure.
     void register_components_and_systems_with_world(flecs::world& world);
+
+    /// Register a callback to be called during world initialization.
+    /// @param callback The callback to register.
+    void register_callback(RegistrationCallback callback);
 
     /// Helper struct for static auto-registration from translation units.
     /// Instantiating this struct with a callback will register it to be called during world initialization.
     struct Registry
     {
         explicit Registry(RegistrationCallback callback);
+    };
+
+    /// Template class for component registration with method chaining support.
+    /// Used by component definition macros to allow chaining modifiers, e.g.:
+    ///     INT16(Foo).add(flecs::CanToggle);
+    template <typename T>
+    class ComponentRegistrar {
+    public:
+        explicit ComponentRegistrar(RegistrationCallback base_callback) {
+            register_callback(std::move(base_callback));
+        }
+
+        /// Chain an arbitrary callable that receives the component entity.
+        /// @param f A callable taking flecs::component<T>.
+        template <typename F>
+        ComponentRegistrar& then(F&& f) {
+            register_callback([f = std::forward<F>(f)](flecs::world& world) {
+                f(world.component<T>());
+            });
+            return *this;
+        }
+
+        /// Add a component, tag, or trait by entity id.
+        ComponentRegistrar& add(flecs::id_t id) {
+            register_callback([id](flecs::world& world) {
+                world.component<T>().add(id);
+            });
+            return *this;
+        }
+
+        /// Add a pair relationship by entity ids.
+        ComponentRegistrar& add(flecs::entity_t first, flecs::entity_t second) {
+            register_callback([first, second](flecs::world& world) {
+                world.component<T>().add(first, second);
+            });
+            return *this;
+        }
+
+        /// Add a component or tag by type.
+        template <typename U>
+        ComponentRegistrar& add() {
+            register_callback([](flecs::world& world) {
+                world.component<T>().template add<U>();
+            });
+            return *this;
+        }
+
+        /// Add a pair relationship by types.
+        template <typename First, typename Second>
+        ComponentRegistrar& add() {
+            register_callback([](flecs::world& world) {
+                world.component<T>().template add<First, Second>();
+            });
+            return *this;
+        }
+
+        /// Set a value on the component entity.
+        template <typename U>
+        ComponentRegistrar& set(const U& value) {
+            register_callback([value](flecs::world& world) {
+                world.component<T>().template set<U>(value);
+            });
+            return *this;
+        }
     };
 
     /// Function type for retrieving a component value as a Godot Variant.

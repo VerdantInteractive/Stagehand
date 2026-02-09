@@ -22,7 +22,7 @@ using std::uint32_t;
         operator float() const { return value; } \
         Name& operator=(float v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_float([](flecs::world& world) { \
+    inline auto register_##Name##_float = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<float>("value"); \
         stagehand::register_component_getter<Name, float>(#Name); \
         stagehand::register_component_setter<Name, float>(#Name); \
@@ -39,7 +39,7 @@ using std::uint32_t;
         operator double() const { return value; } \
         Name& operator=(double v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_double([](flecs::world& world) { \
+    inline auto register_##Name##_double = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<double>("value"); \
         stagehand::register_component_getter<Name, double>(#Name); \
         stagehand::register_component_setter<Name, double>(#Name); \
@@ -56,7 +56,7 @@ using std::uint32_t;
         operator int32_t() const { return value; } \
         Name& operator=(int32_t v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_int32([](flecs::world& world) { \
+    inline auto register_##Name##_int32 = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<int32_t>("value"); \
         stagehand::register_component_getter<Name, int32_t>(#Name); \
         stagehand::register_component_setter<Name, int32_t>(#Name); \
@@ -73,7 +73,7 @@ using std::uint32_t;
         operator uint32_t() const { return value; } \
         Name& operator=(uint32_t v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_uint32([](flecs::world& world) { \
+    inline auto register_##Name##_uint32 = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<uint32_t>("value"); \
         stagehand::register_component_getter<Name, uint32_t>(#Name); \
         stagehand::register_component_setter<Name, uint32_t>(#Name); \
@@ -90,7 +90,7 @@ using std::uint32_t;
         operator int16_t() const { return value; } \
         Name& operator=(int16_t v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_int16([](flecs::world& world) { \
+    inline auto register_##Name##_int16 = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<int16_t>("value"); \
         stagehand::register_component_getter<Name, int16_t>(#Name); \
         stagehand::register_component_setter<Name, int16_t>(#Name); \
@@ -107,7 +107,7 @@ using std::uint32_t;
         operator uint16_t() const { return value; } \
         Name& operator=(uint16_t v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_uint16([](flecs::world& world) { \
+    inline auto register_##Name##_uint16 = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<uint16_t>("value"); \
         stagehand::register_component_getter<Name, uint16_t>(#Name); \
         stagehand::register_component_setter<Name, uint16_t>(#Name); \
@@ -124,7 +124,7 @@ using std::uint32_t;
         operator int8_t() const { return value; } \
         Name& operator=(int8_t v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_int8([](flecs::world& world) { \
+    inline auto register_##Name##_int8 = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<int8_t>("value"); \
         stagehand::register_component_getter<Name, int8_t>(#Name); \
         stagehand::register_component_setter<Name, int8_t>(#Name); \
@@ -141,7 +141,7 @@ using std::uint32_t;
         operator uint8_t() const { return value; } \
         Name& operator=(uint8_t v) { value = v; return *this; } \
     }; \
-    inline stagehand::Registry register_##Name##_uint8([](flecs::world& world) { \
+    inline auto register_##Name##_uint8 = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<uint8_t>("value"); \
         stagehand::register_component_getter<Name, uint8_t>(#Name); \
         stagehand::register_component_setter<Name, uint8_t>(#Name); \
@@ -164,7 +164,7 @@ using std::uint32_t;
         bool operator!=(const Name& other) const { return ptr != other.ptr; } \
         explicit operator bool() const { return ptr != nullptr; } \
     }; \
-    inline stagehand::Registry register_##Name##_pointer([](flecs::world& world) { \
+    inline auto register_##Name##_pointer = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<std::uintptr_t>("ptr"); \
         stagehand::register_component_getter<Name, std::uintptr_t>(#Name); \
         stagehand::register_component_setter<Name, std::uintptr_t>(#Name); \
@@ -174,6 +174,6 @@ using std::uint32_t;
 /// Macro that defines a tag component (empty struct).
 #define TAG(Name) \
     struct Name {}; \
-    inline stagehand::Registry register_##Name##_tag([](flecs::world& world) { \
+    inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>(); \
     })

@@ -23,8 +23,13 @@ namespace stagehand {
 
     Registry::Registry(RegistrationCallback callback)
     {
+        register_callback(std::move(callback));
+    }
+
+    void register_callback(RegistrationCallback callback)
+    {
         std::lock_guard<std::mutex> lock(get_mutex());
-        get_callbacks().push_back(callback);
+        get_callbacks().push_back(std::move(callback));
     }
 
     void register_components_and_systems_with_world(flecs::world& world)

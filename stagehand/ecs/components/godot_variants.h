@@ -171,7 +171,7 @@ void register_projection_members(flecs::component<T> c) {
             return *this; \
         } \
     }; \
-    inline stagehand::Registry register_##Name##_variant([](flecs::world& world) { \
+    inline auto register_##Name##_variant = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         register_godot_members(world.component<Name>(), static_cast<Base*>(nullptr)); \
         stagehand::register_component_getter<Name, Base>(#Name); \
         stagehand::register_component_setter<Name, Base>(#Name); \
