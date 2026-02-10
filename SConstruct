@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import os, sys
-from SCons.Script import ARGUMENTS
+from SCons.Script import ARGUMENTS, SConscript
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 from submodule_check import check_and_init_submodules
@@ -22,38 +22,15 @@ CPP_STANDARD = "c++23"
 # - LINKFLAGS are for linking flags
 
 # Default to LLVM toolchain on Windows
-if sys.platform.startswith("win"):
-    if "use_llvm" not in ARGUMENTS:
-        ARGUMENTS["use_llvm"] = "yes"
+if sys.platform.startswith("win") and "use_llvm" not in ARGUMENTS:
+    ARGUMENTS["use_llvm"] = "yes"
+
+# Only build for x86_64 on macOS
+if sys.platform == "darwin" and "arch" not in ARGUMENTS:
+    ARGUMENTS["arch"] = "x86_64"
+
 
 env = SConscript("dependencies/godot-cpp/SConstruct")
-
-# Apply macOS-specific build arguments automatically
-if env["platform"] == "macos":
-    if sys.platform == "darwin":
-        if "arch" not in ARGUMENTS: ARGUMENTS["arch"] = "x86_64"
-        if "use_llvm" not in ARGUMENTS: ARGUMENTS["use_llvm"] = "no"
-        if "CC" not in ARGUMENTS:
-            ARGUMENTS["CC"] = "gcc-15"
-            env["CC"] = "gcc-15"
-        if "CXX" not in ARGUMENTS:
-            ARGUMENTS["CXX"] = "g++-15"
-            env["CXX"] = "g++-15"
-
-    # GCC on macOS does not support -arch flags, which godot-cpp adds by default.
-    if "gcc" in os.path.basename(str(env["CC"])):
-        for var in ["CCFLAGS", "LINKFLAGS"]:
-            new_flags = []
-            skip = False
-            for flag in env[var]:
-                if skip:
-                    skip = False
-                    continue
-                if flag == "-arch":
-                    skip = True
-                    continue
-                new_flags.append(flag)
-            env[var] = new_flags
 
 # Optimize for modern CPUs, including BMI2 instructions for the heightmap
 if env["arch"] == "x86_64":
