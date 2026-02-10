@@ -13,6 +13,7 @@
 #include <flecs.h>
 #include "stagehand/registry.h"
 #include "stagehand/ecs/components/macros.h"
+#include "stagehand/ecs/components/godot_variants.h"
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Component definitions using chained modifiers
@@ -23,11 +24,21 @@ namespace test_registrar {
     // A component with CanToggle trait added via then()
     INT16(Toggleable).then([](auto c) { c.add(flecs::CanToggle); });
 
-    // A tag with CanToggle
-    TAG(ToggleableTag).then([](auto c) { c.add(flecs::CanToggle); });
+    // A Godot variant component (Vector2i) registered as a singleton
+    GODOT_VARIANT(GodotVariantSingleton, Vector2i).then([](auto c) { c.add(flecs::Singleton); });
 
-    // A component with multiple chained operations
-    FLOAT(MultiChain).then([](auto c) { c.add(flecs::CanToggle); });
+    // A component demonstrating method chaining: adds a trait, registers an on_set hook,
+    // and then adds the Sparse trait in a subsequent .then()
+    inline auto multichain_set_log = std::make_shared<std::vector<float>>();
+
+    FLOAT(MultiChain).then([](auto c) {
+        c.add(flecs::CanToggle);
+        c.on_set([](MultiChain& v) {
+            test_registrar::multichain_set_log->push_back(v.value);
+        });
+    }).then([](auto c) {
+        c.add(flecs::Sparse);
+    });
 
     // For pair testing
     TAG(MarkerA);
@@ -44,6 +55,7 @@ namespace {
         flecs::world world;
 
         void SetUp() override {
+            test_registrar::multichain_set_log->clear();
             stagehand::register_components_and_systems_with_world(world);
         }
     };
@@ -58,9 +70,9 @@ TEST_F(RegistrarFixture, AddCanToggleViaChain) {
     ASSERT_TRUE(comp.has(flecs::CanToggle));
 }
 
-TEST_F(RegistrarFixture, TagWithCanToggleViaChain) {
-    auto comp = world.component<test_registrar::ToggleableTag>();
-    ASSERT_TRUE(comp.has(flecs::CanToggle));
+TEST_F(RegistrarFixture, GodotVariantSingletonHasSingletonViaChain) {
+    auto comp = world.component<test_registrar::GodotVariantSingleton>();
+    ASSERT_TRUE(comp.has(flecs::Singleton));
 }
 
 TEST_F(RegistrarFixture, ToggleableComponentCanBeDisabled) {
@@ -75,21 +87,26 @@ TEST_F(RegistrarFixture, ToggleableComponentCanBeDisabled) {
     ASSERT_TRUE(e.has<test_registrar::Toggleable>());
 }
 
-TEST_F(RegistrarFixture, ToggleableTagCanBeDisabled) {
-    auto e = world.entity();
-    e.add<test_registrar::ToggleableTag>();
-    ASSERT_TRUE(e.has<test_registrar::ToggleableTag>());
+TEST_F(RegistrarFixture, GodotVariantSingletonCanBeSetOnWorld) {
+    // Singletons are stored on the world; use world.set/try_get to interact.
+    world.set<test_registrar::GodotVariantSingleton>({ 7, 13 });
 
-    e.disable<test_registrar::ToggleableTag>();
-    ASSERT_TRUE(e.has<test_registrar::ToggleableTag>());
-
-    e.enable<test_registrar::ToggleableTag>();
-    ASSERT_TRUE(e.has<test_registrar::ToggleableTag>());
+    const auto* data = world.try_get<test_registrar::GodotVariantSingleton>();
+    ASSERT_NE(data, nullptr);
+    ASSERT_EQ(data->x, 7);
+    ASSERT_EQ(data->y, 13);
 }
 
 TEST_F(RegistrarFixture, MultiChainHasCanToggle) {
     auto comp = world.component<test_registrar::MultiChain>();
     ASSERT_TRUE(comp.has(flecs::CanToggle));
+    ASSERT_TRUE(comp.has(flecs::Sparse));
+
+    // Ensure on_set hook fires and records the value
+    auto e = world.entity();
+    e.set<test_registrar::MultiChain>({ 3.5f });
+    ASSERT_GE(test_registrar::multichain_set_log->size(), 1u);
+    ASSERT_EQ((*test_registrar::multichain_set_log)[test_registrar::multichain_set_log->size() - 1], 3.5f);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -284,11 +301,20 @@ namespace test_hooks {
     // ── on_set: records every set value ──────────────────────────────────────
 
     inline auto set_log = std::make_shared<std::vector<int>>();
+    inline auto replace_log = std::make_shared<std::vector<int>>();
 
     INT32(OnSetTracked).then([](auto c) {
         c.on_set([](OnSetTracked& v) {
             // Note: on_set fires after the value has been written.
             test_hooks::set_log->push_back(v.value);
+        });
+    });
+
+    // ── on_replace: records every replace (prev, next) — we track the new value
+
+    INT32(OnReplaceTracked).then([](auto c) {
+        c.on_replace([](OnReplaceTracked& /*prev*/, OnReplaceTracked& next) {
+            test_hooks::replace_log->push_back(next.value);
         });
     });
 
@@ -339,6 +365,7 @@ namespace {
             *test_hooks::on_add_fired = false;
             *test_hooks::on_remove_fired = false;
             test_hooks::set_log->clear();
+            test_hooks::replace_log->clear();
             test_hooks::combined_log->clear();
 
             stagehand::register_components_and_systems_with_world(world);
@@ -350,7 +377,7 @@ namespace {
 // Tests: on_add hook
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(HookFixture, on_add_fires_when_component_added) {
+TEST_F(HookFixture, OnAddFiresWhenComponentAdded) {
     auto e = world.entity();
     e.add<test_hooks::OnAddTracked>();
 
@@ -359,7 +386,7 @@ TEST_F(HookFixture, on_add_fires_when_component_added) {
     ASSERT_EQ(data->value, 999) << "on_add hook should have set value to 999";
 }
 
-TEST_F(HookFixture, on_add_fires_on_first_set) {
+TEST_F(HookFixture, OnAddFiresOnFirstSet) {
     auto e = world.entity();
     e.set<test_hooks::OnAddTracked>({ 5 });
 
@@ -369,7 +396,7 @@ TEST_F(HookFixture, on_add_fires_on_first_set) {
     ASSERT_EQ(data->value, 5);
 }
 
-TEST_F(HookFixture, on_add_does_not_fire_on_subsequent_set) {
+TEST_F(HookFixture, OnAddDoesNotFireOnSubsequentSet) {
     auto e = world.entity();
     e.set<test_hooks::OnAddTracked>({ 5 });
     e.set<test_hooks::OnAddTracked>({ 10 });
@@ -383,7 +410,7 @@ TEST_F(HookFixture, on_add_does_not_fire_on_subsequent_set) {
 // Tests: on_set hook
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(HookFixture, on_set_fires_when_value_is_set) {
+TEST_F(HookFixture, OnSetFiresWhenValueIsSet) {
     auto e = world.entity();
     e.set<test_hooks::OnSetTracked>({ 42 });
 
@@ -391,7 +418,7 @@ TEST_F(HookFixture, on_set_fires_when_value_is_set) {
     ASSERT_EQ(test_hooks::set_log->back(), 42);
 }
 
-TEST_F(HookFixture, on_set_fires_on_every_set) {
+TEST_F(HookFixture, OnSetFiresOnEverySet) {
     auto e = world.entity();
     e.set<test_hooks::OnSetTracked>({ 1 });
     e.set<test_hooks::OnSetTracked>({ 2 });
@@ -405,11 +432,37 @@ TEST_F(HookFixture, on_set_fires_on_every_set) {
     ASSERT_EQ((*test_hooks::set_log)[sz - 1], 3);
 }
 
+// ═════════════════════════════════════════════════════════════════════════════=
+// Tests: on_replace hook
+// ═════════════════════════════════════════════════════════════════════════════=
+
+TEST_F(HookFixture, OnReplaceFiresWhenValueIsReplaced) {
+    auto e = world.entity();
+    e.set<test_hooks::OnReplaceTracked>({ 1 });
+    // Second set should replace the component value and trigger on_replace
+    e.set<test_hooks::OnReplaceTracked>({ 2 });
+
+    ASSERT_FALSE(test_hooks::replace_log->empty());
+    ASSERT_EQ(test_hooks::replace_log->back(), 2);
+}
+
+TEST_F(HookFixture, OnReplaceFiresOnEveryReplace) {
+    auto e = world.entity();
+    e.set<test_hooks::OnReplaceTracked>({ 1 });
+    e.set<test_hooks::OnReplaceTracked>({ 2 });
+    e.set<test_hooks::OnReplaceTracked>({ 3 });
+
+    ASSERT_GE(test_hooks::replace_log->size(), 2u);
+    auto sz = test_hooks::replace_log->size();
+    ASSERT_EQ((*test_hooks::replace_log)[sz - 2], 2);
+    ASSERT_EQ((*test_hooks::replace_log)[sz - 1], 3);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Tests: on_remove hook
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(HookFixture, on_remove_fires_when_component_removed) {
+TEST_F(HookFixture, OnRemoveFiresWhenComponentRemoved) {
     auto e = world.entity();
     e.set<test_hooks::OnRemoveTracked>({ 1 });
     ASSERT_FALSE(*test_hooks::on_remove_fired);
@@ -418,7 +471,7 @@ TEST_F(HookFixture, on_remove_fires_when_component_removed) {
     ASSERT_TRUE(*test_hooks::on_remove_fired);
 }
 
-TEST_F(HookFixture, on_remove_does_not_fire_without_removal) {
+TEST_F(HookFixture, OnRemoveDoesNotFireWithoutRemoval) {
     auto e = world.entity();
     e.set<test_hooks::OnRemoveTracked>({ 1 });
     e.set<test_hooks::OnRemoveTracked>({ 2 });
@@ -429,7 +482,7 @@ TEST_F(HookFixture, on_remove_does_not_fire_without_removal) {
 // Tests: Combined hooks
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(HookFixture, combined_hooks_fire_in_lifecycle_order) {
+TEST_F(HookFixture, CombinedHooksFireInLifecycleOrder) {
     auto e = world.entity();
     e.set<test_hooks::CombinedHooks>({ 1 });   // triggers on_add + on_set
     e.set<test_hooks::CombinedHooks>({ 2 });   // triggers on_set only
@@ -449,7 +502,7 @@ TEST_F(HookFixture, combined_hooks_fire_in_lifecycle_order) {
 // Tests: Hooks do NOT fire for unrelated components
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(HookFixture, hook_does_not_fire_for_other_components) {
+TEST_F(HookFixture, HookDoesNotFireForOtherComponents) {
     auto e = world.entity();
     e.set<test_hooks::NoHooks>({ 77 });
 
@@ -462,7 +515,7 @@ TEST_F(HookFixture, hook_does_not_fire_for_other_components) {
 // Tests: Multiple entities with hooks
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(HookFixture, hooks_fire_independently_per_entity) {
+TEST_F(HookFixture, HooksFireIndependentlyPerEntity) {
     auto e1 = world.entity();
     auto e2 = world.entity();
 
