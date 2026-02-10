@@ -1,4 +1,6 @@
 __pycache__/
+tests/build/
+
 
 # IDE-generated files
 **/.idea/

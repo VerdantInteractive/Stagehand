@@ -166,8 +166,8 @@ using std::uint32_t;
     }; \
     inline auto register_##Name##_pointer = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
         world.component<Name>().member<std::uintptr_t>("ptr"); \
-        stagehand::register_component_getter<Name, std::uintptr_t>(#Name); \
-        stagehand::register_component_setter<Name, std::uintptr_t>(#Name); \
+        stagehand::register_component_getter<Name, uint64_t>(#Name); \
+        stagehand::register_component_setter<Name, uint64_t>(#Name); \
     })
 
 

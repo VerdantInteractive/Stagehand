@@ -28,6 +28,7 @@ namespace stagehand {
 
     void register_callback(RegistrationCallback callback)
     {
+        if (!callback) return;
         std::lock_guard<std::mutex> lock(get_mutex());
         get_callbacks().push_back(std::move(callback));
     }

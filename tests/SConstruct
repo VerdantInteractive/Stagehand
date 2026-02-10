@@ -1,0 +1,143 @@
+#!/usr/bin/env python
+"""
+SConstruct for building Stagehand unit tests.
+
+Builds a standalone test binary using GoogleTest. Links against Flecs and the
+real godot-cpp library. No stubs — godot-cpp symbols resolve from the static
+library; engine-internal symbols are deferred at link time.
+
+Usage:
+    cd tests && scons            # Build with defaults (debug, verbose)
+    cd tests && scons release=1  # Build optimised
+    cd tests && scons -c         # Clean
+"""
+
+import os
+import sys
+import glob
+
+# ─── Configuration ───────────────────────────────────────────────────────────
+
+PROJECT_ROOT  = os.path.dirname(os.path.abspath("."))
+TESTS_DIR     = os.path.abspath(".")
+STAGEHAND_DIR = os.path.join(PROJECT_ROOT, "stagehand")
+DEPS_DIR      = os.path.join(PROJECT_ROOT, "dependencies")
+FLECS_DISTR   = os.path.join(DEPS_DIR, "flecs", "distr")
+GTEST_DIR     = os.path.join(DEPS_DIR, "googletest", "googletest")
+GODOTCPP_DIR  = os.path.join(DEPS_DIR, "godot-cpp")
+GODOTCPP_LIB  = os.path.join(GODOTCPP_DIR, "bin", "libgodot-cpp.macos.template_debug.universal.a")
+
+CXX       = ARGUMENTS.get("CXX", "g++-15")
+RELEASE   = int(ARGUMENTS.get("release", 0))
+CPP_STD   = "c++23"
+BUILD_DIR = os.path.join(TESTS_DIR, "build")
+OUTPUT    = os.path.join(BUILD_DIR, "stagehand_tests")
+
+# ─── Find sources ────────────────────────────────────────────────────────────
+
+def find_cpp_sources(base_dir, recursive=True):
+    pattern = os.path.join(base_dir, "**", "*.cpp") if recursive else os.path.join(base_dir, "*.cpp")
+    return glob.glob(pattern, recursive=recursive)
+
+# Test sources: all .cpp files in tests/ (recursive)
+test_sources = find_cpp_sources(TESTS_DIR)
+
+# Stagehand sources we need: only registry.cpp
+stagehand_sources = [
+    os.path.join(STAGEHAND_DIR, "registry.cpp"),
+]
+
+# Flecs C source
+flecs_source = os.path.join(FLECS_DISTR, "flecs.c")
+
+# GoogleTest source (gtest-all.cc compiles the entire library)
+gtest_source = os.path.join(GTEST_DIR, "src", "gtest-all.cc")
+
+all_cpp_sources = test_sources + stagehand_sources
+
+# ─── Environment ─────────────────────────────────────────────────────────────
+
+env = Environment(
+    CXX=CXX,
+    CC=CXX.replace("g++", "gcc").replace("clang++", "clang"),
+    CXXFLAGS=[
+        f"-std={CPP_STD}",
+        "-Wall",
+        "-Wextra",
+        "-Wpedantic",
+        "-Wno-unused-parameter",
+    ],
+    CFLAGS=["-std=gnu99"],
+    CPPPATH=[
+        TESTS_DIR,                                              # test headers
+        PROJECT_ROOT,                                           # stagehand/ headers
+        FLECS_DISTR,                                            # <flecs.h>
+        os.path.join(GTEST_DIR, "include"),                     # <gtest/gtest.h>
+        GTEST_DIR,                                              # gtest internal headers (for gtest-all.cc)
+        os.path.join(GODOTCPP_DIR, "include"),                  # godot-cpp public headers
+        os.path.join(GODOTCPP_DIR, "gen", "include"),           # godot-cpp generated headers + gdextension_interface.h
+    ],
+    CPPDEFINES=[
+        "FLECS_CPP_NO_AUTO_REGISTRATION",
+        "FLECS_DEBUG",
+    ],
+    OBJPREFIX="",
+)
+
+if sys.platform == "darwin":
+    # Ensure we don't pass -arch flags that GCC doesn't understand
+    for var in ["CCFLAGS", "LINKFLAGS"]:
+        if var in env:
+            new_flags = []
+            skip = False
+            for flag in env[var]:
+                if skip:
+                    skip = False
+                    continue
+                if flag == "-arch":
+                    skip = True
+                    continue
+                new_flags.append(flag)
+            env[var] = new_flags
+    # Defer engine-internal symbols that live in the Godot binary (not in godot-cpp).
+    env.Append(LINKFLAGS=["-Wl,-undefined,dynamic_lookup"])
+
+if RELEASE:
+    env.Append(CXXFLAGS=["-O2", "-DNDEBUG"])
+    env.Append(CFLAGS=["-O2", "-DNDEBUG"])
+else:
+    env.Append(CXXFLAGS=["-g", "-O0"])
+    env.Append(CFLAGS=["-g", "-O0"])
+
+# ─── Build objects ───────────────────────────────────────────────────────────
+
+# Build flecs.c as a C object
+flecs_obj = env.Object(
+    target=os.path.join(BUILD_DIR, "flecs"),
+    source=flecs_source,
+)
+
+# Build GoogleTest as a C++ object
+gtest_obj = env.Object(
+    target=os.path.join(BUILD_DIR, "gtest-all"),
+    source=gtest_source,
+)
+
+# Build C++ objects
+cpp_objs = []
+for src in all_cpp_sources:
+    rel = os.path.relpath(src, PROJECT_ROOT)
+    obj_path = os.path.join(BUILD_DIR, rel.replace(".cpp", ""))
+    cpp_objs.append(env.Object(target=obj_path, source=src))
+
+# ─── Link ────────────────────────────────────────────────────────────────────
+
+# godot-cpp static library
+godotcpp_lib = File(GODOTCPP_LIB)
+
+test_program = env.Program(
+    target=OUTPUT,
+    source=cpp_objs + flecs_obj + gtest_obj + [godotcpp_lib],
+)
+
+Default(test_program)
