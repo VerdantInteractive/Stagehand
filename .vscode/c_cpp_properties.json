@@ -14,7 +14,7 @@
             "compilerPath": "cl.exe",
             "intelliSenseMode": "windows-msvc-x64",
             "cStandard": "c99",
-            "cppStandard": "c++23"
+            "cppStandard": "c++20"
         },
         {
             "name": "Mac-GCC-15-x64",
@@ -25,7 +25,7 @@
             "compilerPath": "/usr/local/bin/g++-15",
             "intelliSenseMode": "macos-gcc-x64",
             "cStandard": "c99",
-            "cppStandard": "c++23"
+            "cppStandard": "c++20"
         },
         {
             "name": "Linux-GCC-x64",
@@ -36,7 +36,7 @@
             "compilerPath": "g++",
             "intelliSenseMode": "linux-gcc-x64",
             "cStandard": "c99",
-            "cppStandard": "c++23"
+            "cppStandard": "c++20"
         }
     ],
     "version": 4

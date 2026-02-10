@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 
+CPP_STANDARD = "c++20"
+
 import os, sys
-import glob
 from SCons.Script import ARGUMENTS, SConscript, Alias, Default
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
@@ -9,11 +10,9 @@ from submodule_check import check_and_init_submodules
 from godot_project import check_and_setup_project_file_structure
 
 check_and_init_submodules()
+
+# The 'Project' refers to the Godot project, which will have its own set of C++ sources that utilize Stagehand
 PROJECT_DIRECTORY = check_and_setup_project_file_structure("../../")
-
-CPP_STANDARD = "c++23"
-
-# Build configuration
 
 # Default to LLVM toolchain on Windows
 if sys.platform.startswith("win") and "use_llvm" not in ARGUMENTS:
@@ -23,9 +22,7 @@ if sys.platform.startswith("win") and "use_llvm" not in ARGUMENTS:
 if sys.platform == "darwin" and "arch" not in ARGUMENTS:
     ARGUMENTS["arch"] = "x86_64"
 
-
 env = SConscript("dependencies/godot-cpp/SConstruct")
-env["CPP_STANDARD"] = CPP_STANDARD
 
 # Shared build directory for object files
 BUILD_DIR = "build/obj"
@@ -127,7 +124,7 @@ if env["target"] != "template_debug":
 cxx_flags = []
 if env["platform"] == "windows":
     if env.get("is_msvc", False):
-        cxx_flags=[f"/std:c++latest"] # MSVC does not have a c++23 mode yet
+        cxx_flags=[f"/std:{CPP_STANDARD}"]
         project_env.Append(LIBS=["Ws2_32", "Dbghelp"])
     else: # mingw32
         cxx_flags=[f"-std={CPP_STANDARD}"]
@@ -198,7 +195,6 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
     """Build and return the unit test program."""
     from SCons.Script import ARGUMENTS, Environment, File
 
-    cpp_std = root_env.get("CPP_STANDARD", CPP_STANDARD)
     target = root_env["target"]
 
     if tests_root is None:
@@ -207,7 +203,6 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
         tests_dir = tests_root
     tests_build_dir = os.path.join(tests_dir, "build")
     output_dir = os.path.join(tests_build_dir, "stagehand_tests")
-    stagehand_dir = os.path.join(project_root, "stagehand")
     deps_dir = os.path.join(project_root, "dependencies")
     flecs_distr = os.path.join(deps_dir, "flecs", "distr")
     gtest_dir = os.path.join(deps_dir, "googletest", "googletest")
