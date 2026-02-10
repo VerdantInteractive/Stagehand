@@ -46,13 +46,14 @@ namespace stagehand {
             {
                 if (name == "." || name == "..") { continue; }
 
-                bool is_dir = dir->current_is_dir();
-                // Avoid ambiguous operator+ overloads with godot::String by constructing the
-                // child path explicitly.
+                // Avoid ambiguous operator+ overloads with godot::String by constructing the child path explicitly.
                 godot::String child = base;
-                if (!base.ends_with("/")) { child += godot::String("/"); }
+                if (!base.ends_with("/")) {
+                    child += godot::String("/");
+                }
                 child += name;
-                if (is_dir)
+                // Recursively walk the directory, unless it's the stagehand root directory as we don't want to parse example scripts in the Flecs codebase.
+                if (dir->current_is_dir() && !dir->file_exists("stagehand.gdextension"))
                 {
                     walk(child);
                 }
