@@ -283,9 +283,8 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
             stagehand_suffix = stagehand_suffix[: -len(ext)]
             break
 
-    lib_suffix = root_env.get("LIBSUFFIX", ".a")
-
-    godot_lib_name = "libgodot-cpp" + stagehand_suffix + lib_suffix
+    # Use the suffix from the godot-cpp build environment directly to ensure consistency with how godot-cpp names its static library.
+    godot_lib_name = "libgodot-cpp" + root_env["suffix"] + root_env["LIBSUFFIX"]
     godotcpp_lib_path = os.path.join(godotcpp_dir, "bin", godot_lib_name)
 
     test_sources = find_source_files(tests_dir)
