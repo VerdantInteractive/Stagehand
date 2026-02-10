@@ -12,7 +12,7 @@
 
 #include "stagehand/world.h"
 #include "stagehand/registry.h"
-#include "stagehand/scripts_loader.h"
+#include "stagehand/script_loader.h"
 #include "stagehand/ecs/components/entity_rendering.h"
 #include "stagehand/ecs/components/singletons.h"
 #include "stagehand/ecs/systems/entity_rendering_multimesh.h"

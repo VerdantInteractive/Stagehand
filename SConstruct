@@ -9,18 +9,25 @@ sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 from submodule_check import check_and_init_submodules
 from godot_project import check_and_setup_project_file_structure
 
+# Ensure git submodules are initialized and updated before proceeding with the build
 check_and_init_submodules()
 
-# The 'Project' refers to the Godot project, which will have its own set of C++ sources that utilize Stagehand
+# Check that the Godot project file structure is set up correctly and get the project directory path
 PROJECT_DIRECTORY = check_and_setup_project_file_structure("../../")
 
-# Default to LLVM toolchain on Windows
-if sys.platform.startswith("win") and "use_llvm" not in ARGUMENTS:
-    ARGUMENTS["use_llvm"] = "yes"
+# - CCFLAGS are compilation flags shared between C and C++
+# - CFLAGS are for C-specific compilation flags
+# - CXXFLAGS are for C++-specific compilation flags
+# - CPPFLAGS are for pre-processor flags
+# - CPPPATH are to tell the pre-processor where to look for header files
+# - CPPDEFINES are for pre-processor defines
+# - LINKFLAGS are for linking flags
+
+# Default to the LLVM/Clang toolchain
+if "use_llvm" not in ARGUMENTS: ARGUMENTS["use_llvm"] = "yes"
 
 # Only build for x86_64 on macOS
-if sys.platform == "darwin" and "arch" not in ARGUMENTS:
-    ARGUMENTS["arch"] = "x86_64"
+if sys.platform == "darwin" and "arch" not in ARGUMENTS: ARGUMENTS["arch"] = "x86_64"
 
 env = SConscript("dependencies/godot-cpp/SConstruct")
 
