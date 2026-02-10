@@ -1,14 +1,11 @@
 /// Unit tests for stagehand::ComponentRegistrar — the chaining API on component macros.
 ///
 /// Tests verify:
-///   1. add(entity_id) chains traits (e.g. CanToggle).
-///   2. add<Type>() chains type-based additions.
-///   3. add(first, second) chains pair relationships.
-///   4. then() allows arbitrary callable chaining.
-///   5. Multiple chains compose correctly.
-///   6. Component hooks: on_add, on_set, on_remove via then().
-///   7. Getter/setter registration survives chaining.
-///   8. Integration with macros (FLOAT, INT16, TAG, etc.).
+///   1. then() provides general-purpose chaining via flecs::component<T>.
+///   2. Traits, tags, pairs, and hooks are applied through then().
+///   3. Multiple then() calls compose correctly.
+///   4. Getter/setter registration survives chaining.
+///   5. Integration with macros (FLOAT, INT16, TAG, etc.).
 
 #include <gtest/gtest.h>
 #include <memory>
@@ -23,14 +20,14 @@
 
 namespace test_registrar {
 
-    // A component with CanToggle trait added via add()
-    INT16(Toggleable).add(flecs::CanToggle);
+    // A component with CanToggle trait added via then()
+    INT16(Toggleable).then([](auto c) { c.add(flecs::CanToggle); });
 
     // A tag with CanToggle
-    TAG(ToggleableTag).add(flecs::CanToggle);
+    TAG(ToggleableTag).then([](auto c) { c.add(flecs::CanToggle); });
 
     // A component with multiple chained operations
-    FLOAT(MultiChain).add(flecs::CanToggle);
+    FLOAT(MultiChain).then([](auto c) { c.add(flecs::CanToggle); });
 
     // For pair testing
     TAG(MarkerA);
@@ -53,7 +50,7 @@ namespace {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Tests: then() for trait chaining
+// Tests: then() for adding traits
 // ═══════════════════════════════════════════════════════════════════════════════
 
 TEST_F(RegistrarFixture, add_can_toggle_via_chain) {
@@ -96,7 +93,7 @@ TEST_F(RegistrarFixture, multi_chain_has_can_toggle) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Tests: Programmatic ComponentRegistrar with then()
+// Tests: Programmatic ComponentRegistrar with multiple then() calls
 // ═══════════════════════════════════════════════════════════════════════════════
 
 namespace test_registrar {
@@ -108,8 +105,9 @@ namespace test_registrar {
         [](flecs::world& world) {
         world.component<ManualComponent>().member<int>("data");
     }
-    ).add(flecs::CanToggle)
-        .then([](flecs::component<ManualComponent> c) {
+    ).then([](auto c) {
+        c.add(flecs::CanToggle);
+    }).then([](auto c) {
         c.set_doc_name("ManualComponent");
     });
 }
@@ -121,7 +119,7 @@ TEST_F(RegistrarFixture, programmatic_registrar_with_then) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Tests: add<Type>() — type-based tag
+// Tests: then() — type-based tag
 // ═══════════════════════════════════════════════════════════════════════════════
 
 namespace test_registrar {
@@ -138,7 +136,7 @@ namespace test_registrar {
         [](flecs::world& world) {
         world.component<TypeTagged>().member<float>("x");
     }
-    ).add<TypeTagA>();
+    ).then([](auto c) { c.template add<TypeTagA>(); });
 }
 
 TEST_F(RegistrarFixture, add_type_adds_tag_to_component) {
@@ -147,7 +145,7 @@ TEST_F(RegistrarFixture, add_type_adds_tag_to_component) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Tests: add(first, second) — pair by entity ids
+// Tests: then() — pair by entity ids
 // ═══════════════════════════════════════════════════════════════════════════════
 
 namespace test_registrar {
@@ -164,7 +162,7 @@ namespace test_registrar {
         [](flecs::world& world) {
         world.component<PairComponent>().member<int>("val");
     }
-    ).add(flecs::OnDelete, flecs::Panic);
+    ).then([](auto c) { c.add(flecs::OnDelete, flecs::Panic); });
 }
 
 TEST_F(RegistrarFixture, add_pair_by_entity_ids) {
@@ -173,7 +171,7 @@ TEST_F(RegistrarFixture, add_pair_by_entity_ids) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Tests: add<First, Second>() — typed pair
+// Tests: then() — typed pair
 // ═══════════════════════════════════════════════════════════════════════════════
 
 namespace test_registrar {
@@ -193,7 +191,7 @@ namespace test_registrar {
         [](flecs::world& w) {
         w.component<TypedPairComponent>().member<int>("val");
     }
-    ).add<Rel, Target>();
+    ).then([](auto c) { c.template add<Rel, Target>(); });
 }
 
 TEST_F(RegistrarFixture, add_typed_pair) {

@@ -30,9 +30,11 @@ namespace stagehand {
         explicit Registry(RegistrationCallback callback);
     };
 
-    /// Template class for component registration with method chaining support.
-    /// Used by component definition macros to allow chaining modifiers, e.g.:
-    ///     INT16(Foo).add(flecs::CanToggle);
+    /// Template class for component registration with deferred chaining support.
+    /// Used by component definition macros to allow configuring the flecs::component<T>
+    /// via the general-purpose then() method, e.g.:
+    ///     FLOAT(Foo).then([](auto c) { c.on_add([](Foo& f) { f.value = 1.0f; }); });
+    ///     GODOT_VARIANT(Bar, Vector2).then([](auto c) { c.add(flecs::Singleton); });
     template <typename T>
     class ComponentRegistrar {
     public:
@@ -40,55 +42,16 @@ namespace stagehand {
             register_callback(std::move(base_callback));
         }
 
-        /// Chain an arbitrary callable that receives the component entity.
+        /// Chain an arbitrary callable that receives flecs::component<T>.
+        /// This is the single general-purpose chaining mechanism — any operation
+        /// available on flecs::component<T> can be performed inside the callable.
+        /// Multiple then() calls can be chained; each is executed in order during
+        /// world initialization.
         /// @param f A callable taking flecs::component<T>.
         template <typename F>
         ComponentRegistrar& then(F&& f) {
             register_callback([f = std::forward<F>(f)](flecs::world& world) {
                 f(world.component<T>());
-            });
-            return *this;
-        }
-
-        /// Add a component, tag, or trait by entity id.
-        ComponentRegistrar& add(flecs::id_t id) {
-            register_callback([id](flecs::world& world) {
-                world.component<T>().add(id);
-            });
-            return *this;
-        }
-
-        /// Add a pair relationship by entity ids.
-        ComponentRegistrar& add(flecs::entity_t first, flecs::entity_t second) {
-            register_callback([first, second](flecs::world& world) {
-                world.component<T>().add(first, second);
-            });
-            return *this;
-        }
-
-        /// Add a component or tag by type.
-        template <typename U>
-        ComponentRegistrar& add() {
-            register_callback([](flecs::world& world) {
-                world.component<T>().template add<U>();
-            });
-            return *this;
-        }
-
-        /// Add a pair relationship by types.
-        template <typename First, typename Second>
-        ComponentRegistrar& add() {
-            register_callback([](flecs::world& world) {
-                world.component<T>().template add<First, Second>();
-            });
-            return *this;
-        }
-
-        /// Set a value on the component entity.
-        template <typename U>
-        ComponentRegistrar& set(const U& value) {
-            register_callback([value](flecs::world& world) {
-                world.component<T>().template set<U>(value);
             });
             return *this;
         }

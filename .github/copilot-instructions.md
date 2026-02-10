@@ -4,6 +4,7 @@
 - Use explicit type names instead of `auto` unless the type names are extremely long.
 - Add code comments only when the code is not self-explanatory.
 - Don't make any git commits
+- Make sure to keep the tests up to date with code changes. If you add new features, add new tests for them. Maintain high test coverage for the project.
 
 # Validation
 - After you make modifications, run the "Build (Debug)" task to verify that the project compiles successfully, and scripts/run_unit_tests.sh to verify that all unit tests pass.
