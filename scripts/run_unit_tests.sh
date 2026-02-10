@@ -27,9 +27,9 @@ echo "  Building Stagehand unit tests..."
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 
 # Build the test binary
-cd "$TESTS_DIR"
+cd "$PROJECT_ROOT"
 
-SCONS_CMD="scons"
+SCONS_CMD="scons unit_tests"
 [[ -n "$CXX" ]]     && SCONS_CMD="$SCONS_CMD CXX=$CXX"
 [[ -n "$RELEASE" ]] && SCONS_CMD="$SCONS_CMD release=$RELEASE"
 [[ -n "$SCONS_ARGS" ]] && SCONS_CMD="$SCONS_CMD $SCONS_ARGS"
