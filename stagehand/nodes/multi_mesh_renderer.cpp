@@ -1,5 +1,3 @@
-#include <type_traits>
-#include <concepts>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/classes/multi_mesh.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
@@ -9,10 +7,6 @@
 #include "stagehand/ecs/systems/entity_rendering_multimesh.h"
 
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
-
-// Concept to constrain MultiMeshRenderer types
-template <typename T>
-concept MultiMeshRendererType = std::is_same_v<T, MultiMeshRenderer2D> || std::is_same_v<T, MultiMeshRenderer3D>;
 
 template <MultiMeshRendererType T>
 void register_multimesh_renderer(flecs::world& world, T* renderer, stagehand::entity_rendering::Renderers& renderers, int& renderer_count) {
@@ -65,7 +59,7 @@ void register_multimesh_renderer(flecs::world& world, T* renderer, stagehand::en
         it->second.visible_instance_count = multimesh->get_visible_instance_count();
         renderer_count++;
     }
-    stagehand::entity_rendering::MultiMeshRenderer* mm_renderer = &it->second;
+    stagehand::entity_rendering::MultiMeshRendererConfig* mm_renderer = &it->second;
 
     // Build a single query for all prefabs associated with this renderer.
     // This ensures that entities from different prefabs are sorted together.

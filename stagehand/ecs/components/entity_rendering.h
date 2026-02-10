@@ -21,7 +21,7 @@ namespace stagehand::entity_rendering {
         MultiMesh,
     };
 
-    struct MultiMeshRenderer
+    struct MultiMeshRendererConfig
     {
         godot::RID rid;
         std::vector<flecs::query<>> queries; // One MultiMeshInstance can render multiple prefab types. Store a list of queries (one per prefab) for each renderer.
@@ -35,9 +35,9 @@ namespace stagehand::entity_rendering {
     struct Renderers
     {
         // Map from renderer type to a map of prefab names to multimesh RIDs.
-        // Key for the inner map is a string representation of the MultiMesh RID ID (we group all prefab queries for a single MultiMesh into one MultiMeshRenderer).
-        // Use godot::RID as the inner map key so each MultiMesh RID maps directly to its MultiMeshRenderer. Ensure std::hash<godot::RID> is available below.
-        std::unordered_map<RendererType, std::unordered_map<godot::RID, MultiMeshRenderer>> renderers_by_type;
+        // Key for the inner map is a string representation of the MultiMesh RID ID (we group all prefab queries for a single MultiMesh into one MultiMeshRendererConfig).
+        // Use godot::RID as the inner map key so each MultiMesh RID maps directly to its MultiMeshRendererConfig. Ensure std::hash<godot::RID> is available below.
+        std::unordered_map<RendererType, std::unordered_map<godot::RID, MultiMeshRendererConfig>> renderers_by_type;
     };
 } // namespace stagehand::entity_rendering
 

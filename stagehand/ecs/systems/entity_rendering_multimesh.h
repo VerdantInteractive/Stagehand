@@ -40,7 +40,7 @@ namespace stagehand::entity_rendering {
 template <typename TransformType>
 void update_renderer_for_prefab(
     godot::RenderingServer* rendering_server,
-    const MultiMeshRenderer& renderer)
+    const MultiMeshRendererConfig& renderer)
 {
     size_t floats_per_instance = 0;
     if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D) {
@@ -173,7 +173,7 @@ void update_renderer_for_prefab(
 inline stagehand::Registry register_entity_rendering_multimesh_system([](flecs::world& world)
 {
     // This system iterates over all MultiMesh renderers and updates their buffers.
-    // It's designed to be efficient by using pre-built queries stored in the MultiMeshRenderer component.
+    // It's designed to be efficient by using pre-built queries stored in the MultiMeshRendererConfig component.
     stagehand::entity_rendering::EntityRenderingMultiMesh = world.system(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH)
         .kind(stagehand::OnRender)
         .run([](flecs::iter& it) {
@@ -199,7 +199,7 @@ inline stagehand::Registry register_entity_rendering_multimesh_system([](flecs::
 
         for (auto& prefab_renderer_pair : multimesh_renderers_it->second)
         {
-            const MultiMeshRenderer& renderer = prefab_renderer_pair.second;
+            const MultiMeshRendererConfig& renderer = prefab_renderer_pair.second;
 
             if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D)
             {
