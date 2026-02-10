@@ -144,13 +144,10 @@ def filter_cppdefines(cppdefines, remove_names):
         filtered.append(define)
     return filtered
 
-# godot-cpp's build configuration can inject standard debug/release defines
-# (like NDEBUG/_DEBUG/DEBUG) into the base environment. Those must not affect
-# project sources, because Flecs debug/prod configuration is controlled via
-# FLECS_DEBUG/FLECS_NDEBUG and mixing them triggers a Flecs configuration warning.
+# Flecs debug/prod configuration is controlled via FLECS_DEBUG/FLECS_NDEBUG and the NDEBUG that godot-cpp may add triggers a Flecs configuration warning.
 project_env["CPPDEFINES"] = filter_cppdefines(
     project_env.get("CPPDEFINES", []),
-    {"NDEBUG", "DEBUG", "_DEBUG", "DEBUG_ENABLED"},
+    {"NDEBUG"},
 )
 
 # Re-add NDEBUG only for non-debug templates so standard asserts are disabled in
