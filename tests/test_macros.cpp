@@ -56,44 +56,44 @@ namespace {
 // FLOAT macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_FLOAT, default_value_is_zero) {
+TEST(Macros_FLOAT, DefaultValueIsZero) {
     test_macros::TestFloat f;
     ASSERT_NEAR(f.value, 0.0f, 1e-9f);
 }
 
-TEST(Macros_FLOAT, custom_default_value) {
+TEST(Macros_FLOAT, CustomDefaultValue) {
     test_macros::TestFloatDefault f;
     ASSERT_NEAR(f.value, 3.14f, 1e-5f);
 }
 
-TEST(Macros_FLOAT, construct_from_value) {
+TEST(Macros_FLOAT, ConstructFromValue) {
     test_macros::TestFloat f(42.5f);
     ASSERT_NEAR(f.value, 42.5f, 1e-9f);
 }
 
-TEST(Macros_FLOAT, implicit_conversion_to_float) {
+TEST(Macros_FLOAT, ImplicitConversionToFloat) {
     test_macros::TestFloat f(10.0f);
     float v = f;
     ASSERT_NEAR(v, 10.0f, 1e-9f);
 }
 
-TEST(Macros_FLOAT, assignment_operator) {
+TEST(Macros_FLOAT, AssignmentOperator) {
     test_macros::TestFloat f;
     f = 99.0f;
     ASSERT_NEAR(f.value, 99.0f, 1e-9f);
 }
 
-TEST_F(MacroFixture, float_component_is_registered_in_flecs) {
+TEST_F(MacroFixture, FloatComponentIsRegisteredInFlecs) {
     auto c = world.component<test_macros::TestFloat>();
     ASSERT_TRUE(c.id() != 0);
 }
 
-TEST_F(MacroFixture, float_getter_is_registered) {
+TEST_F(MacroFixture, FloatGetterIsRegistered) {
     auto& getters = stagehand::get_component_getters();
     ASSERT_TRUE(getters.count("TestFloat") == 1);
 }
 
-TEST_F(MacroFixture, float_setter_is_registered) {
+TEST_F(MacroFixture, FloatSetterIsRegistered) {
     auto& setters = stagehand::get_component_setters();
     ASSERT_TRUE(setters.count("TestFloat") == 1);
 }
@@ -102,28 +102,28 @@ TEST_F(MacroFixture, float_setter_is_registered) {
 // DOUBLE macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_DOUBLE, default_value_is_zero) {
+TEST(Macros_DOUBLE, DefaultValueIsZero) {
     test_macros::TestDouble d;
     ASSERT_NEAR(d.value, 0.0, 1e-15);
 }
 
-TEST(Macros_DOUBLE, custom_default_value) {
+TEST(Macros_DOUBLE, CustomDefaultValue) {
     test_macros::TestDoubleDefault d;
     ASSERT_NEAR(d.value, 2.718, 1e-6);
 }
 
-TEST(Macros_DOUBLE, construct_from_value) {
+TEST(Macros_DOUBLE, ConstructFromValue) {
     test_macros::TestDouble d(1.23456789);
     ASSERT_NEAR(d.value, 1.23456789, 1e-15);
 }
 
-TEST(Macros_DOUBLE, implicit_conversion) {
+TEST(Macros_DOUBLE, ImplicitConversion) {
     test_macros::TestDouble d(5.5);
     double v = d;
     ASSERT_NEAR(v, 5.5, 1e-15);
 }
 
-TEST(Macros_DOUBLE, assignment_operator) {
+TEST(Macros_DOUBLE, AssignmentOperator) {
     test_macros::TestDouble d;
     d = 77.7;
     ASSERT_NEAR(d.value, 77.7, 1e-10);
@@ -133,34 +133,34 @@ TEST(Macros_DOUBLE, assignment_operator) {
 // INT32 macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_INT32, default_value_is_zero) {
+TEST(Macros_INT32, DefaultValueIsZero) {
     test_macros::TestInt32 i;
     ASSERT_EQ(i.value, 0);
 }
 
-TEST(Macros_INT32, custom_default_value) {
+TEST(Macros_INT32, CustomDefaultValue) {
     test_macros::TestInt32Default i;
     ASSERT_EQ(i.value, 42);
 }
 
-TEST(Macros_INT32, construct_from_value) {
+TEST(Macros_INT32, ConstructFromValue) {
     test_macros::TestInt32 i(-12345);
     ASSERT_EQ(i.value, -12345);
 }
 
-TEST(Macros_INT32, implicit_conversion) {
+TEST(Macros_INT32, ImplicitConversion) {
     test_macros::TestInt32 i(100);
     int32_t v = i;
     ASSERT_EQ(v, 100);
 }
 
-TEST(Macros_INT32, assignment_operator) {
+TEST(Macros_INT32, AssignmentOperator) {
     test_macros::TestInt32 i;
     i = 999;
     ASSERT_EQ(i.value, 999);
 }
 
-TEST(Macros_INT32, mutable_reference_conversion) {
+TEST(Macros_INT32, MutableReferenceConversion) {
     test_macros::TestInt32 i(5);
     int32_t& ref = i;
     ref = 10;
@@ -171,17 +171,17 @@ TEST(Macros_INT32, mutable_reference_conversion) {
 // UINT32 macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_UINT32, default_value_is_zero) {
+TEST(Macros_UINT32, DefaultValueIsZero) {
     test_macros::TestUint32 u;
     ASSERT_EQ(u.value, 0u);
 }
 
-TEST(Macros_UINT32, custom_default_value) {
+TEST(Macros_UINT32, CustomDefaultValue) {
     test_macros::TestUint32Default u;
     ASSERT_EQ(u.value, 100u);
 }
 
-TEST(Macros_UINT32, construct_and_convert) {
+TEST(Macros_UINT32, ConstructAndConvert) {
     test_macros::TestUint32 u(0xDEADBEEF);
     uint32_t v = u;
     ASSERT_EQ(v, 0xDEADBEEF);
@@ -191,23 +191,23 @@ TEST(Macros_UINT32, construct_and_convert) {
 // INT16 macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_INT16, default_value_is_zero) {
+TEST(Macros_INT16, DefaultValueIsZero) {
     test_macros::TestInt16 i;
     ASSERT_EQ(i.value, 0);
 }
 
-TEST(Macros_INT16, custom_default_value) {
+TEST(Macros_INT16, CustomDefaultValue) {
     test_macros::TestInt16Default i;
     ASSERT_EQ(i.value, -500);
 }
 
-TEST(Macros_INT16, construct_and_convert) {
+TEST(Macros_INT16, ConstructAndConvert) {
     test_macros::TestInt16 i(static_cast<int16_t>(-32768));
     int16_t v = i;
     ASSERT_EQ(v, -32768);
 }
 
-TEST(Macros_INT16, assignment_operator) {
+TEST(Macros_INT16, AssignmentOperator) {
     test_macros::TestInt16 i;
     i = static_cast<int16_t>(32767);
     ASSERT_EQ(i.value, 32767);
@@ -217,17 +217,17 @@ TEST(Macros_INT16, assignment_operator) {
 // UINT16 macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_UINT16, default_value_is_zero) {
+TEST(Macros_UINT16, DefaultValueIsZero) {
     test_macros::TestUint16 u;
     ASSERT_EQ(u.value, 0);
 }
 
-TEST(Macros_UINT16, custom_default_value) {
+TEST(Macros_UINT16, CustomDefaultValue) {
     test_macros::TestUint16Default u;
     ASSERT_EQ(u.value, 1000);
 }
 
-TEST(Macros_UINT16, max_value) {
+TEST(Macros_UINT16, MaxValue) {
     test_macros::TestUint16 u(static_cast<uint16_t>(65535));
     uint16_t v = u;
     ASSERT_EQ(v, 65535);
@@ -237,17 +237,17 @@ TEST(Macros_UINT16, max_value) {
 // INT8 macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_INT8, default_value_is_zero) {
+TEST(Macros_INT8, DefaultValueIsZero) {
     test_macros::TestInt8 i;
     ASSERT_EQ(i.value, 0);
 }
 
-TEST(Macros_INT8, custom_default_value) {
+TEST(Macros_INT8, CustomDefaultValue) {
     test_macros::TestInt8Default i;
     ASSERT_EQ(i.value, -1);
 }
 
-TEST(Macros_INT8, boundary_values) {
+TEST(Macros_INT8, BoundaryValues) {
     test_macros::TestInt8 imin(static_cast<int8_t>(-128));
     test_macros::TestInt8 imax(static_cast<int8_t>(127));
     ASSERT_EQ(static_cast<int8_t>(imin), -128);
@@ -258,17 +258,17 @@ TEST(Macros_INT8, boundary_values) {
 // UINT8 macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_UINT8, default_value_is_zero) {
+TEST(Macros_UINT8, DefaultValueIsZero) {
     test_macros::TestUint8 u;
     ASSERT_EQ(u.value, 0);
 }
 
-TEST(Macros_UINT8, custom_default_value) {
+TEST(Macros_UINT8, CustomDefaultValue) {
     test_macros::TestUint8Default u;
     ASSERT_EQ(u.value, 255);
 }
 
-TEST(Macros_UINT8, max_value) {
+TEST(Macros_UINT8, MaxValue) {
     test_macros::TestUint8 u(static_cast<uint8_t>(255));
     uint8_t v = u;
     ASSERT_EQ(v, 255);
@@ -278,23 +278,23 @@ TEST(Macros_UINT8, max_value) {
 // TAG macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_TAG, tag_is_empty_struct) {
+TEST(Macros_TAG, TagIsEmptyStruct) {
     // Tags should be zero-size (empty struct).
     ASSERT_EQ(sizeof(test_macros::TestTag), 1u); // C++ empty struct = 1 byte
 }
 
-TEST(Macros_TAG, tag_is_default_constructible) {
+TEST(Macros_TAG, TagIsDefaultConstructible) {
     test_macros::TestTag t{};
     (void)t;
     ASSERT_TRUE(true);
 }
 
-TEST_F(MacroFixture, tag_component_is_registered_in_flecs) {
+TEST_F(MacroFixture, TagComponentIsRegisteredInFlecs) {
     auto c = world.component<test_macros::TestTag>();
     ASSERT_TRUE(c.id() != 0);
 }
 
-TEST_F(MacroFixture, tag_can_be_added_to_entity) {
+TEST_F(MacroFixture, TagCanBeAddedToEntity) {
     auto e = world.entity().add<test_macros::TestTag>();
     ASSERT_TRUE(e.has<test_macros::TestTag>());
 }
@@ -303,13 +303,13 @@ TEST_F(MacroFixture, tag_can_be_added_to_entity) {
 // POINTER macro tests
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST(Macros_POINTER, default_is_nullptr) {
+TEST(Macros_POINTER, DefaultIsNullptr) {
     test_macros::TestPointer p;
     ASSERT_TRUE(p.ptr == nullptr);
     ASSERT_FALSE(static_cast<bool>(p));
 }
 
-TEST(Macros_POINTER, construct_from_raw_pointer) {
+TEST(Macros_POINTER, ConstructFromRawPointer) {
     test_macros::DummyTarget target;
     target.x = 42;
     test_macros::TestPointer p(&target);
@@ -318,35 +318,35 @@ TEST(Macros_POINTER, construct_from_raw_pointer) {
     ASSERT_EQ(p->x, 42);
 }
 
-TEST(Macros_POINTER, construct_from_uintptr) {
+TEST(Macros_POINTER, ConstructFromUintptr) {
     test_macros::DummyTarget target;
     auto addr = reinterpret_cast<std::uintptr_t>(&target);
     test_macros::TestPointer p(addr);
     ASSERT_TRUE(p.ptr == &target);
 }
 
-TEST(Macros_POINTER, arrow_operator) {
+TEST(Macros_POINTER, ArrowOperator) {
     test_macros::DummyTarget target;
     target.x = 99;
     test_macros::TestPointer p(&target);
     ASSERT_EQ(p->x, 99);
 }
 
-TEST(Macros_POINTER, equality_operators) {
+TEST(Macros_POINTER, EqualityOperators) {
     test_macros::DummyTarget a, b;
     test_macros::TestPointer pa(&a), pb(&b), pa2(&a);
     ASSERT_TRUE(pa == pa2);
     ASSERT_TRUE(pa != pb);
 }
 
-TEST(Macros_POINTER, assignment_operator) {
+TEST(Macros_POINTER, AssignmentOperator) {
     test_macros::DummyTarget target;
     test_macros::TestPointer p;
     p = &target;
     ASSERT_TRUE(p.ptr == &target);
 }
 
-TEST(Macros_POINTER, uintptr_conversion) {
+TEST(Macros_POINTER, UintptrConversion) {
     test_macros::DummyTarget target;
     test_macros::TestPointer p(&target);
     std::uintptr_t addr = static_cast<std::uintptr_t>(p);
@@ -357,7 +357,7 @@ TEST(Macros_POINTER, uintptr_conversion) {
 // Flecs integration: components added to entities
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(MacroFixture, int32_component_on_entity_roundtrip) {
+TEST_F(MacroFixture, Int32ComponentOnEntityRoundtrip) {
     auto e = world.entity();
     e.set<test_macros::TestInt32>({ 77 });
     const auto* data = e.try_get<test_macros::TestInt32>();
@@ -365,7 +365,7 @@ TEST_F(MacroFixture, int32_component_on_entity_roundtrip) {
     ASSERT_EQ(data->value, 77);
 }
 
-TEST_F(MacroFixture, float_component_on_entity_roundtrip) {
+TEST_F(MacroFixture, FloatComponentOnEntityRoundtrip) {
     auto e = world.entity();
     e.set<test_macros::TestFloat>({ 1.5f });
     const auto* data = e.try_get<test_macros::TestFloat>();
@@ -373,7 +373,7 @@ TEST_F(MacroFixture, float_component_on_entity_roundtrip) {
     ASSERT_NEAR(data->value, 1.5f, 1e-9f);
 }
 
-TEST_F(MacroFixture, double_component_on_entity_roundtrip) {
+TEST_F(MacroFixture, DoubleComponentOnEntityRoundtrip) {
     auto e = world.entity();
     e.set<test_macros::TestDouble>({ 9.99 });
     const auto* data = e.try_get<test_macros::TestDouble>();
@@ -381,7 +381,7 @@ TEST_F(MacroFixture, double_component_on_entity_roundtrip) {
     ASSERT_NEAR(data->value, 9.99, 1e-12);
 }
 
-TEST_F(MacroFixture, uint8_component_on_entity_roundtrip) {
+TEST_F(MacroFixture, Uint8ComponentOnEntityRoundtrip) {
     auto e = world.entity();
     e.set<test_macros::TestUint8>({ 200 });
     const auto* data = e.try_get<test_macros::TestUint8>();
@@ -389,7 +389,7 @@ TEST_F(MacroFixture, uint8_component_on_entity_roundtrip) {
     ASSERT_EQ(data->value, 200);
 }
 
-TEST_F(MacroFixture, pointer_component_on_entity_roundtrip) {
+TEST_F(MacroFixture, PointerComponentOnEntityRoundtrip) {
     test_macros::DummyTarget target;
     target.x = 123;
 
@@ -401,7 +401,7 @@ TEST_F(MacroFixture, pointer_component_on_entity_roundtrip) {
     ASSERT_EQ(data->ptr->x, 123);
 }
 
-TEST_F(MacroFixture, multiple_components_on_same_entity) {
+TEST_F(MacroFixture, MultipleComponentsOnSameEntity) {
     auto e = world.entity();
     e.set<test_macros::TestInt32>({ 10 });
     e.set<test_macros::TestFloat>({ 20.0f });

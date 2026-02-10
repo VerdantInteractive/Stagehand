@@ -41,18 +41,18 @@ namespace {
 // Tests: Registration pipeline
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(RegistryFixture, callbacks_register_macro_defined_components) {
+TEST_F(RegistryFixture, CallbacksRegisterMacroDefinedComponents) {
     // The macro-defined components should exist in the world after registration.
     auto c = world.component<test_registry::RegistryProbe>();
     ASSERT_NE(c.id(), 0u);
 }
 
-TEST_F(RegistryFixture, callbacks_register_tags) {
+TEST_F(RegistryFixture, CallbacksRegisterTags) {
     auto c = world.component<test_registry::RegistryTag>();
     ASSERT_NE(c.id(), 0u);
 }
 
-TEST_F(RegistryFixture, callback_is_invoked_on_world_init) {
+TEST_F(RegistryFixture, CallbackIsInvokedOnWorldInit) {
     // Register a new callback and verify it runs on a fresh world.
     auto was_called = std::make_shared<bool>(false);
     stagehand::register_callback([was_called](flecs::world&) {
@@ -64,7 +64,7 @@ TEST_F(RegistryFixture, callback_is_invoked_on_world_init) {
     ASSERT_TRUE(*was_called);
 }
 
-TEST_F(RegistryFixture, multiple_callbacks_preserve_relative_order) {
+TEST_F(RegistryFixture, MultipleCallbacksPreserveRelativeOrder) {
     auto order = std::make_shared<std::vector<int>>();
     stagehand::register_callback([order](flecs::world&) { order->push_back(1); });
     stagehand::register_callback([order](flecs::world&) { order->push_back(2); });
@@ -83,7 +83,7 @@ TEST_F(RegistryFixture, multiple_callbacks_preserve_relative_order) {
     }
 }
 
-TEST_F(RegistryFixture, struct_constructor_registers_callback) {
+TEST_F(RegistryFixture, StructConstructorRegistersCallback) {
     auto was_called = std::make_shared<bool>(false);
     stagehand::Registry reg([was_called](flecs::world&) {
         *was_called = true;
@@ -94,14 +94,14 @@ TEST_F(RegistryFixture, struct_constructor_registers_callback) {
     ASSERT_TRUE(*was_called);
 }
 
-TEST_F(RegistryFixture, null_callbacks_are_safely_ignored) {
+TEST_F(RegistryFixture, NullCallbacksAreSafelyIgnored) {
     stagehand::register_callback(nullptr);
     // If nullptr were not guarded, the next registration call would crash.
     flecs::world w2;
     ASSERT_NO_THROW(stagehand::register_components_and_systems_with_world(w2));
 }
 
-TEST_F(RegistryFixture, callbacks_run_with_correct_world) {
+TEST_F(RegistryFixture, CallbacksRunWithCorrectWorld) {
     auto captured = std::make_shared<flecs::world*>(nullptr);
     stagehand::register_callback([captured](flecs::world& w) {
         *captured = &w;
@@ -112,7 +112,7 @@ TEST_F(RegistryFixture, callbacks_run_with_correct_world) {
     ASSERT_EQ(*captured, &w2);
 }
 
-TEST_F(RegistryFixture, registration_is_idempotent_across_worlds) {
+TEST_F(RegistryFixture, RegistrationIsIdempotentAcrossWorlds) {
     // Calling registration on multiple worlds should work without conflict.
     flecs::world w2;
     ASSERT_NO_THROW(stagehand::register_components_and_systems_with_world(w2));
@@ -127,26 +127,26 @@ TEST_F(RegistryFixture, registration_is_idempotent_across_worlds) {
 // Tests: Component getter/setter map infrastructure
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(RegistryFixture, getter_map_returns_same_instance) {
+TEST_F(RegistryFixture, GetterMapReturnsSameInstance) {
     auto& a = stagehand::get_component_getters();
     auto& b = stagehand::get_component_getters();
     ASSERT_EQ(&a, &b);
 }
 
-TEST_F(RegistryFixture, setter_map_returns_same_instance) {
+TEST_F(RegistryFixture, SetterMapReturnsSameInstance) {
     auto& a = stagehand::get_component_setters();
     auto& b = stagehand::get_component_setters();
     ASSERT_EQ(&a, &b);
 }
 
-TEST_F(RegistryFixture, getter_map_is_populated_after_registration) {
+TEST_F(RegistryFixture, GetterMapIsPopulatedAfterRegistration) {
     auto& getters = stagehand::get_component_getters();
     // At least the macro-defined RegistryProbe should be registered.
     ASSERT_GE(getters.size(), 1u);
     ASSERT_EQ(getters.count("RegistryProbe"), 1u);
 }
 
-TEST_F(RegistryFixture, setter_map_is_populated_after_registration) {
+TEST_F(RegistryFixture, SetterMapIsPopulatedAfterRegistration) {
     auto& setters = stagehand::get_component_setters();
     ASSERT_GE(setters.size(), 1u);
     ASSERT_EQ(setters.count("RegistryProbe"), 1u);
@@ -162,7 +162,7 @@ namespace {
     };
 }
 
-TEST_F(RegistryFixture, callback_can_register_component) {
+TEST_F(RegistryFixture, CallbackCanRegisterComponent) {
     stagehand::register_callback([](flecs::world& w) {
         w.component<AdHocComponent>().member<int>("value");
     });
@@ -174,7 +174,7 @@ TEST_F(RegistryFixture, callback_can_register_component) {
     ASSERT_NE(c.id(), 0u);
 }
 
-TEST_F(RegistryFixture, callback_can_create_entity_with_component) {
+TEST_F(RegistryFixture, CallbackCanCreateEntityWithComponent) {
     stagehand::register_callback([](flecs::world& w) {
         w.component<AdHocComponent>().member<int>("value");
         w.entity("adhoc_entity").set<AdHocComponent>({ 42 });

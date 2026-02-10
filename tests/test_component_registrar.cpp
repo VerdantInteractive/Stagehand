@@ -53,17 +53,17 @@ namespace {
 // Tests: then() for adding traits
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(RegistrarFixture, add_can_toggle_via_chain) {
+TEST_F(RegistrarFixture, AddCanToggleViaChain) {
     auto comp = world.component<test_registrar::Toggleable>();
     ASSERT_TRUE(comp.has(flecs::CanToggle));
 }
 
-TEST_F(RegistrarFixture, tag_with_can_toggle_via_chain) {
+TEST_F(RegistrarFixture, TagWithCanToggleViaChain) {
     auto comp = world.component<test_registrar::ToggleableTag>();
     ASSERT_TRUE(comp.has(flecs::CanToggle));
 }
 
-TEST_F(RegistrarFixture, toggleable_component_can_be_disabled) {
+TEST_F(RegistrarFixture, ToggleableComponentCanBeDisabled) {
     auto e = world.entity();
     e.set<test_registrar::Toggleable>({ 42 });
     ASSERT_TRUE(e.has<test_registrar::Toggleable>());
@@ -75,7 +75,7 @@ TEST_F(RegistrarFixture, toggleable_component_can_be_disabled) {
     ASSERT_TRUE(e.has<test_registrar::Toggleable>());
 }
 
-TEST_F(RegistrarFixture, toggleable_tag_can_be_disabled) {
+TEST_F(RegistrarFixture, ToggleableTagCanBeDisabled) {
     auto e = world.entity();
     e.add<test_registrar::ToggleableTag>();
     ASSERT_TRUE(e.has<test_registrar::ToggleableTag>());
@@ -87,7 +87,7 @@ TEST_F(RegistrarFixture, toggleable_tag_can_be_disabled) {
     ASSERT_TRUE(e.has<test_registrar::ToggleableTag>());
 }
 
-TEST_F(RegistrarFixture, multi_chain_has_can_toggle) {
+TEST_F(RegistrarFixture, MultiChainHasCanToggle) {
     auto comp = world.component<test_registrar::MultiChain>();
     ASSERT_TRUE(comp.has(flecs::CanToggle));
 }
@@ -112,7 +112,7 @@ namespace test_registrar {
     });
 }
 
-TEST_F(RegistrarFixture, programmatic_registrar_with_then) {
+TEST_F(RegistrarFixture, ProgrammaticRegistrarWithThen) {
     auto comp = world.component<test_registrar::ManualComponent>();
     ASSERT_NE(comp.id(), 0u);
     ASSERT_TRUE(comp.has(flecs::CanToggle));
@@ -139,7 +139,7 @@ namespace test_registrar {
     ).then([](auto c) { c.template add<TypeTagA>(); });
 }
 
-TEST_F(RegistrarFixture, add_type_adds_tag_to_component) {
+TEST_F(RegistrarFixture, AddTypeAddsTagToComponent) {
     auto comp = world.component<test_registrar::TypeTagged>();
     ASSERT_TRUE(comp.has<test_registrar::TypeTagA>());
 }
@@ -165,7 +165,7 @@ namespace test_registrar {
     ).then([](auto c) { c.add(flecs::OnDelete, flecs::Panic); });
 }
 
-TEST_F(RegistrarFixture, add_pair_by_entity_ids) {
+TEST_F(RegistrarFixture, AddPairByEntityIds) {
     auto comp = world.component<test_registrar::PairComponent>();
     ASSERT_TRUE(comp.has(flecs::OnDelete, flecs::Panic));
 }
@@ -194,7 +194,7 @@ namespace test_registrar {
     ).then([](auto c) { c.template add<Rel, Target>(); });
 }
 
-TEST_F(RegistrarFixture, add_typed_pair) {
+TEST_F(RegistrarFixture, AddTypedPair) {
     auto comp = world.component<test_registrar::TypedPairComponent>();
     bool has_pair = comp.template has<test_registrar::Rel, test_registrar::Target>();
     ASSERT_TRUE(has_pair);
@@ -220,7 +220,7 @@ namespace test_registrar {
     });
 }
 
-TEST_F(RegistrarFixture, then_composes_multiple_operations) {
+TEST_F(RegistrarFixture, ThenComposesMultipleOperations) {
     auto comp = world.component<test_registrar::ComposedComponent>();
     ASSERT_TRUE(comp.has(flecs::CanToggle));
 }
@@ -229,7 +229,7 @@ TEST_F(RegistrarFixture, then_composes_multiple_operations) {
 // Tests: Entity-level usage of chained components
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(RegistrarFixture, chained_component_still_has_getter_and_setter) {
+TEST_F(RegistrarFixture, ChainedComponentStillHasGetterAndSetter) {
     // INT16(Toggleable).add(flecs::CanToggle) should still register getters/setters.
     auto& getters = stagehand::get_component_getters();
     auto& setters = stagehand::get_component_setters();
@@ -237,7 +237,7 @@ TEST_F(RegistrarFixture, chained_component_still_has_getter_and_setter) {
     ASSERT_EQ(setters.count("Toggleable"), 1u);
 }
 
-TEST_F(RegistrarFixture, chained_component_used_on_entity) {
+TEST_F(RegistrarFixture, ChainedComponentUsedOnEntity) {
     auto e = world.entity();
     e.set<test_registrar::Toggleable>({ 100 });
 
@@ -246,7 +246,7 @@ TEST_F(RegistrarFixture, chained_component_used_on_entity) {
     ASSERT_EQ(data->value, 100);
 }
 
-TEST_F(RegistrarFixture, chained_component_query) {
+TEST_F(RegistrarFixture, ChainedComponentQuery) {
     world.entity().set<test_registrar::Toggleable>({ 1 });
     world.entity().set<test_registrar::Toggleable>({ 2 });
     world.entity().set<test_registrar::Toggleable>({ 3 });
