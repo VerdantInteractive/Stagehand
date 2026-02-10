@@ -14,7 +14,7 @@ set -e
 #
 # Environment variables:
 #     CXX              C++ compiler (default: g++-15)
-#     RELEASE          Set to 1 for optimised build
+#     TARGET           Build target (template_debug, template_release, etc.)
 #     SCONS_ARGS       Extra arguments to pass to scons
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -29,9 +29,15 @@ echo "━━━━━━━━━━━━━━━━━━━━━━━━�
 # Build the test binary
 cd "$PROJECT_ROOT"
 
-SCONS_CMD="scons unit_tests"
-[[ -n "$CXX" ]]     && SCONS_CMD="$SCONS_CMD CXX=$CXX"
-[[ -n "$RELEASE" ]] && SCONS_CMD="$SCONS_CMD release=$RELEASE"
+# Use the same build settings as the main build for consistency
+# Default to debug build if no target is specified
+if [[ -z "$TARGET" ]]; then
+    SCONS_CMD="scons unit_tests debug_symbols=yes optimize=debug"
+else
+    SCONS_CMD="scons unit_tests target=$TARGET"
+fi
+
+[[ -n "$CXX" ]]        && SCONS_CMD="$SCONS_CMD CXX=$CXX"
 [[ -n "$SCONS_ARGS" ]] && SCONS_CMD="$SCONS_CMD $SCONS_ARGS"
 
 eval "$SCONS_CMD"

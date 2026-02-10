@@ -5,9 +5,19 @@ Unit test build entry point.
 
 from SCons.Script import Default, Dir, Import, Return
 
-Import("root_env", "build_unit_tests", "project_root")
+Import("root_env", "build_unit_tests", "project_root", "build_dir", "flecs_c_obj", "stagehand_objs", "project_env", "flecs_opts", "cxx_flags")
 
-test_program = build_unit_tests(root_env, project_root, tests_root=Dir(".").srcnode().abspath)
+test_program = build_unit_tests(
+    root_env, 
+    project_root,
+    flecs_opts,
+    cxx_flags,
+    tests_root=Dir(".").srcnode().abspath,
+    build_dir=build_dir,
+    flecs_c_obj=flecs_c_obj,
+    stagehand_objs=stagehand_objs,
+    project_env=project_env,
+)
 
 top_dir = Dir("#").abspath
 tests_dir = Dir(".").srcnode().abspath

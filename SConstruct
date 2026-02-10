@@ -27,6 +27,9 @@ if sys.platform == "darwin" and "arch" not in ARGUMENTS:
 env = SConscript("dependencies/godot-cpp/SConstruct")
 env["CPP_STANDARD"] = CPP_STANDARD
 
+# Shared build directory for object files
+BUILD_DIR = "build/obj"
+
 # Optimize for modern CPUs, including BMI2 instructions for the heightmap
 if env["arch"] == "x86_64":
     if env.get("is_msvc", False):
@@ -132,7 +135,7 @@ if env["platform"] == "windows":
 
     flecs_env = project_env.Clone()
     flecs_c_obj = flecs_env.SharedObject(
-        target="flecs_c_obj",
+        target=os.path.join(BUILD_DIR, "flecs"),
         source=[flecs_c_source],
         CFLAGS=FLECS_WINDOWS_OPTS if env.get("is_msvc", False) else FLECS_UNIX_OPTS,
     )
@@ -140,16 +143,32 @@ else:
     cxx_flags=[f"-std={CPP_STANDARD}"]
     flecs_env = project_env.Clone()
     flecs_c_obj = flecs_env.SharedObject(
-        target="flecs_c_obj",
+        target=os.path.join(BUILD_DIR, "flecs"),
         source=[flecs_c_source],
         CFLAGS=FLECS_UNIX_OPTS,
     )
 
+# Build stagehand sources into shared build directory
+stagehand_objs = []
+for src in sources:
+    obj_target = os.path.join(BUILD_DIR, "stagehand", os.path.splitext(os.path.basename(src))[0])
+    stagehand_objs.extend(project_env.SharedObject(
+        target=obj_target,
+        source=src,
+        CXXFLAGS=project_env["CXXFLAGS"] + cxx_flags,
+    ))
 
-project_objs = project_env.SharedObject(
-    sources + project_cpp_sources,
-    CXXFLAGS=project_env["CXXFLAGS"] + cxx_flags,
-) + [flecs_c_obj]
+project_cpp_objs = []
+for src in project_cpp_sources:
+    rel_path = os.path.relpath(src, f"{PROJECT_DIRECTORY}/cpp")
+    obj_target = os.path.join(BUILD_DIR, "project", os.path.splitext(rel_path)[0])
+    project_cpp_objs.extend(project_env.SharedObject(
+        target=obj_target,
+        source=src,
+        CXXFLAGS=project_env["CXXFLAGS"] + cxx_flags,
+    ))
+
+project_objs = stagehand_objs + project_cpp_objs + [flecs_c_obj]
 
 if env["platform"] == "macos":
     library = project_env.SharedLibrary(
@@ -175,19 +194,19 @@ else:
         source=project_objs,
     )
 
-def build_unit_tests(root_env, project_root, tests_root=None):
+def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=None, build_dir=None, flecs_c_obj=None, stagehand_objs=None, project_env=None):
     """Build and return the unit test program."""
     from SCons.Script import ARGUMENTS, Environment, File
 
-    release_build = int(ARGUMENTS.get("release", 0))
     cpp_std = root_env.get("CPP_STANDARD", CPP_STANDARD)
+    target = root_env["target"]
 
     if tests_root is None:
         tests_dir = os.path.join(project_root, "tests")
     else:
         tests_dir = tests_root
-    build_dir = os.path.join(tests_dir, "build")
-    output_dir = os.path.join(build_dir, "stagehand_tests")
+    tests_build_dir = os.path.join(tests_dir, "build")
+    output_dir = os.path.join(tests_build_dir, "stagehand_tests")
     stagehand_dir = os.path.join(project_root, "stagehand")
     deps_dir = os.path.join(project_root, "dependencies")
     flecs_distr = os.path.join(deps_dir, "flecs", "distr")
@@ -208,7 +227,9 @@ def build_unit_tests(root_env, project_root, tests_root=None):
             else:
                 plat = sys.platform
 
-        target = "debug" if not int(ARGUMENTS.get("release", 0)) else "release"
+        # Map template_debug/template_release to debug/release for platform key
+        target_map = {"template_debug": "debug", "template_release": "release", "editor": "debug"}
+        target_key = target_map.get(target, "debug")
 
         arch = None
         try:
@@ -226,8 +247,8 @@ def build_unit_tests(root_env, project_root, tests_root=None):
             arch = None
 
         if plat in ("windows", "linux", "android") and arch is not None:
-            return f"{plat}.{target}.{arch}"
-        return f"{plat}.{target}"
+            return f"{plat}.{target_key}.{arch}"
+        return f"{plat}.{target_key}"
 
     def find_gdextension_value(key):
         gdext_path = os.path.join(project_root, "stagehand.gdextension")
@@ -266,91 +287,58 @@ def build_unit_tests(root_env, project_root, tests_root=None):
     godotcpp_lib_path = os.path.join(godotcpp_dir, "bin", godot_lib_name)
 
     test_sources = find_source_files(tests_dir)
-    stagehand_sources = [
-        os.path.join(stagehand_dir, "registry.cpp"),
-    ]
-    flecs_source = os.path.join(flecs_distr, "flecs.c")
     gtest_source = os.path.join(gtest_dir, "src", "gtest-all.cc")
-    all_cpp_sources = test_sources + stagehand_sources
 
-    is_msvc_toolchain = root_env.get("is_msvc", False)
-    if is_msvc_toolchain:
-        cxx_flags = ["/std:c++latest", "/W4", "/EHsc"]
-        c_flags = ["/TC"]
-        cc_compiler = root_env.get("CXX", root_env.get("CXXCOM", "cl"))
-        cxx_compiler = root_env.get("CXX", root_env.get("CXXCOM", "cl"))
+    # Clone the project environment to inherit all compiler settings, flags, and defines
+    test_env = project_env.Clone()
+    
+    # Add test-specific include paths (prepend so they take priority)
+    test_env.Prepend(CPPPATH=[
+        tests_dir,
+        project_root,
+        os.path.join(gtest_dir, "include"),
+        gtest_dir,
+    ])
+    
+    # Ensure Flecs and Godot headers are available (already in project_env but verify)
+    if flecs_distr not in test_env["CPPPATH"] and flecs_distr not in str(test_env.get("CPPPATH", [])):
+        test_env.Append(CPPPATH=[flecs_distr])
+    
+    # GoogleTest requires exceptions
+    is_msvc = root_env.get("is_msvc", False)
+    if is_msvc:
+        test_env.Append(CXXFLAGS=["/EHsc"])
     else:
-        cxx_flags = [f"-std={cpp_std}", "-Wall", "-Wextra", "-Wpedantic", "-Wno-unused-parameter", "-fexceptions"]
-        c_flags = ["-std=gnu99"]
-        cxx_compiler = root_env.get("CXX", "g++")
-        cc_compiler = str(cxx_compiler).replace("g++", "gcc").replace("clang++", "clang")
+        test_env.Append(CXXFLAGS=["-fexceptions"])
+    
+    # Clear OBJPREFIX for test builds
+    test_env["OBJPREFIX"] = ""
 
-    test_env = Environment(
-        CXX=cxx_compiler,
-        CC=cc_compiler,
-        CXXFLAGS=cxx_flags,
-        CFLAGS=c_flags,
-        CPPPATH=[
-            tests_dir,
-            project_root,
-            flecs_distr,
-            os.path.join(gtest_dir, "include"),
-            gtest_dir,
-            os.path.join(godotcpp_dir, "include"),
-            os.path.join(godotcpp_dir, "gen", "include"),
-        ],
-        CPPDEFINES=[
-            "FLECS_CPP_NO_AUTO_REGISTRATION",
-            "FLECS_DEBUG",
-        ],
-        OBJPREFIX="",
-    )
-
-    if sys.platform.startswith("win"):
-        test_env.Append(LIBS=["Ws2_32", "Dbghelp"])
-
-    if sys.platform == "darwin":
-        for var in ["CCFLAGS", "LINKFLAGS"]:
-            if var in test_env:
-                new_flags = []
-                skip = False
-                for flag in test_env[var]:
-                    if skip:
-                        skip = False
-                        continue
-                    if flag == "-arch":
-                        skip = True
-                        continue
-                    new_flags.append(flag)
-                test_env[var] = new_flags
-        test_env.Append(LINKFLAGS=["-Wl,-undefined,dynamic_lookup"])
-
-    if release_build:
-        test_env.Append(CXXFLAGS=["-O2", "-DNDEBUG"])
-        test_env.Append(CFLAGS=["-O2", "-DNDEBUG"])
-    else:
-        test_env.Append(CXXFLAGS=["-g", "-O0"])
-        test_env.Append(CFLAGS=["-g", "-O0"])
-
-    flecs_obj = test_env.Object(
-        target=os.path.join(build_dir, "flecs"),
-        source=flecs_source,
-    )
-    gtest_obj = test_env.Object(
-        target=os.path.join(build_dir, "gtest-all"),
+    # Build GoogleTest with inherited configuration
+    gtest_obj = test_env.SharedObject(
+        target=os.path.join(tests_build_dir, "gtest-all"),
         source=gtest_source,
     )
 
-    cpp_objs = []
-    for src in all_cpp_sources:
+    # Build test sources only (reuse stagehand and flecs objects from main build)
+    test_objs = []
+    for src in test_sources:
         rel = os.path.relpath(src, project_root)
-        obj_path = os.path.join(build_dir, rel.replace(".cpp", ""))
-        cpp_objs.append(test_env.Object(target=obj_path, source=src))
+        obj_path = os.path.join(tests_build_dir, rel.replace(".cpp", ""))
+        test_objs.append(test_env.SharedObject(target=obj_path, source=src))
 
     godotcpp_lib = File(godotcpp_lib_path)
+    
+    # Combine test objects with reused stagehand/flecs objects from main build
+    all_objs = test_objs + [gtest_obj, godotcpp_lib]
+    if flecs_c_obj is not None:
+        all_objs.insert(0, flecs_c_obj)
+    if stagehand_objs is not None:
+        all_objs = stagehand_objs + all_objs
+    
     return test_env.Program(
         target=output_dir,
-        source=cpp_objs + [flecs_obj, gtest_obj, godotcpp_lib],
+        source=all_objs,
     )
 
 Default(library)
@@ -362,6 +350,12 @@ test_program = SConscript(
         "root_env": env,
         "build_unit_tests": build_unit_tests,
         "project_root": os.path.normpath(os.path.abspath(".")),
+        "build_dir": BUILD_DIR,
+        "flecs_c_obj": flecs_c_obj,
+        "stagehand_objs": stagehand_objs,
+        "project_env": project_env,
+        "flecs_opts": FLECS_OPTS + FLECS_COMMON_OPTS,
+        "cxx_flags": cxx_flags,
     },
 )
 Alias("unit_tests", test_program)
