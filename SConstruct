@@ -6,11 +6,7 @@ import os, sys
 from SCons.Script import ARGUMENTS, SConscript, Alias, Default
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
-from submodule_check import check_and_init_submodules
 from godot_project import check_and_setup_project_file_structure
-
-# Ensure git submodules are initialized and updated before proceeding with the build
-check_and_init_submodules()
 
 # Check that the Godot project file structure is set up correctly and get the project directory path
 PROJECT_DIRECTORY = check_and_setup_project_file_structure("../../")
