@@ -70,10 +70,10 @@ namespace stagehand {
         loader.load(world);
 
         world.observer("stagehand::SignalObserver")
-            .event<Signal>()
+            .event<GodotSignal>()
             .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
             .each([this](flecs::iter& it, size_t index) {
-            const Signal* signal = it.param<Signal>();
+            const GodotSignal* signal = it.param<GodotSignal>();
             if (signal) {
                 this->emit_signal("flecs_signal_emitted", signal->name, signal->data);
             }

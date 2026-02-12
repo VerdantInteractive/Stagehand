@@ -2,13 +2,31 @@
 
 #include <godot_cpp/core/math_defs.hpp>
 #include <godot_cpp/variant/aabb.hpp>
+#include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/basis.hpp>
+#include <godot_cpp/variant/callable.hpp>
 #include <godot_cpp/variant/color.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/node_path.hpp>
+#include <godot_cpp/variant/packed_byte_array.hpp>
+#include <godot_cpp/variant/packed_color_array.hpp>
+#include <godot_cpp/variant/packed_float32_array.hpp>
+#include <godot_cpp/variant/packed_float64_array.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_int64_array.hpp>
+#include <godot_cpp/variant/packed_string_array.hpp>
+#include <godot_cpp/variant/packed_vector2_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
+#include <godot_cpp/variant/packed_vector4_array.hpp>
 #include <godot_cpp/variant/plane.hpp>
 #include <godot_cpp/variant/projection.hpp>
 #include <godot_cpp/variant/quaternion.hpp>
+#include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/rect2.hpp>
 #include <godot_cpp/variant/rect2i.hpp>
+#include <godot_cpp/variant/signal.hpp>
+#include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/string_name.hpp>
 #include <godot_cpp/variant/transform2d.hpp>
 #include <godot_cpp/variant/transform3d.hpp>
 #include <godot_cpp/variant/vector2.hpp>
@@ -21,14 +39,32 @@
 #include "stagehand/registry.h"
 
 using godot::AABB;
+using godot::Array;
 using godot::Basis;
+using godot::Callable;
 using godot::Color;
+using godot::Dictionary;
+using godot::NodePath;
+using godot::PackedByteArray;
+using godot::PackedColorArray;
+using godot::PackedFloat32Array;
+using godot::PackedFloat64Array;
+using godot::PackedInt32Array;
+using godot::PackedInt64Array;
+using godot::PackedStringArray;
+using godot::PackedVector2Array;
+using godot::PackedVector3Array;
+using godot::PackedVector4Array;
 using godot::Plane;
 using godot::Projection;
 using godot::Quaternion;
+using godot::RID;
 using godot::real_t;
 using godot::Rect2;
 using godot::Rect2i;
+using godot::Signal;
+using godot::String;
+using godot::StringName;
 using godot::Transform2D;
 using godot::Transform3D;
 using godot::Vector2;
@@ -178,6 +214,7 @@ void register_projection_members(flecs::component<T> c) {
     })
 
 // Dispatcher overloads to automatically select the correct registration function
+// Struct type
 template <typename T> void register_godot_members(flecs::component<T> c, Color*) { register_color_members(c); }
 template <typename T> void register_godot_members(flecs::component<T> c, Vector2*) { register_vector2_members(c); }
 template <typename T> void register_godot_members(flecs::component<T> c, Vector2i*) { register_vector2i_members(c); }
@@ -194,6 +231,26 @@ template <typename T> void register_godot_members(flecs::component<T> c, Transfo
 template <typename T> void register_godot_members(flecs::component<T> c, Transform3D*) { register_transform3d_members(c); }
 template <typename T> void register_godot_members(flecs::component<T> c, AABB*) { register_aabb_members(c); }
 template <typename T> void register_godot_members(flecs::component<T> c, Projection*) { register_projection_members(c); }
+
+// Class types
+template <typename T> void register_godot_members(flecs::component<T> c, Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Dictionary*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, String*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, StringName*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, NodePath*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedByteArray*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedColorArray*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedFloat32Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedFloat64Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedInt32Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedInt64Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedStringArray*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedVector2Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedVector3Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedVector4Array*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Callable*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, RID*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Signal*) {}
 
 inline stagehand::Registry register_godot_variant_components([](flecs::world& world)
 {
@@ -245,4 +302,60 @@ inline stagehand::Registry register_godot_variant_components([](flecs::world& wo
     register_projection_members(world.component<Projection>()); // 64 bytes - large, use sparingly
     stagehand::register_component_getter<Projection>("Projection");
     stagehand::register_component_setter<Projection>("Projection");
+
+    // Class types
+    world.component<Array>();
+    stagehand::register_component_getter<Array>("Array");
+    stagehand::register_component_setter<Array>("Array");
+    world.component<Dictionary>();
+    stagehand::register_component_getter<Dictionary>("Dictionary");
+    stagehand::register_component_setter<Dictionary>("Dictionary");
+    world.component<String>();
+    stagehand::register_component_getter<String>("String");
+    stagehand::register_component_setter<String>("String");
+    world.component<StringName>();
+    stagehand::register_component_getter<StringName>("StringName");
+    stagehand::register_component_setter<StringName>("StringName");
+    world.component<NodePath>();
+    stagehand::register_component_getter<NodePath>("NodePath");
+    stagehand::register_component_setter<NodePath>("NodePath");
+    world.component<PackedByteArray>();
+    stagehand::register_component_getter<PackedByteArray>("PackedByteArray");
+    stagehand::register_component_setter<PackedByteArray>("PackedByteArray");
+    world.component<PackedColorArray>();
+    stagehand::register_component_getter<PackedColorArray>("PackedColorArray");
+    stagehand::register_component_setter<PackedColorArray>("PackedColorArray");
+    world.component<PackedFloat32Array>();
+    stagehand::register_component_getter<PackedFloat32Array>("PackedFloat32Array");
+    stagehand::register_component_setter<PackedFloat32Array>("PackedFloat32Array");
+    world.component<PackedFloat64Array>();
+    stagehand::register_component_getter<PackedFloat64Array>("PackedFloat64Array");
+    stagehand::register_component_setter<PackedFloat64Array>("PackedFloat64Array");
+    world.component<PackedInt32Array>();
+    stagehand::register_component_getter<PackedInt32Array>("PackedInt32Array");
+    stagehand::register_component_setter<PackedInt32Array>("PackedInt32Array");
+    world.component<PackedInt64Array>();
+    stagehand::register_component_getter<PackedInt64Array>("PackedInt64Array");
+    stagehand::register_component_setter<PackedInt64Array>("PackedInt64Array");
+    world.component<PackedStringArray>();
+    stagehand::register_component_getter<PackedStringArray>("PackedStringArray");
+    stagehand::register_component_setter<PackedStringArray>("PackedStringArray");
+    world.component<PackedVector2Array>();
+    stagehand::register_component_getter<PackedVector2Array>("PackedVector2Array");
+    stagehand::register_component_setter<PackedVector2Array>("PackedVector2Array");
+    world.component<PackedVector3Array>();
+    stagehand::register_component_getter<PackedVector3Array>("PackedVector3Array");
+    stagehand::register_component_setter<PackedVector3Array>("PackedVector3Array");
+    world.component<PackedVector4Array>();
+    stagehand::register_component_getter<PackedVector4Array>("PackedVector4Array");
+    stagehand::register_component_setter<PackedVector4Array>("PackedVector4Array");
+    world.component<Callable>();
+    stagehand::register_component_getter<Callable>("Callable");
+    stagehand::register_component_setter<Callable>("Callable");
+    world.component<RID>();
+    stagehand::register_component_getter<RID>("RID");
+    stagehand::register_component_setter<RID>("RID");
+    world.component<Signal>();
+    stagehand::register_component_getter<Signal>("Signal");
+    stagehand::register_component_setter<Signal>("Signal");
 });
