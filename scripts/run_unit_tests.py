@@ -6,7 +6,6 @@ import shlex
 
 def main():
     # ─── Stagehand Unit Test Runner ──────────────────────────────────────────────
-    # Builds and runs the unit test suite (GoogleTest).
 
     # Setup paths
     script_dir = os.path.dirname(os.path.abspath(__file__))

@@ -8,7 +8,20 @@ import shutil
 
 def main():
     # ─── Stagehand Integration Test Runner ───────────────────────────────────────
-    # Builds and runs the integration test suite.
+
+    # Parse arguments
+    parser = argparse.ArgumentParser(description="Stagehand Integration Test Runner")
+    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress output (default)")
+    parser.add_argument("-v", "--verbose", action="store_true", help="Show output")
+    parser.add_argument("scene", nargs="?", help="Specific scene file to run")
+    args = parser.parse_args()
+
+    # Determine verbosity (Default to quiet, verbose flag overrides)
+    quiet = True
+    if args.verbose:
+        quiet = False
+    elif args.quiet:
+        quiet = True
 
     script_dir = os.path.dirname(os.path.abspath(__file__))
     repo_root = os.path.dirname(script_dir)
@@ -30,20 +43,6 @@ def main():
     if not os.path.exists(godot_bin) and not shutil.which(godot_bin):
         print(f"Error: Godot binary not found at '{godot_bin}'", file=sys.stderr)
         sys.exit(1)
-
-    # Parse arguments
-    parser = argparse.ArgumentParser(description="Stagehand Integration Test Runner")
-    parser.add_argument("-q", "--quiet", action="store_true", help="Suppress output (default)")
-    parser.add_argument("-v", "--verbose", action="store_true", help="Show output")
-    parser.add_argument("scene", nargs="?", help="Specific scene file to run")
-    args = parser.parse_args()
-
-    # Determine verbosity (Default to quiet, verbose flag overrides)
-    quiet = True
-    if args.verbose:
-        quiet = False
-    elif args.quiet:
-        quiet = True
 
     print("")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
@@ -92,7 +91,7 @@ def main():
             godot_bin,
             "--headless",
             "--no-header",
-            "--quit",
+            "--quit-after", "3",
             "--path", project_dir,
             "--scene", scene_path
         ]
