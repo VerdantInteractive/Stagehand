@@ -1,0 +1,4 @@
+// Create plain entities that can be used in integration tests. This also serves as a test case for Flecs script loading functionality.
+for i in 0..10 {  
+  "TestEntity{$i}" {}  
+}

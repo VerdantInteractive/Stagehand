@@ -1,0 +1,5 @@
+// child.flecs is in a subfolder of parent/, so it will get loaded after parent.flecs.
+// If this isn't the case, then we would get an error indicating that 'Parent' isn't defined.
+Child {
+    ChildOf, Parent
+}
