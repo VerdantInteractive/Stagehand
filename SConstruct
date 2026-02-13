@@ -172,25 +172,25 @@ project_objs = stagehand_objs + project_cpp_objs + [flecs_c_obj]
 
 if env["platform"] == "macos":
     library = project_env.SharedLibrary(
-        "{}/cpp/bin/libstagehand.{}.{}.framework/libstagehand.{}.{}".format(
-            PROJECT_DIRECTORY, env["platform"], env["target"], env["platform"], env["target"]
+        "bin/libstagehand.{}.{}.framework/libstagehand.{}.{}".format(
+            env["platform"], env["target"], env["platform"], env["target"]
         ),
         source=project_objs,
     )
 elif env["platform"] == "ios":
     if env["ios_simulator"]:
         library = project_env.StaticLibrary(
-            "{}/cpp/bin/libstagehand.{}.{}.simulator.a".format(PROJECT_DIRECTORY, env["platform"], env["target"]),
+            "bin/libstagehand.{}.{}.simulator.a".format(env["platform"], env["target"]),
             source=project_objs,
         )
     else:
         library = project_env.StaticLibrary(
-            "{}/cpp/bin/libstagehand.{}.{}.a".format(PROJECT_DIRECTORY, env["platform"], env["target"]),
+            "bin/libstagehand.{}.{}.a".format(env["platform"], env["target"]),
             source=project_objs,
         )
 else:
     library = project_env.SharedLibrary(
-        "{}/cpp/bin/libstagehand{}{}".format(PROJECT_DIRECTORY, env["suffix"], env["SHLIBSUFFIX"]),
+        "bin/libstagehand{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=project_objs,
     )
 

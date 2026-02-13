@@ -1,6 +1,7 @@
 stagehand.gdextension.uid
 
 # Build artifacts
+bin/
 build/obj/
 tests/unit/build/
 

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://iqvwmmm0owkd"]
+
+[ext_resource type="Script" uid="uid://ddtwqgga2ipt5" path="res://tests/world/can_get_ready/can_get_ready.gd" id="1_axymf"]
+
+[node name="CanGetReady" type="FlecsWorld" unique_id=253607608]
+script = ExtResource("1_axymf")
