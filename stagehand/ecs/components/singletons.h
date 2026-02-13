@@ -1,19 +1,14 @@
 #pragma once
 
-#include <godot_cpp/variant/dictionary.hpp>
-
 #include "stagehand/registry.h"
-#include "stagehand/ecs/components/macros.h"
+#include "stagehand/ecs/components/godot_variants.h"
 
 namespace stagehand {
 
-    struct SceneChildren {
-        godot::Dictionary nodes;
-    };
+    GODOT_VARIANT(SceneChildren, godot::Dictionary)
+        .then([](flecs::component<SceneChildren> c) { c.add(flecs::Singleton); });
+
+    GODOT_VARIANT(WorldConfiguration, godot::Dictionary)
+        .then([](flecs::component<WorldConfiguration> c) { c.add(flecs::Singleton); });
 
 } // namespace stagehand
-
-inline stagehand::Registry register_singleton_components([](flecs::world& world) {
-    world.component<stagehand::SceneChildren>()
-        .add(flecs::Singleton);
-});

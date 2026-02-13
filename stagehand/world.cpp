@@ -95,7 +95,7 @@ namespace stagehand {
                 children[child_node->get_name()] = child_node;
             }
         }
-        world.set<SceneChildren>({ .nodes = children });
+        world.set<SceneChildren>(children);
     }
 
 
@@ -168,15 +168,49 @@ namespace stagehand {
     }
 
 
-    void FlecsWorld::progress(double delta)
+    void FlecsWorld::set_world_configuration(const godot::Dictionary& p_configuration)
     {
-        if (!is_initialised)
+        // Avoid self-assignment which can cause crashes with Dictionary
+        if (&p_configuration != &world_configuration)
         {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world was initialised"));
+            world_configuration = p_configuration;
+        }
+
+        // Only sync to world if initialized and configuration is not empty
+        if (!is_initialised || world_configuration.is_empty())
+        {
             return;
         }
 
-        world.progress(static_cast<ecs_ftime_t>(delta));
+        // Get current configuration data singleton
+        godot::Dictionary config_data;
+
+        // Try to get existing configuration data, but don't fail if it doesn't exist yet
+        if (component_getters.contains("WorldConfiguration"))
+        {
+            godot::Variant config_variant = get_component("WorldConfiguration", 0);
+            if (config_variant.get_type() == godot::Variant::DICTIONARY)
+            {
+                config_data = config_variant;
+            }
+        }
+
+        // Update configuration data with our configuration
+        godot::Array keys = world_configuration.keys();
+        for (int i = 0; i < keys.size(); ++i)
+        {
+            godot::Variant key = keys[i];
+            config_data[key] = world_configuration[key];
+        }
+
+        // Write the updated configuration data back to the world singleton
+        set_component("WorldConfiguration", config_data, 0);
+    }
+
+
+    godot::Dictionary FlecsWorld::get_world_configuration() const
+    {
+        return world_configuration;
     }
 
 
@@ -231,12 +265,30 @@ namespace stagehand {
     }
 
 
+    void FlecsWorld::progress(double delta)
+    {
+        if (!is_initialised)
+        {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world was initialised"));
+            return;
+        }
+
+        world.progress(static_cast<ecs_ftime_t>(delta));
+    }
+
+
     void FlecsWorld::_notification(const int p_what)
     {
         if (p_what == NOTIFICATION_READY)
         {
             populate_scene_children_singleton();
             setup_entity_renderers_multimesh();
+
+            // Sync world_configuration to Flecs world after initialization
+            if (!world_configuration.is_empty())
+            {
+                set_world_configuration(world_configuration);
+            }
         }
     }
 
@@ -257,8 +309,16 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("progress", "delta"), &FlecsWorld::progress);
         godot::ClassDB::bind_method(godot::D_METHOD("set_component", "component_name", "data", "entity_id"), &FlecsWorld::set_component, DEFVAL(0));
         godot::ClassDB::bind_method(godot::D_METHOD("get_component", "component_name", "entity_id"), &FlecsWorld::get_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("set_world_configuration", "configuration"), &FlecsWorld::set_world_configuration);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_world_configuration"), &FlecsWorld::get_world_configuration);
         godot::ClassDB::bind_method(godot::D_METHOD("enable_system", "system_name", "enabled"), &FlecsWorld::enable_system, DEFVAL(true));
         godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
+
+        ADD_PROPERTY(
+            godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration", godot::PROPERTY_HINT_NONE, "", godot::PROPERTY_USAGE_DEFAULT),
+            "set_world_configuration",
+            "get_world_configuration"
+        );
 
         ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"), godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
     }

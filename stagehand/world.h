@@ -40,6 +40,13 @@ namespace stagehand {
         /// Gets a component value from an entity.
         [[nodiscard]] godot::Variant get_component(const godot::String& component_name, ecs_entity_t entity_id = 0);
 
+        /// Sets the world configuration singleton.
+        /// Format: { "key": value, ... }
+        void set_world_configuration(const godot::Dictionary& p_configuration);
+
+        /// Gets the world configuration singleton.
+        [[nodiscard]] godot::Dictionary get_world_configuration() const;
+
         /// Enables or disables a system by name.
         bool enable_system(const godot::String& system_name, bool enabled = true);
 
@@ -48,6 +55,7 @@ namespace stagehand {
         /// @param parameters A dictionary of parameters to pass to the system.
         /// @note Useful for triggering on-demand (kind: 0) Flecs systems from GDScript.
         bool run_system(const godot::String& system_name, const godot::Dictionary& parameters);
+
 
         // Virtual methods overridden from Node
 
@@ -63,6 +71,7 @@ namespace stagehand {
     private:
         flecs::world world;
         bool is_initialised = false;
+        godot::Dictionary world_configuration;
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String& system_name);
