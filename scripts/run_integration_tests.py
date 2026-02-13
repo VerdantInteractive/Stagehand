@@ -6,6 +6,45 @@ import platform
 import argparse
 import shutil
 
+def run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
+    try:
+        test_name = os.path.relpath(scene_path, tests_dir)
+    except ValueError:
+        test_name = scene_path
+    
+    cmd = [
+        godot_bin,
+        "--headless",
+        "--no-header",
+        "--quit-after", "3",
+        "--path", project_dir,
+        "--scene", scene_path
+    ]
+
+    if quiet:
+        print(f"Running test: {test_name} ... ", end="", flush=True)
+    else:
+        print(f"Running test: {test_name}")
+
+    # Capture output to hide it unless failure
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+    
+    if not quiet:
+        print(result.stdout)
+
+    # Check for both exit code and error messages in output
+    has_errors = "SCRIPT ERROR" in result.stdout or "ERROR:" in result.stdout or "FATAL:" in result.stdout
+    
+    if result.returncode == 0 and not has_errors:
+        print("PASSED")
+        return True
+    else:
+        print("FAILED")
+        if quiet:
+            print(f"Re-running test {test_name} with output...")
+            print(result.stdout)
+        return False
+
 def main():
     # ─── Stagehand Integration Test Runner ───────────────────────────────────────
 
@@ -82,43 +121,13 @@ def main():
 
     for scene_path in tests_to_run:
         total_tests += 1
-        try:
-            test_name = os.path.relpath(scene_path, tests_dir)
-        except ValueError:
-            test_name = scene_path
-        
-        cmd = [
-            godot_bin,
-            "--headless",
-            "--no-header",
-            "--quit-after", "3",
-            "--path", project_dir,
-            "--scene", scene_path
-        ]
-
-        if quiet:
-            print(f"Running test: {test_name} ... ", end="", flush=True)
-            # Capture output to hide it unless failure
-            result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
-            
-            if result.returncode == 0:
-                print("PASSED")
-                passed_tests += 1
-            else:
-                print("FAILED")
-                print(f"Re-running test {test_name} with output...")
-                # Re-run to show output to user, or just print captured output
-                print(result.stdout)
-                failed_tests += 1
-                break
+        if run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
+            passed_tests += 1
         else:
-            print(f"Running test: {test_name}")
-            result = subprocess.run(cmd)
-            if result.returncode == 0:
-                passed_tests += 1
-            else:
-                failed_tests += 1
-                break
+            failed_tests += 1
+            if not quiet:
+                sys.exit(1)
+            break
 
     print("")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
