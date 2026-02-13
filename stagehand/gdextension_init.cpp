@@ -16,7 +16,7 @@ void initialize_flecs_module(ModuleInitializationLevel p_level)
         return;
     }
 
-    GDREGISTER_RUNTIME_CLASS(stagehand::World);
+    GDREGISTER_RUNTIME_CLASS(stagehand::FlecsWorld);
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer2D);
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer3D);
 }

@@ -19,19 +19,19 @@ using godot::Node;
 
 namespace stagehand {
 
-    /// The main World node that integrates Flecs with Godot.
-    class World : public Node
+    /// The main FlecsWorld node that integrates Flecs with Godot.
+    class FlecsWorld : public Node
     {
-        GDCLASS(World, Node)
+        GDCLASS(FlecsWorld, Node)
 
     public:
-        World();
+        FlecsWorld();
 
         // GDScript-visible methods that we'll bind
 
         /// Advances the ECS world by a delta time.
         /// @param delta The time elapsed since the last frame.
-        /// @note To be called every frame from GDScript attached to the World node.
+        /// @note To be called every frame from GDScript attached to the FlecsWorld node.
         void progress(double delta);
 
         /// Sets a component value for an entity.
@@ -54,7 +54,7 @@ namespace stagehand {
         /// Called when the node is removed from the scene tree.
         void _exit_tree() override;
 
-        ~World();
+        ~FlecsWorld();
 
     protected:
         void _notification(const int p_what);

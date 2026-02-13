@@ -22,11 +22,11 @@
 
 namespace stagehand {
 
-    World::World()
+    FlecsWorld::FlecsWorld()
     {
         if (is_initialised)
         {
-            godot::UtilityFunctions::push_warning(godot::String("World's constructor was called when it was already initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld's constructor was called when it was already initialised"));
             return;
         }
 
@@ -83,7 +83,7 @@ namespace stagehand {
     }
 
 
-    void World::populate_scene_children_singleton()
+    void FlecsWorld::populate_scene_children_singleton()
     {
         Dictionary children;
         godot::TypedArray<Node> child_nodes = get_children();
@@ -99,7 +99,7 @@ namespace stagehand {
     }
 
 
-    void World::setup_entity_renderers_multimesh()
+    void FlecsWorld::setup_entity_renderers_multimesh()
     {
         entity_rendering::Renderers renderers;
         int renderer_count = 0;
@@ -129,11 +129,11 @@ namespace stagehand {
     }
 
 
-    void World::set_component(const godot::String& component_name, const godot::Variant& data, ecs_entity_t entity_id)
+    void FlecsWorld::set_component(const godot::String& component_name, const godot::Variant& data, ecs_entity_t entity_id)
     {
         if (!is_initialised)
         {
-            godot::UtilityFunctions::push_warning(godot::String("World::set_component was called before world was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_component was called before world was initialised"));
             return;
         }
 
@@ -149,11 +149,11 @@ namespace stagehand {
     }
 
 
-    godot::Variant World::get_component(const godot::String& component_name, ecs_entity_t entity_id)
+    godot::Variant FlecsWorld::get_component(const godot::String& component_name, ecs_entity_t entity_id)
     {
         if (!is_initialised)
         {
-            godot::UtilityFunctions::push_warning(godot::String("World::get_component was called before world was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_component was called before world was initialised"));
             return godot::Variant();
         }
 
@@ -168,11 +168,11 @@ namespace stagehand {
     }
 
 
-    void World::progress(double delta)
+    void FlecsWorld::progress(double delta)
     {
         if (!is_initialised)
         {
-            godot::UtilityFunctions::push_warning(godot::String("World::progress was called before world was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world was initialised"));
             return;
         }
 
@@ -180,11 +180,11 @@ namespace stagehand {
     }
 
 
-    flecs::system World::get_system(const godot::String& system_name)
+    flecs::system FlecsWorld::get_system(const godot::String& system_name)
     {
         if (!is_initialised)
         {
-            godot::UtilityFunctions::push_warning(godot::String("World::get_system was called before world was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_system was called before world was initialised"));
             return flecs::system();
         }
 
@@ -205,7 +205,7 @@ namespace stagehand {
     }
 
 
-    bool World::enable_system(const godot::String& system_name, bool enabled)
+    bool FlecsWorld::enable_system(const godot::String& system_name, bool enabled)
     {
         flecs::system sys = get_system(system_name);
         if (!sys.is_valid())
@@ -218,7 +218,7 @@ namespace stagehand {
     }
 
 
-    bool World::run_system(const godot::String& system_name, const Dictionary& parameters)
+    bool FlecsWorld::run_system(const godot::String& system_name, const Dictionary& parameters)
     {
         flecs::system sys = get_system(system_name);
         if (!sys.is_valid())
@@ -231,7 +231,7 @@ namespace stagehand {
     }
 
 
-    void World::_notification(const int p_what)
+    void FlecsWorld::_notification(const int p_what)
     {
         if (p_what == NOTIFICATION_READY)
         {
@@ -241,7 +241,7 @@ namespace stagehand {
     }
 
 
-    void World::_exit_tree()
+    void FlecsWorld::_exit_tree()
     {
         if (!is_initialised)
         {
@@ -252,18 +252,18 @@ namespace stagehand {
     }
 
 
-    void World::_bind_methods()
+    void FlecsWorld::_bind_methods()
     {
-        godot::ClassDB::bind_method(godot::D_METHOD("progress", "delta"), &World::progress);
-        godot::ClassDB::bind_method(godot::D_METHOD("set_component", "component_name", "data", "entity_id"), &World::set_component, DEFVAL(0));
-        godot::ClassDB::bind_method(godot::D_METHOD("get_component", "component_name", "entity_id"), &World::get_component, DEFVAL(0));
-        godot::ClassDB::bind_method(godot::D_METHOD("enable_system", "system_name", "enabled"), &World::enable_system, DEFVAL(true));
-        godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &World::run_system, DEFVAL(Dictionary()));
+        godot::ClassDB::bind_method(godot::D_METHOD("progress", "delta"), &FlecsWorld::progress);
+        godot::ClassDB::bind_method(godot::D_METHOD("set_component", "component_name", "data", "entity_id"), &FlecsWorld::set_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("get_component", "component_name", "entity_id"), &FlecsWorld::get_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("enable_system", "system_name", "enabled"), &FlecsWorld::enable_system, DEFVAL(true));
+        godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
 
         ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"), godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
     }
 
 
-    World::~World() {}
+    FlecsWorld::~FlecsWorld() {}
 
 } // namespace stagehand
