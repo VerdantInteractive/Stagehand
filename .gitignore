@@ -2,7 +2,7 @@ stagehand.gdextension.uid
 
 # Build artifacts
 build/obj/
-tests/build/
+tests/unit/build/
 
 # Misc
 __pycache__/

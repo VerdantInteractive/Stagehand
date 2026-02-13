@@ -201,7 +201,7 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
     target = root_env["target"]
 
     if tests_root is None:
-        tests_dir = os.path.join(project_root, "tests")
+        tests_dir = os.path.join(project_root, "tests", "unit")
     else:
         tests_dir = tests_root
     tests_build_dir = os.path.join(tests_dir, "build")
@@ -342,7 +342,7 @@ Default(library)
 
 # Unit tests target
 test_program = SConscript(
-    "tests/SConstruct",
+    "tests/unit/SConstruct",
     exports={
         "root_env": env,
         "build_unit_tests": build_unit_tests,
