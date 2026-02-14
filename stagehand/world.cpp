@@ -201,7 +201,12 @@ namespace stagehand {
         if (!is_initialised)
         {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called before world was initialised"));
-            return godot::TypedDictionary<godot::String, godot::Variant>();
+            return world_configuration;
+        }
+
+        if (godot::Engine::get_singleton()->is_editor_hint())
+        {
+            return world_configuration;
         }
 
         const WorldConfiguration* configuration = world.try_get<WorldConfiguration>();
