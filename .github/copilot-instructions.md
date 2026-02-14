@@ -7,4 +7,4 @@
 - Make sure to keep the tests up to date with code changes. If you add new features, add new tests for them. Maintain high test coverage for the project.
 
 # Validation
-- After you make modifications, run the "Build (Debug)" task to verify that the project compiles successfully, and scripts/run_tests.sh to verify that all tests pass.
+- After you make modifications, run scripts/build_debug.sh to verify that the project compiles successfully, and scripts/run_tests.sh to verify that all tests pass.

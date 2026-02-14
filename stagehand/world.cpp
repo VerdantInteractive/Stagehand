@@ -14,7 +14,8 @@
 #include "stagehand/registry.h"
 #include "stagehand/script_loader.h"
 #include "stagehand/ecs/components/entity_rendering.h"
-#include "stagehand/ecs/components/singletons.h"
+#include "stagehand/ecs/components/scene_children.h"
+#include "stagehand/ecs/components/world_configuration.h"
 #include "stagehand/ecs/systems/entity_rendering_multimesh.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/utilities/godot_signal.h"
@@ -168,47 +169,26 @@ namespace stagehand {
     }
 
 
-    void FlecsWorld::set_world_configuration(const godot::Dictionary& p_configuration)
+    void FlecsWorld::set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant>& p_configuration)
     {
-        // Avoid self-assignment which can cause crashes with Dictionary
+        if (!is_initialised)
+        {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_world_configuration was called before world was initialised"));
+            return;
+        }
+
+        // Avoid self-assignment which can crash
         if (&p_configuration != &world_configuration)
         {
             world_configuration = p_configuration;
         }
 
-        // Only sync to world if initialized and configuration is not empty
-        if (!is_initialised || world_configuration.is_empty())
-        {
-            return;
-        }
-
-        // Get current configuration data singleton
-        godot::Dictionary config_data;
-
-        // Try to get existing configuration data, but don't fail if it doesn't exist yet
-        if (component_getters.contains("WorldConfiguration"))
-        {
-            godot::Variant config_variant = get_component("WorldConfiguration", 0);
-            if (config_variant.get_type() == godot::Variant::DICTIONARY)
-            {
-                config_data = config_variant;
-            }
-        }
-
-        // Update configuration data with our configuration
-        godot::Array keys = world_configuration.keys();
-        for (int i = 0; i < keys.size(); ++i)
-        {
-            godot::Variant key = keys[i];
-            config_data[key] = world_configuration[key];
-        }
-
-        // Write the updated configuration data back to the world singleton
-        set_component("WorldConfiguration", config_data, 0);
+        // Replace the singleton configuration with the latest property value.
+        set_component("WorldConfiguration", world_configuration, 0);
     }
 
 
-    godot::Dictionary FlecsWorld::get_world_configuration() const
+    godot::TypedDictionary<godot::String, godot::Variant> FlecsWorld::get_world_configuration() const
     {
         return world_configuration;
     }
@@ -281,14 +261,9 @@ namespace stagehand {
     {
         if (p_what == NOTIFICATION_READY)
         {
+            set_world_configuration(world_configuration);
             populate_scene_children_singleton();
             setup_entity_renderers_multimesh();
-
-            // Sync world_configuration to Flecs world after initialization
-            if (!world_configuration.is_empty())
-            {
-                set_world_configuration(world_configuration);
-            }
         }
     }
 
@@ -315,7 +290,7 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
 
         ADD_PROPERTY(
-            godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration", godot::PROPERTY_HINT_NONE, "", godot::PROPERTY_USAGE_DEFAULT),
+            godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration", godot::PROPERTY_HINT_TYPE_STRING, godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::Variant::NIL) + ":", godot::PROPERTY_USAGE_DEFAULT),
             "set_world_configuration",
             "get_world_configuration"
         );

@@ -9,6 +9,7 @@
 #include <godot_cpp/classes/mesh_instance2d.hpp>
 #include <godot_cpp/classes/control.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/typed_dictionary.hpp>
 
 #include <flecs.h>
 
@@ -42,10 +43,10 @@ namespace stagehand {
 
         /// Sets the world configuration singleton.
         /// Format: { "key": value, ... }
-        void set_world_configuration(const godot::Dictionary& p_configuration);
+        void set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant>& p_configuration);
 
         /// Gets the world configuration singleton.
-        [[nodiscard]] godot::Dictionary get_world_configuration() const;
+        [[nodiscard]] godot::TypedDictionary<godot::String, godot::Variant> get_world_configuration() const;
 
         /// Enables or disables a system by name.
         bool enable_system(const godot::String& system_name, bool enabled = true);
@@ -71,7 +72,7 @@ namespace stagehand {
     private:
         flecs::world world;
         bool is_initialised = false;
-        godot::Dictionary world_configuration;
+        godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String& system_name);
