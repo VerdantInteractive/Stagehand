@@ -310,16 +310,20 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
 
         ADD_PROPERTY(
-            godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration",
-                godot::PROPERTY_HINT_TYPE_STRING, godot::String::num_int64(godot::Variant::STRING)
-                + "/" + godot::String::num_int64(godot::Variant::VARIANT_MAX)
-                + ":", godot::PROPERTY_USAGE_DEFAULT
+            godot::PropertyInfo(
+                godot::Variant::DICTIONARY, "world_configuration",
+                godot::PROPERTY_HINT_TYPE_STRING, godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
+                godot::PROPERTY_USAGE_DEFAULT
             ),
             "set_world_configuration",
             "get_world_configuration"
         );
 
-        ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"), godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
+        ADD_SIGNAL(godot::MethodInfo(
+            "flecs_signal_emitted",
+            godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
+            godot::PropertyInfo(godot::Variant::DICTIONARY, "data")
+        ));
     }
 
 
