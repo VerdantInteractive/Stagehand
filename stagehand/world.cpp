@@ -42,7 +42,7 @@ namespace stagehand {
         godot::UtilityFunctions::print(godot::String("Debug build. Enabling Flecs Explorer and verbose logging ..."));
         world.set<flecs::Rest>({});
         world.import <flecs::stats>();
-        flecs::log::set_level(1);
+        // flecs::log::set_level(1);
 #endif
 
         // Set the number of threads Flecs should use based on CPU thread count
@@ -141,6 +141,13 @@ namespace stagehand {
         std::string name = component_name.utf8().get_data();
         if (component_setters.contains(name))
         {
+            if (component_name == "WorldConfiguration" && entity_id == 0 && data.get_type() == godot::Variant::DICTIONARY)
+            {
+                const godot::Dictionary data_dictionary = static_cast<godot::Dictionary>(data);
+                godot::TypedDictionary<godot::String, godot::Variant> typed_configuration;
+                typed_configuration.assign(data_dictionary);
+                world_configuration = typed_configuration;
+            }
             component_setters[name](entity_id, data);
         }
         else
@@ -184,7 +191,7 @@ namespace stagehand {
         }
 
         // Replace the singleton configuration with the latest property value.
-        set_component("WorldConfiguration", world_configuration, 0);
+        set_component("WorldConfiguration", world_configuration);
     }
 
 
@@ -290,7 +297,11 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
 
         ADD_PROPERTY(
-            godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration", godot::PROPERTY_HINT_TYPE_STRING, godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::Variant::NIL) + ":", godot::PROPERTY_USAGE_DEFAULT),
+            godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration",
+                godot::PROPERTY_HINT_TYPE_STRING, godot::String::num_int64(godot::Variant::STRING)
+                + "/" + godot::String::num_int64(godot::Variant::VARIANT_MAX)
+                + ":", godot::PROPERTY_USAGE_DEFAULT
+            ),
             "set_world_configuration",
             "get_world_configuration"
         );

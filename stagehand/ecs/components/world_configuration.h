@@ -13,7 +13,6 @@ namespace stagehand {
     inline stagehand::Registry register_world_configuration([](flecs::world& world) {
         world.component<WorldConfiguration>().add(flecs::Singleton);
 
-        // Custom getter - only valid for singleton (entity_id == 0)
         stagehand::get_component_getters()["WorldConfiguration"] = [](const flecs::world& world, flecs::entity_t entity_id) -> godot::Variant {
             if (entity_id != 0) {
                 godot::UtilityFunctions::push_warning(
@@ -31,7 +30,6 @@ namespace stagehand {
             return godot::Variant(godot::TypedDictionary<godot::String, godot::Variant>());
         };
 
-        // Custom setter - only valid for singleton (entity_id == 0)
         stagehand::get_component_setters()["WorldConfiguration"] = [](flecs::world& world, flecs::entity_t entity_id, const godot::Variant& v) {
             if (entity_id != 0) {
                 godot::UtilityFunctions::push_warning(
@@ -43,18 +41,18 @@ namespace stagehand {
 
             if (v.get_type() != godot::Variant::DICTIONARY) {
                 godot::UtilityFunctions::push_warning(
-                    "WorldConfiguration: Cannot set from non-Dictionary type '" +
+                    "Cannot set WorldConfiguration from non-Dictionary type '" +
                     godot::Variant::get_type_name(v.get_type()) + "'"
                 );
                 return;
             }
 
-            godot::Dictionary dict = v;
+            const godot::Dictionary source_dictionary = static_cast<godot::Dictionary>(v);
 
-            // Create validated config - this filters out non-String keys
-            // Even if empty, we still set the component
-            WorldConfiguration config{ godot::TypedDictionary<godot::String, godot::Variant>(dict) };
-            world.set<WorldConfiguration>(config);
+            godot::TypedDictionary<godot::String, godot::Variant> typed_dictionary;
+            typed_dictionary.assign(source_dictionary);
+
+            world.set<WorldConfiguration>({ typed_dictionary });
         };
     });
 

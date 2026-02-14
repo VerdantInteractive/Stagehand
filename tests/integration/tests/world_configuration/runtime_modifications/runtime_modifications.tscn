@@ -1,0 +1,7 @@
+[gd_scene load_steps=2 format=3 uid="uid://bc123worldconfig003"]
+
+[ext_resource type="Script" path="res://tests/world_configuration/runtime_modifications/runtime_modifications.gd" id="1_runtime"]
+
+[node name="RuntimeModifications" type="FlecsWorld"]
+script = ExtResource("1_runtime")
+world_configuration = {}

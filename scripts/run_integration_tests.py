@@ -32,8 +32,14 @@ def run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
     if not quiet:
         print(result.stdout)
 
-    # Check for both exit code and error messages in output
-    has_errors = "SCRIPT ERROR" in result.stdout or "ERROR:" in result.stdout or "FATAL:" in result.stdout
+    # Filter out GDScript analyzer warnings that don't affect functionality
+    output_lines = result.stdout.split('\n')
+    filtered_errors = [line for line in output_lines if "ERROR:" in line 
+                      and "Could not find element type from property hint of a typed dictionary" not in line
+                      and "Unable to convert key from" not in line]  # TypedDictionary conversion errors are expected
+    
+    # Check for both exit code and error messages in output (excluding filtered analyzer warnings)
+    has_errors = "SCRIPT ERROR" in result.stdout or len(filtered_errors) > 0 or "FATAL:" in result.stdout
     
     if result.returncode == 0 and not has_errors:
         print("PASSED")

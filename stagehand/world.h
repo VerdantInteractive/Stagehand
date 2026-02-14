@@ -15,15 +15,12 @@
 
 #include "stagehand/names.h"
 
-using godot::Dictionary;
-using godot::Node;
-
 namespace stagehand {
 
     /// The main FlecsWorld node that integrates Flecs with Godot.
-    class FlecsWorld : public Node
+    class FlecsWorld : public godot::Node
     {
-        GDCLASS(FlecsWorld, Node)
+        GDCLASS(FlecsWorld, godot::Node)
 
     public:
         FlecsWorld();
@@ -41,8 +38,7 @@ namespace stagehand {
         /// Gets a component value from an entity.
         [[nodiscard]] godot::Variant get_component(const godot::String& component_name, ecs_entity_t entity_id = 0);
 
-        /// Sets the world configuration singleton.
-        /// Format: { "key": value, ... }
+        /// Sets the world configuration singleton. Format: { "key": value, ... }
         void set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant>& p_configuration);
 
         /// Gets the world configuration singleton.
