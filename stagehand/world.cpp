@@ -198,6 +198,12 @@ namespace stagehand {
 
     godot::TypedDictionary<godot::String, godot::Variant> FlecsWorld::get_world_configuration() const
     {
+        if (!is_initialised)
+        {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called before world was initialised"));
+            return godot::TypedDictionary<godot::String, godot::Variant>();
+        }
+
         const WorldConfiguration* configuration = world.try_get<WorldConfiguration>();
         if (configuration != nullptr)
         {
