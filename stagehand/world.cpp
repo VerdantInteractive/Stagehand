@@ -141,13 +141,6 @@ namespace stagehand {
         std::string name = component_name.utf8().get_data();
         if (component_setters.contains(name))
         {
-            if (component_name == "WorldConfiguration" && entity_id == 0 && data.get_type() == godot::Variant::DICTIONARY)
-            {
-                const godot::Dictionary data_dictionary = static_cast<godot::Dictionary>(data);
-                godot::TypedDictionary<godot::String, godot::Variant> typed_configuration;
-                typed_configuration.assign(data_dictionary);
-                world_configuration = typed_configuration;
-            }
             component_setters[name](entity_id, data);
         }
         else
@@ -184,10 +177,18 @@ namespace stagehand {
             return;
         }
 
+        const godot::TypedDictionary<godot::String, godot::Variant> previous_configuration = world_configuration;
+
         // Avoid self-assignment which can crash
         if (&p_configuration != &world_configuration)
         {
             world_configuration = p_configuration;
+        }
+
+        const WorldConfiguration* existing_configuration = world.try_get<WorldConfiguration>();
+        if (existing_configuration != nullptr && p_configuration == previous_configuration && existing_configuration->value != world_configuration)
+        {
+            return;
         }
 
         // Replace the singleton configuration with the latest property value.
@@ -197,6 +198,12 @@ namespace stagehand {
 
     godot::TypedDictionary<godot::String, godot::Variant> FlecsWorld::get_world_configuration() const
     {
+        const WorldConfiguration* configuration = world.try_get<WorldConfiguration>();
+        if (configuration != nullptr)
+        {
+            return configuration->value;
+        }
+
         return world_configuration;
     }
 
