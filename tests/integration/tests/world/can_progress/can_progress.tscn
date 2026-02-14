@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://fqy3gdyg8j1t"]
-
-[ext_resource type="Script" uid="uid://cgegw4s573u3g" path="res://tests/world/can_progress/can_progress.gd" id="1_7sdn7"]
-
-[node name="CanProgress" type="FlecsWorld" unique_id=2036047261]
-script = ExtResource("1_7sdn7")

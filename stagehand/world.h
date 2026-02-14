@@ -23,14 +23,19 @@ namespace stagehand {
         GDCLASS(FlecsWorld, godot::Node)
 
     public:
+        enum ProgressTick {
+            /// The world progresses in _process() (rendering tick)
+            PROGRESS_TICK_RENDERING,
+            /// The world progresses in _physics_process() (fixed-rate physics tick)
+            PROGRESS_TICK_PHYSICS,
+            /// No world.progress() call happens in either rendering or physics tick; the world must be progressed manually.
+            PROGRESS_TICK_MANUAL
+        };
+
+    public:
         FlecsWorld();
 
         // GDScript-visible methods that we'll bind
-
-        /// Advances the ECS world by a delta time.
-        /// @param delta The time elapsed since the last frame.
-        /// @note To be called every frame from GDScript attached to the FlecsWorld node.
-        void progress(double delta);
 
         /// Sets a component value for an entity.
         void set_component(const godot::String& component_name, const godot::Variant& data, ecs_entity_t entity_id = 0);
@@ -53,10 +58,18 @@ namespace stagehand {
         /// @note Useful for triggering on-demand (kind: 0) Flecs systems from GDScript.
         bool run_system(const godot::String& system_name, const godot::Dictionary& parameters);
 
+        void set_progress_tick(ProgressTick p_progress_tick);
+        ProgressTick get_progress_tick() const;
 
-        // Virtual methods overridden from Node
+        /// Advances the ECS world by a delta time.
+        /// @param delta The time elapsed since the last frame.
+        /// @note To be called every frame from GDScript attached to the FlecsWorld node.
+        void progress(double delta);
 
-        /// Called when the node is removed from the scene tree.
+        // Virtual methods overridden from godot::Node
+
+        void _process(double delta) override;
+        void _physics_process(double delta) override;
         void _exit_tree() override;
 
         ~FlecsWorld();
@@ -69,6 +82,7 @@ namespace stagehand {
         flecs::world world;
         bool is_initialised = false;
         godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
+        ProgressTick progress_tick = ProgressTick::PROGRESS_TICK_RENDERING;
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String& system_name);
@@ -81,3 +95,5 @@ namespace stagehand {
     };
 
 } // namespace stagehand
+
+VARIANT_ENUM_CAST(stagehand::FlecsWorld::ProgressTick)

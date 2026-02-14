@@ -1,4 +1,5 @@
 - Refer to the .md files in dependencies/flecs/docs directory for Flecs documentation. The .h & .cpp files in the examples/cpp subdirectory demonstrate API usage patterns.
+- Refer to dependencies/godot-cpp/gdextension/extension_api.json for the Godot C++ API summary.
 - Use modern C++ language features, up to and including the C++20 standard.
 - Use descriptive names for identifiers for variables and similar constructs over short ones.
 - Use explicit type names instead of `auto` unless the type names are extremely long.

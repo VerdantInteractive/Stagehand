@@ -269,6 +269,35 @@ namespace stagehand {
         return true;
     }
 
+    void FlecsWorld::set_progress_tick(ProgressTick p_progress_tick)
+    {
+        progress_tick = p_progress_tick;
+        if (godot::Engine::get_singleton()->is_editor_hint())
+        {
+            return;
+        }
+        set_process(progress_tick == ProgressTick::PROGRESS_TICK_RENDERING);
+        set_physics_process(progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS);
+    }
+
+    FlecsWorld::ProgressTick FlecsWorld::get_progress_tick() const
+    {
+        return progress_tick;
+    }
+
+    void FlecsWorld::_process(double delta)
+    {
+        if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
+            progress(delta);
+        }
+    }
+
+    void FlecsWorld::_physics_process(double delta)
+    {
+        if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
+            progress(delta);
+        }
+    }
 
     void FlecsWorld::progress(double delta)
     {
@@ -287,6 +316,7 @@ namespace stagehand {
         if (p_what == NOTIFICATION_READY)
         {
             set_world_configuration(world_configuration);
+            set_progress_tick(progress_tick);
             populate_scene_children_singleton();
             setup_entity_renderers_multimesh();
         }
@@ -309,10 +339,17 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("progress", "delta"), &FlecsWorld::progress);
         godot::ClassDB::bind_method(godot::D_METHOD("set_component", "component_name", "data", "entity_id"), &FlecsWorld::set_component, DEFVAL(0));
         godot::ClassDB::bind_method(godot::D_METHOD("get_component", "component_name", "entity_id"), &FlecsWorld::get_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("set_progress_tick", "progress_tick"), &FlecsWorld::set_progress_tick);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_progress_tick"), &FlecsWorld::get_progress_tick);
         godot::ClassDB::bind_method(godot::D_METHOD("set_world_configuration", "configuration"), &FlecsWorld::set_world_configuration);
         godot::ClassDB::bind_method(godot::D_METHOD("get_world_configuration"), &FlecsWorld::get_world_configuration);
         godot::ClassDB::bind_method(godot::D_METHOD("enable_system", "system_name", "enabled"), &FlecsWorld::enable_system, DEFVAL(true));
         godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "progress_tick", godot::PROPERTY_HINT_ENUM, "Rendering,Physics,Manual"), "set_progress_tick", "get_progress_tick");
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_RENDERING);
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_PHYSICS);
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_MANUAL);
 
         ADD_PROPERTY(
             godot::PropertyInfo(
