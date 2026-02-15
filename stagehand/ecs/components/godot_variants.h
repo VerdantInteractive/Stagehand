@@ -21,9 +21,9 @@
 #include <godot_cpp/variant/plane.hpp>
 #include <godot_cpp/variant/projection.hpp>
 #include <godot_cpp/variant/quaternion.hpp>
-#include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/rect2.hpp>
 #include <godot_cpp/variant/rect2i.hpp>
+#include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/signal.hpp>
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/string_name.hpp>
@@ -58,10 +58,10 @@ using godot::PackedVector4Array;
 using godot::Plane;
 using godot::Projection;
 using godot::Quaternion;
-using godot::RID;
 using godot::real_t;
 using godot::Rect2;
 using godot::Rect2i;
+using godot::RID;
 using godot::Signal;
 using godot::String;
 using godot::StringName;
@@ -75,8 +75,7 @@ using godot::Vector4;
 using godot::Vector4i;
 
 /// Helper to register Color layout for any type T that matches Color layout
-template <typename T>
-void register_color_members(flecs::component<T> c) {
+template <typename T> void register_color_members(flecs::component<T> c) {
     c.template member<float>("r");
     c.template member<float>("g");
     c.template member<float>("b");
@@ -84,38 +83,33 @@ void register_color_members(flecs::component<T> c) {
 }
 
 /// Helper to register Vector2 layout for any type T that matches Vector2 layout
-template <typename T>
-void register_vector2_members(flecs::component<T> c) {
+template <typename T> void register_vector2_members(flecs::component<T> c) {
     c.template member<real_t>("x");
     c.template member<real_t>("y");
 }
 
 /// Helper to register Vector2i layout for any type T that matches Vector2i layout
-template <typename T>
-void register_vector2i_members(flecs::component<T> c) {
+template <typename T> void register_vector2i_members(flecs::component<T> c) {
     c.template member<int32_t>("x");
     c.template member<int32_t>("y");
 }
 
 /// Helper to register Vector3 layout for any type T that matches Vector3 layout
-template <typename T>
-void register_vector3_members(flecs::component<T> c) {
+template <typename T> void register_vector3_members(flecs::component<T> c) {
     c.template member<real_t>("x");
     c.template member<real_t>("y");
     c.template member<real_t>("z");
 }
 
 /// Helper to register Vector3i layout for any type T that matches Vector3i layout
-template <typename T>
-void register_vector3i_members(flecs::component<T> c) {
+template <typename T> void register_vector3i_members(flecs::component<T> c) {
     c.template member<int32_t>("x");
     c.template member<int32_t>("y");
     c.template member<int32_t>("z");
 }
 
 /// Helper to register Vector4 layout for any type T that matches Vector4 layout
-template <typename T>
-void register_vector4_members(flecs::component<T> c) {
+template <typename T> void register_vector4_members(flecs::component<T> c) {
     c.template member<real_t>("x");
     c.template member<real_t>("y");
     c.template member<real_t>("z");
@@ -123,8 +117,7 @@ void register_vector4_members(flecs::component<T> c) {
 }
 
 /// Helper to register Vector4i layout for any type T that matches Vector4i layout
-template <typename T>
-void register_vector4i_members(flecs::component<T> c) {
+template <typename T> void register_vector4i_members(flecs::component<T> c) {
     c.template member<int32_t>("x");
     c.template member<int32_t>("y");
     c.template member<int32_t>("z");
@@ -132,29 +125,25 @@ void register_vector4i_members(flecs::component<T> c) {
 }
 
 /// Helper to register Rect2 layout for any type T that matches Rect2 layout
-template <typename T>
-void register_rect2_members(flecs::component<T> c) {
+template <typename T> void register_rect2_members(flecs::component<T> c) {
     c.template member<Vector2>("position");
     c.template member<Vector2>("size");
 }
 
 /// Helper to register Rect2i layout for any type T that matches Rect2i layout
-template <typename T>
-void register_rect2i_members(flecs::component<T> c) {
+template <typename T> void register_rect2i_members(flecs::component<T> c) {
     c.template member<Vector2i>("position");
     c.template member<Vector2i>("size");
 }
 
 /// Helper to register Plane layout for any type T that matches Plane layout
-template <typename T>
-void register_plane_members(flecs::component<T> c) {
+template <typename T> void register_plane_members(flecs::component<T> c) {
     c.template member<Vector3>("normal");
     c.template member<real_t>("d");
 }
 
 /// Helper to register Quaternion layout for any type T that matches Quaternion layout
-template <typename T>
-void register_quaternion_members(flecs::component<T> c) {
+template <typename T> void register_quaternion_members(flecs::component<T> c) {
     c.template member<real_t>("x");
     c.template member<real_t>("y");
     c.template member<real_t>("z");
@@ -162,98 +151,85 @@ void register_quaternion_members(flecs::component<T> c) {
 }
 
 /// Helper to register Basis layout for any type T that matches Basis layout
-template <typename T>
-void register_basis_members(flecs::component<T> c) {
-    c.template member<Vector3>("rows", 3);
-}
+template <typename T> void register_basis_members(flecs::component<T> c) { c.template member<Vector3>("rows", 3); }
 
 /// Helper to register Transform2D layout for any type T that matches Transform2D layout
-template <typename T>
-void register_transform2d_members(flecs::component<T> c) {
-    c.template member<Vector2>("columns", 3);
-}
+template <typename T> void register_transform2d_members(flecs::component<T> c) { c.template member<Vector2>("columns", 3); }
 
 /// Helper to register Transform3D layout for any type T that matches Transform3D layout
-template <typename T>
-void register_transform3d_members(flecs::component<T> c) {
+template <typename T> void register_transform3d_members(flecs::component<T> c) {
     c.template member<Basis>("basis");
     c.template member<Vector3>("origin");
 }
 
 /// Helper to register AABB layout for any type T that matches AABB layout
-template <typename T>
-void register_aabb_members(flecs::component<T> c) {
+template <typename T> void register_aabb_members(flecs::component<T> c) {
     c.template member<Vector3>("position");
     c.template member<Vector3>("size");
 }
 
 /// Helper to register Projection layout for any type T that matches Projection layout
-template <typename T>
-void register_projection_members(flecs::component<T> c) {
-    c.template member<Vector4>("columns", 4);
-}
-
+template <typename T> void register_projection_members(flecs::component<T> c) { c.template member<Vector4>("columns", 4); }
 
 /// Macro to define a component that wraps a Godot type, inheriting constructors and assignment.
 /// Components are defined in the namespace where the macro is invoked.
-#define GODOT_VARIANT(Name, Base, ...) \
-    struct Name : public Base { \
-        using base_type = Base; \
-        using base_type::base_type; \
-        Name() : Base(__VA_ARGS__) {} \
-        Name(const Base& other) : Base(other) {} \
-        Name& operator=(const Base& other) { \
-            Base::operator=(other); \
-            return *this; \
-        } \
-    }; \
-    inline auto register_##Name##_variant = stagehand::ComponentRegistrar<Name>([](flecs::world& world) { \
-        register_godot_members(world.component<Name>(), static_cast<Base*>(nullptr)); \
-        stagehand::register_component_getter<Name, Base>(#Name); \
-        stagehand::register_component_setter<Name, Base>(#Name); \
+#define GODOT_VARIANT(Name, Base, ...)                                                                                                                         \
+    struct Name : public Base {                                                                                                                                \
+        using base_type = Base;                                                                                                                                \
+        using base_type::base_type;                                                                                                                            \
+        Name() : Base(__VA_ARGS__) {}                                                                                                                          \
+        Name(const Base &other) : Base(other) {}                                                                                                               \
+        Name &operator=(const Base &other) {                                                                                                                   \
+            Base::operator=(other);                                                                                                                            \
+            return *this;                                                                                                                                      \
+        }                                                                                                                                                      \
+    };                                                                                                                                                         \
+    inline auto register_##Name##_variant = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                      \
+        register_godot_members(world.component<Name>(), static_cast<Base *>(nullptr));                                                                         \
+        stagehand::register_component_getter<Name, Base>(#Name);                                                                                               \
+        stagehand::register_component_setter<Name, Base>(#Name);                                                                                               \
     })
 
 // Dispatcher overloads to automatically select the correct registration function
 // Struct type
-template <typename T> void register_godot_members(flecs::component<T> c, Color*) { register_color_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Vector2*) { register_vector2_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Vector2i*) { register_vector2i_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Vector3*) { register_vector3_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Vector3i*) { register_vector3i_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Vector4*) { register_vector4_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Vector4i*) { register_vector4i_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Rect2*) { register_rect2_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Rect2i*) { register_rect2i_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Plane*) { register_plane_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Quaternion*) { register_quaternion_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Basis*) { register_basis_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Transform2D*) { register_transform2d_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Transform3D*) { register_transform3d_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, AABB*) { register_aabb_members(c); }
-template <typename T> void register_godot_members(flecs::component<T> c, Projection*) { register_projection_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Color *) { register_color_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Vector2 *) { register_vector2_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Vector2i *) { register_vector2i_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Vector3 *) { register_vector3_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Vector3i *) { register_vector3i_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Vector4 *) { register_vector4_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Vector4i *) { register_vector4i_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Rect2 *) { register_rect2_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Rect2i *) { register_rect2i_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Plane *) { register_plane_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Quaternion *) { register_quaternion_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Basis *) { register_basis_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Transform2D *) { register_transform2d_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Transform3D *) { register_transform3d_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, AABB *) { register_aabb_members(c); }
+template <typename T> void register_godot_members(flecs::component<T> c, Projection *) { register_projection_members(c); }
 
 // Class types
-template <typename T> void register_godot_members(flecs::component<T> c, Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, Dictionary*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, String*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, StringName*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, NodePath*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedByteArray*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedColorArray*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedFloat32Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedFloat64Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedInt32Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedInt64Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedStringArray*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedVector2Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedVector3Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, PackedVector4Array*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, Callable*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, RID*) {}
-template <typename T> void register_godot_members(flecs::component<T> c, Signal*) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Dictionary *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, String *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, StringName *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, NodePath *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedByteArray *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedColorArray *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedFloat32Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedFloat64Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedInt32Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedInt64Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedStringArray *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedVector2Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedVector3Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, PackedVector4Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Callable *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, RID *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Signal *) {}
 
-inline stagehand::Registry register_godot_variant_components([](flecs::world& world)
-{
+inline stagehand::Registry register_godot_variant_components([](flecs::world &world) {
     register_color_members(world.component<Color>()); // 16 bytes
     stagehand::register_component_getter<Color>("Color");
     stagehand::register_component_setter<Color>("Color");

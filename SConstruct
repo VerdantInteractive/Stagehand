@@ -21,6 +21,8 @@ PROJECT_DIRECTORY = check_and_setup_project_file_structure("../../")
 
 # Default to the LLVM/Clang toolchain
 if "use_llvm" not in ARGUMENTS: ARGUMENTS["use_llvm"] = "yes"
+# Default to generating a compilation database; primarily for Clang
+if "compiledb" not in ARGUMENTS: ARGUMENTS["compiledb"] = "yes"
 
 # Only build for x86_64 on macOS
 if sys.platform == "darwin" and "arch" not in ARGUMENTS: ARGUMENTS["arch"] = "x86_64"
@@ -52,7 +54,7 @@ def find_source_files(base_dir):
 sources = find_source_files("stagehand")
 project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}/cpp")
 
-env.Append(CPPPATH=["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr/", ".", f"{PROJECT_DIRECTORY}/cpp"])
+env.Append(CPPPATH=["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", ".", f"{PROJECT_DIRECTORY}/cpp"])
 
 flecs_c_source = "dependencies/flecs/distr/flecs.c"
 

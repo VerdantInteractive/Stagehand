@@ -5,16 +5,17 @@ bin/
 build/obj/
 tests/unit/build/
 
-# Misc
+# Caches
+.cache/clangd
 __pycache__/
+.sconsign.dblite
+
+# Misc
 *.tmp
 
 # IDE-generated files
 **/.idea/
 **/.vs/
-
-# Build system caches
-.sconsign.dblite
 
 # OS-specific metadata files
 .DS_Store

@@ -1,58 +1,47 @@
-#include <mutex>
-
 #include "stagehand/registry.h"
+
+#include <mutex>
 
 namespace stagehand {
 
-    namespace
-    {
+    namespace {
         /// Returns the static vector of registration callbacks.
-        std::vector<RegistrationCallback>& get_callbacks()
-        {
+        std::vector<RegistrationCallback> &get_callbacks() {
             static std::vector<RegistrationCallback> callbacks;
             return callbacks;
         }
 
         /// Returns the static mutex used to protect the callback list.
-        std::mutex& get_mutex()
-        {
+        std::mutex &get_mutex() {
             static std::mutex mtx;
             return mtx;
         }
-    }
+    } // namespace
 
-    Registry::Registry(RegistrationCallback callback)
-    {
-        register_callback(std::move(callback));
-    }
+    Registry::Registry(RegistrationCallback callback) { register_callback(std::move(callback)); }
 
-    void register_callback(RegistrationCallback callback)
-    {
-        if (!callback) return;
+    void register_callback(RegistrationCallback callback) {
+        if (!callback)
+            return;
         std::lock_guard<std::mutex> lock(get_mutex());
         get_callbacks().push_back(std::move(callback));
     }
 
-    void register_components_and_systems_with_world(flecs::world& world)
-    {
+    void register_components_and_systems_with_world(flecs::world &world) {
         std::lock_guard<std::mutex> lock(get_mutex());
-        for (RegistrationCallback callback : get_callbacks())
-        {
-            if (callback != nullptr)
-            {
+        for (RegistrationCallback callback : get_callbacks()) {
+            if (callback != nullptr) {
                 callback(world);
             }
         }
     }
 
-    std::unordered_map<std::string, ComponentGetter>& get_component_getters()
-    {
+    std::unordered_map<std::string, ComponentGetter> &get_component_getters() {
         static std::unordered_map<std::string, ComponentGetter> getters;
         return getters;
     }
 
-    std::unordered_map<std::string, ComponentSetter>& get_component_setters()
-    {
+    std::unordered_map<std::string, ComponentSetter> &get_component_setters() {
         static std::unordered_map<std::string, ComponentSetter> setters;
         return setters;
     }

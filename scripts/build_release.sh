@@ -10,5 +10,5 @@ scons "${COMMON_BUILD_ARGS[@]}" platform="web" linkflags="${WEB_LINKFLAGS[*]}"
 
 # Build for other platforms
 for platform in linux windows; do
-    scons ${COMMON_BUILD_ARGS[@]} platform="${platform}"
+    scons ${COMMON_BUILD_ARGS[@]} platform="${platform}" "$@"
 done
