@@ -251,7 +251,6 @@ namespace stagehand {
         switch (p_what) {
         case NOTIFICATION_READY:
             set_world_configuration(world_configuration);
-            set_progress_tick(progress_tick);
             populate_scene_children_singleton();
             setup_entity_renderers_multimesh();
             break;
