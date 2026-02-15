@@ -12,13 +12,13 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "stagehand/ecs/components/entity_rendering.h"
+#include "stagehand/ecs/components/godot_signal.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
 #include "stagehand/ecs/systems/entity_rendering_multimesh.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
 #include "stagehand/script_loader.h"
-#include "stagehand/utilities/godot_signal.h"
 #include "stagehand/utilities/platform.h"
 
 namespace stagehand {
