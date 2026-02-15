@@ -256,7 +256,6 @@ namespace stagehand {
         return true;
     }
 
-
     bool FlecsWorld::run_system(const godot::String& system_name, const Dictionary& parameters)
     {
         flecs::system sys = get_system(system_name);
@@ -269,6 +268,7 @@ namespace stagehand {
         return true;
     }
 
+
     void FlecsWorld::set_progress_tick(ProgressTick p_progress_tick)
     {
         progress_tick = p_progress_tick;
@@ -278,25 +278,6 @@ namespace stagehand {
         }
         set_process(progress_tick == ProgressTick::PROGRESS_TICK_RENDERING);
         set_physics_process(progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS);
-    }
-
-    FlecsWorld::ProgressTick FlecsWorld::get_progress_tick() const
-    {
-        return progress_tick;
-    }
-
-    void FlecsWorld::_process(double delta)
-    {
-        if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
-            progress(delta);
-        }
-    }
-
-    void FlecsWorld::_physics_process(double delta)
-    {
-        if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
-            progress(delta);
-        }
     }
 
     void FlecsWorld::progress(double delta)
@@ -313,24 +294,29 @@ namespace stagehand {
 
     void FlecsWorld::_notification(const int p_what)
     {
-        if (p_what == NOTIFICATION_READY)
-        {
-            set_world_configuration(world_configuration);
-            set_progress_tick(progress_tick);
-            populate_scene_children_singleton();
-            setup_entity_renderers_multimesh();
+        switch (p_what) {
+            case NOTIFICATION_READY:
+                set_world_configuration(world_configuration);
+                set_progress_tick(progress_tick);
+                populate_scene_children_singleton();
+                setup_entity_renderers_multimesh();
+                break;
+            case NOTIFICATION_PROCESS:
+                if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
+                    progress(get_process_delta_time());
+                }
+                break;
+            case NOTIFICATION_PHYSICS_PROCESS:
+                if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
+                    progress(get_physics_process_delta_time());
+                }
+                break;
+            case NOTIFICATION_EXIT_TREE:
+                if (is_initialised) {
+                    is_initialised = false;
+                }
+                break;
         }
-    }
-
-
-    void FlecsWorld::_exit_tree()
-    {
-        if (!is_initialised)
-        {
-            return;
-        }
-
-        is_initialised = false;
     }
 
 

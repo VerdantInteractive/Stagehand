@@ -36,7 +36,6 @@ namespace stagehand {
         FlecsWorld();
 
         // GDScript-visible methods that we'll bind
-
         /// Sets a component value for an entity.
         void set_component(const godot::String& component_name, const godot::Variant& data, ecs_entity_t entity_id = 0);
 
@@ -59,18 +58,12 @@ namespace stagehand {
         bool run_system(const godot::String& system_name, const godot::Dictionary& parameters);
 
         void set_progress_tick(ProgressTick p_progress_tick);
-        ProgressTick get_progress_tick() const;
+        ProgressTick get_progress_tick() const { return progress_tick; }
 
         /// Advances the ECS world by a delta time.
         /// @param delta The time elapsed since the last frame.
         /// @note To be called every frame from GDScript attached to the FlecsWorld node.
         void progress(double delta);
-
-        // Virtual methods overridden from godot::Node
-
-        void _process(double delta) override;
-        void _physics_process(double delta) override;
-        void _exit_tree() override;
 
         ~FlecsWorld();
 
