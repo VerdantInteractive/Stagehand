@@ -14,7 +14,6 @@
 #include "flecs.h"
 
 namespace stagehand {
-
     /// The main FlecsWorld node that integrates Flecs with Godot.
     class FlecsWorld : public godot::Node {
         GDCLASS(FlecsWorld, godot::Node)
@@ -34,23 +33,19 @@ namespace stagehand {
       public:
         FlecsWorld();
 
-        // GDScript-visible methods that we'll bind
+        // GDScript-visible methods that we bind
         /// Sets a component value for an entity.
         void set_component(const godot::String &component_name, const godot::Variant &data, ecs_entity_t entity_id = 0);
-
         /// Gets a component value from an entity.
         [[nodiscard]] godot::Variant get_component(const godot::String &component_name, ecs_entity_t entity_id = 0);
 
-        /// Sets the world configuration singleton. Format: { "key": value, ...
-        /// }
+        /// Sets the world configuration singleton. Format: { "key": value, ... }
         void set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant> &p_configuration);
-
         /// Gets the world configuration singleton.
         [[nodiscard]] godot::TypedDictionary<godot::String, godot::Variant> get_world_configuration() const;
 
         /// Enables or disables a system by name.
         bool enable_system(const godot::String &system_name, bool enabled = true);
-
         /// Runs a specific system manually, optionally with parameters.
         /// @param system_name The name of the system to run.
         /// @param parameters A dictionary of parameters to pass to the system.
@@ -58,13 +53,11 @@ namespace stagehand {
         /// GDScript.
         bool run_system(const godot::String &system_name, const godot::Dictionary &parameters);
 
-        void set_progress_tick(ProgressTick p_progress_tick) { progress_tick = p_progress_tick; }
+        void set_progress_tick(ProgressTick p_progress_tick);
         ProgressTick get_progress_tick() const { return progress_tick; }
-
         /// Advances the ECS world by a delta time.
         /// @param delta The time elapsed since the last frame.
-        /// @note To be called every frame from GDScript attached to the
-        /// FlecsWorld node.
+        /// @note Can be called from GDScript attached to the FlecsWorld node.
         void progress(double delta);
 
         ~FlecsWorld();
@@ -81,15 +74,15 @@ namespace stagehand {
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String &system_name);
+
         std::unordered_map<std::string, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
         std::unordered_map<std::string, std::function<godot::Variant(flecs::entity_t)>> component_getters;
 
-        /// Populates the SceneChildren singleton with references to child
-        /// nodes.
+        /// Populates the SceneChildren singleton with references to child nodes.
         void populate_scene_children_singleton();
         void setup_entity_renderers_multimesh();
     };
-
 } // namespace stagehand
 
+/// Tells godot-cpp how to convert the C++ enum (ProgressTick) into a godot::Variant (which is usually just an integer at runtime) and back.
 VARIANT_ENUM_CAST(stagehand::FlecsWorld::ProgressTick)

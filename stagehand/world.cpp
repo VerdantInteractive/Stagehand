@@ -22,7 +22,6 @@
 #include "stagehand/utilities/platform.h"
 
 namespace stagehand {
-
     FlecsWorld::FlecsWorld() {
         if (is_initialised) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld's constructor was called when it was "
@@ -34,6 +33,9 @@ namespace stagehand {
         if (godot::Engine::get_singleton()->is_editor_hint()) {
             return;
         }
+
+        // Set up process callbacks based on the configured progress tick mode
+        set_progress_tick(progress_tick);
 
         // Enable Flecs REST, statistics and extra logging verbosity in debug
         // builds
@@ -237,6 +239,19 @@ namespace stagehand {
         return true;
     }
 
+    void FlecsWorld::set_progress_tick(ProgressTick p_progress_tick) {
+        progress_tick = p_progress_tick;
+
+        set_process(false);
+        set_physics_process(false);
+
+        if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
+            set_process(true);
+        } else if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
+            set_physics_process(true);
+        }
+    }
+
     void FlecsWorld::progress(double delta) {
         if (!is_initialised) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world "
@@ -299,5 +314,4 @@ namespace stagehand {
     }
 
     FlecsWorld::~FlecsWorld() {}
-
 } // namespace stagehand
