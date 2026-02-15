@@ -11,6 +11,7 @@ __pycache__/
 .sconsign.dblite
 
 # Misc
+compile_commands.json
 *.tmp
 
 # IDE-generated files
