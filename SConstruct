@@ -9,7 +9,7 @@ sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 from godot_project import check_and_setup_project_file_structure
 
 # Check that the Godot project file structure is set up correctly and get the project directory path
-PROJECT_DIRECTORY = check_and_setup_project_file_structure("../../")
+PROJECT_DIRECTORY = check_and_setup_project_file_structure("tests/integration")
 
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags

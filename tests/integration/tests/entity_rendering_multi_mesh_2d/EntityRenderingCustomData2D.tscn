@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/entity_rendering_multi_mesh_2d/entity_rendering_custom_data.gd" id="1_script"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_cd"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_cd"]
+mesh = SubResource("QuadMesh_cd")
+use_custom_data = true
+
+[node name="EntityRenderingCustomData2D" type="FlecsWorld"]
+script = ExtResource("1_script")
+
+[node name="CustomDataRenderer" type="MultiMeshRenderer2D" parent="."]
+multimesh = SubResource("MultiMesh_cd")
+prefabs_rendered = PackedStringArray("stagehand_tests::CustomDataEntity2D")

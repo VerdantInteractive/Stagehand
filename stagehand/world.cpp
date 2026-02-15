@@ -211,12 +211,11 @@ namespace stagehand {
             godot::UtilityFunctions::push_warning("System not found: " + system_name);
             return flecs::system();
         }
-        flecs::system sys = world.system(entity);
-        if (!sys.is_valid()) {
-            godot::UtilityFunctions::push_warning(system_name + godot::String(" is not a valid system"));
+        if (!entity.has(flecs::System)) {
+            godot::UtilityFunctions::push_warning(system_name + godot::String(" is not a system"));
             return flecs::system();
         }
-        return sys;
+        return world.system(entity);
     }
 
     bool FlecsWorld::enable_system(const godot::String &system_name, bool enabled) {

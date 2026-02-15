@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/entity_rendering_multi_mesh_3d/entity_rendering_full_3d.gd" id="1_script"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_full3d"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_full3d"]
+transform_format = 1
+mesh = SubResource("BoxMesh_full3d")
+use_colors = true
+use_custom_data = true
+
+[node name="EntityRenderingFull3D" type="FlecsWorld"]
+script = ExtResource("1_script")
+
+[node name="FullRenderer3D" type="MultiMeshRenderer3D" parent="."]
+multimesh = SubResource("MultiMesh_full3d")
+prefabs_rendered = PackedStringArray("stagehand_tests::FullEntity3D", "stagehand_tests::ColoredEntity3D")

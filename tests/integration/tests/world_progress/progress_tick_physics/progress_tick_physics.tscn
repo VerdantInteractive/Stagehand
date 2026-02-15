@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://dh4nq6ppm6c0"]
-
-[ext_resource type="Script" uid="uid://b4oh1s1v58bjg" path="res://tests/world_progress/progress_tick_physics/progress_tick_physics.gd" id="1_8jbl4"]
-
-[node name="ProgressTickPhysics" type="FlecsWorld"]
-script = ExtResource("1_8jbl4")

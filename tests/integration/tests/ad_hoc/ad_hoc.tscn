@@ -1,6 +1,0 @@
-[gd_scene format=3 uid="uid://m52rl8fo2htr"]
-
-[ext_resource type="Script" uid="uid://ckk5vx2kkjvv3" path="res://tests/ad_hoc/ad_hoc.gd" id="1_20p7x"]
-
-[node name="AdHoc" type="FlecsWorld" unique_id=1600407914]
-script = ExtResource("1_20p7x")

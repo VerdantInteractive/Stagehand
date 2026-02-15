@@ -1,0 +1,17 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://tests/entity_rendering_multi_mesh_2d/entity_rendering_full.gd" id="1_script"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_full"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_full"]
+mesh = SubResource("QuadMesh_full")
+use_colors = true
+use_custom_data = true
+
+[node name="EntityRenderingFull2D" type="FlecsWorld"]
+script = ExtResource("1_script")
+
+[node name="FullRenderer" type="MultiMeshRenderer2D" parent="."]
+multimesh = SubResource("MultiMesh_full")
+prefabs_rendered = PackedStringArray("stagehand_tests::FullEntity2D", "stagehand_tests::ColoredEntity2D")

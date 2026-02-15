@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/system_control/system_control.gd" id="1"]
+
+[node name="SystemControl" type="FlecsWorld"]
+script = ExtResource("1")

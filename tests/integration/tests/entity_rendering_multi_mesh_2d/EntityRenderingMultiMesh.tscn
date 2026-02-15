@@ -1,0 +1,15 @@
+[gd_scene load_steps=2 format=3 uid="uid://b4c8qx2gl2q5r"]
+
+[ext_resource type="Script" path="res://tests/entity_rendering_multi_mesh_2d/entity_rendering_multi_mesh_2d.gd" id="1_script"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_428fh"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_ncxec"]
+mesh = SubResource("QuadMesh_428fh")
+
+[node name="EntityRenderingMultiMesh2D" type="FlecsWorld" unique_id=1770205071]
+script = ExtResource("1_script")
+
+[node name="MultiMeshRenderer2D" type="MultiMeshRenderer2D" parent="." unique_id=893905845]
+multimesh = SubResource("MultiMesh_ncxec")
+prefabs_rendered = PackedStringArray("stagehand_tests::RenderedEntity2D")

@@ -1,0 +1,16 @@
+[gd_scene load_steps=2 format=3 uid="uid://kfy72el3bk2k"]
+
+[ext_resource type="Script" path="res://tests/entity_rendering_multi_mesh_3d/entity_rendering_multi_mesh_3d.gd" id="1_script"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_68tn5"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_fa8cj"]
+transform_format = 1
+mesh = SubResource("BoxMesh_68tn5")
+
+[node name="EntityRenderingMultiMesh3d" type="FlecsWorld" unique_id=399110277]
+script = ExtResource("1_script")
+
+[node name="MultiMeshRenderer3D" type="MultiMeshRenderer3D" parent="." unique_id=796392117]
+multimesh = SubResource("MultiMesh_fa8cj")
+prefabs_rendered = PackedStringArray("stagehand_tests::RenderedEntity3D")
