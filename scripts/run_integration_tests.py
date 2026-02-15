@@ -6,36 +6,6 @@ import platform
 import argparse
 import shutil
 
-
-def ensure_stagehand_extension_enabled(project_dir: str) -> None:
-    godot_dir = os.path.join(project_dir, ".godot")
-    os.makedirs(godot_dir, exist_ok=True)
-
-    extension_list_path = os.path.join(godot_dir, "extension_list.cfg")
-    stagehand_extension = "res://addons/stagehand/stagehand.gdextension"
-
-    try:
-        with open(extension_list_path, "r", encoding="utf-8") as existing_file:
-            existing_contents = existing_file.read()
-    except FileNotFoundError:
-        existing_contents = ""
-
-    existing_lines = [line.strip() for line in existing_contents.splitlines()]
-
-    enabled_extensions = [
-        line
-        for line in existing_lines
-        if line.startswith("res://") and line.endswith(".gdextension")
-    ]
-    if stagehand_extension not in enabled_extensions:
-        enabled_extensions.append(stagehand_extension)
-
-    desired_contents = "\n".join(enabled_extensions) + "\n"
-
-    if existing_contents != desired_contents:
-        with open(extension_list_path, "w", encoding="utf-8", newline="\n") as extension_list_file:
-            extension_list_file.write(desired_contents)
-
 def run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
     try:
         test_name = os.path.relpath(scene_path, tests_dir)
@@ -102,8 +72,6 @@ def main():
     repo_root = os.path.dirname(script_dir)
     project_dir = os.path.join(repo_root, "tests", "integration")
     tests_dir = os.path.join(project_dir, "tests")
-
-    ensure_stagehand_extension_enabled(project_dir)
 
     # Detect Godot binary
     godot_bin = os.environ.get("GODOT")
