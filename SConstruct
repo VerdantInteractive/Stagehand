@@ -46,7 +46,9 @@ if env["arch"] == "x86_64":
 def find_source_files(base_dir):
     """Recursively find .cpp files under a base directory."""
     cpp_files = []
-    for root, _, files in os.walk(base_dir):
+    for root, dirs, files in os.walk(base_dir):
+        if root == base_dir and "addons" in dirs:
+            dirs.remove("addons")
         for f in files:
             if f.endswith(".cpp") or f.endswith(".cc") or f.endswith(".cxx"):
                 cpp_files.append(os.path.join(root, f).replace("\\", "/"))
