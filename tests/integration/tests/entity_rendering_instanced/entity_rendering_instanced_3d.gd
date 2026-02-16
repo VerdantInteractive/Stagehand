@@ -27,9 +27,9 @@ func _ready() -> void:
 	assert_true(prefabs.size() > 0, "prefabs_rendered is not empty")
 	assert_eq(prefabs[0], "stagehand_tests::InstancedEntity3D", "First prefab name")
 
-	# ── Test 3: Verify LOD count ─────────────────────────────────────────────
-	var lod_count = renderer.get_lod_count()
-	assert_eq(lod_count, 4, "4 LOD levels configured")
+	# ── Test 3: Verify LOD levels ────────────────────────────────────────────
+	var lod_levels = renderer.get_lod_levels()
+	assert_eq(lod_levels.size(), 4, "4 LOD levels configured")
 
 	# ── Test 4: Zero entities — progress should not crash ────────────────────
 	progress(0.016)
