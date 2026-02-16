@@ -6,7 +6,6 @@ build/obj/
 tests/unit/build/
 
 # Caches
-.cache/clangd
 __pycache__/
 .sconsign.dblite
 
@@ -23,6 +22,7 @@ compile_commands.json
 
 
 ### C++ build artifacts. The entries that follow are copied from the Stagehand .gitignore file into the one in the cpp/ subdirectory of the project.
+.cache/clangd
 bin/
 # Prerequisites
 *.d
