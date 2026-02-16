@@ -86,7 +86,9 @@ def check_and_setup_project_file_structure(relative_path):
                     in_old_block = False
             
             if not block_inserted:
-                if new_cpp_gitignore_lines and not new_cpp_gitignore_lines[-1].endswith("\n"):
+                if new_cpp_gitignore_lines:
+                    if not new_cpp_gitignore_lines[-1].endswith("\n"):
+                        new_cpp_gitignore_lines.append("\n")
                     new_cpp_gitignore_lines.append("\n")
                 new_cpp_gitignore_lines.extend(block_content)
             
