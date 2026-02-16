@@ -229,13 +229,13 @@ namespace stagehand {
     }
 
     godot::TypedDictionary<godot::String, godot::Variant> FlecsWorld::get_world_configuration() const {
-        if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called "
-                                                                "before world was initialised"));
+        if (godot::Engine::get_singleton()->is_editor_hint()) {
             return world_configuration;
         }
 
-        if (godot::Engine::get_singleton()->is_editor_hint()) {
+        if (!is_initialised) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called "
+                                                                "before world was initialised"));
             return world_configuration;
         }
 
