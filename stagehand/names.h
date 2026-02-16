@@ -16,6 +16,7 @@ namespace stagehand::names {
 
     namespace systems {
         constexpr const char *ENTITY_RENDERING_COMPUTE = NAMESPACE_STR "::entity_rendering::Entity Rendering (Compute)";
+        constexpr const char *ENTITY_RENDERING_INSTANCED = NAMESPACE_STR "::entity_rendering::Entity Rendering (Instanced)";
         constexpr const char *ENTITY_RENDERING_MULTIMESH = NAMESPACE_STR "::entity_rendering::Entity Rendering (MultiMesh)";
         constexpr const char *PREFAB_INSTANTIATION = NAMESPACE_STR "::Prefab Instantiation";
         constexpr const char *TRANSFORM_UPDATE_2D = NAMESPACE_STR "::Transform Update (2D)";

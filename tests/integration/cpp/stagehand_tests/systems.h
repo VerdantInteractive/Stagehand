@@ -280,4 +280,64 @@ namespace stagehand_tests {
             });
     });
 
+    // ── Query Instanced Renderers (on-demand) ────────────────────────────
+    // Returns information about the instanced renderer state in a Dictionary
+    // stored in SceneChildrenResult.
+    // Result Dictionary: {
+    //   "renderer_count": N,
+    //   "renderers": [{ "lod_count": M, "entity_count": K, "instance_rid_count": L }, ...]
+    // }
+    inline stagehand::Registry register_query_instanced_renderers_system([](flecs::world &world) {
+        world.system(names::systems::QUERY_INSTANCED_RENDERERS)
+            .kind(0) // on-demand
+            .run([](flecs::iter &it) {
+                flecs::world world = it.world();
+                const stagehand::entity_rendering::Renderers *renderers = world.try_get<stagehand::entity_rendering::Renderers>();
+
+                godot::Dictionary result;
+                if (!renderers) {
+                    result["renderer_count"] = 0;
+                    result["renderers"] = godot::Array();
+                    world.set<SceneChildrenResult>(SceneChildrenResult(result));
+                    return;
+                }
+
+                godot::Array renderer_array;
+                for (const stagehand::entity_rendering::InstancedRendererConfig &renderer : renderers->instanced_renderers) {
+                    godot::Dictionary renderer_info;
+                    renderer_info["lod_count"] = static_cast<int>(renderer.lod_configs.size());
+                    renderer_info["entity_count"] = static_cast<int>(renderer.previous_entity_count);
+                    renderer_info["instance_rid_count"] = static_cast<int>(renderer.instance_rids.size());
+
+                    // Check how many instance RIDs are valid
+                    int valid_rids = 0;
+                    for (const godot::RID &rid : renderer.instance_rids) {
+                        if (rid.is_valid()) {
+                            valid_rids++;
+                        }
+                    }
+                    renderer_info["valid_instance_rids"] = valid_rids;
+
+                    // Report LOD config details
+                    godot::Array lod_details;
+                    for (const stagehand::entity_rendering::InstancedRendererLODConfig &lod : renderer.lod_configs) {
+                        godot::Dictionary lod_info;
+                        lod_info["mesh_rid_valid"] = lod.mesh_rid.is_valid();
+                        lod_info["fade_min"] = lod.fade_min;
+                        lod_info["fade_max"] = lod.fade_max;
+                        lod_info["fade_min_margin"] = lod.fade_min_margin;
+                        lod_info["fade_max_margin"] = lod.fade_max_margin;
+                        lod_details.push_back(lod_info);
+                    }
+                    renderer_info["lod_details"] = lod_details;
+
+                    renderer_array.push_back(renderer_info);
+                }
+
+                result["renderer_count"] = static_cast<int>(renderers->instanced_renderers.size());
+                result["renderers"] = renderer_array;
+                world.set<SceneChildrenResult>(SceneChildrenResult(result));
+            });
+    });
+
 } // namespace stagehand_tests

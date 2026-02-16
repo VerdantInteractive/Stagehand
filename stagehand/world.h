@@ -80,6 +80,10 @@ namespace stagehand {
 
         /// Populates the SceneChildren singleton with references to child nodes.
         void populate_scene_children_singleton();
+
+        void setup_entity_renderers_instanced();
+        void cleanup_instanced_renderer_rids();
+
         void setup_entity_renderers_multimesh();
     };
 } // namespace stagehand

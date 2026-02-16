@@ -1,0 +1,46 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/entity_rendering_instanced/entity_rendering_instanced_3d.gd" id="1_script"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod0"]
+radial_segments = 32
+rings = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod1"]
+radial_segments = 16
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod2"]
+radial_segments = 8
+rings = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod3"]
+radial_segments = 4
+rings = 4
+
+[node name="EntityRenderingInstanced3D" type="FlecsWorld"]
+script = ExtResource("1_script")
+
+[node name="InstancedRenderer3D" type="InstancedRenderer3D" parent="."]
+prefabs_rendered = PackedStringArray("stagehand_tests::InstancedEntity3D")
+lod_count = 4
+lod_0/mesh = SubResource("SphereMesh_lod0")
+lod_0/fade_min = 0.0
+lod_0/fade_max = 50.0
+lod_0/fade_min_margin = 0.0
+lod_0/fade_max_margin = 5.0
+lod_1/mesh = SubResource("SphereMesh_lod1")
+lod_1/fade_min = 50.0
+lod_1/fade_max = 100.0
+lod_1/fade_min_margin = 5.0
+lod_1/fade_max_margin = 10.0
+lod_2/mesh = SubResource("SphereMesh_lod2")
+lod_2/fade_min = 100.0
+lod_2/fade_max = 200.0
+lod_2/fade_min_margin = 10.0
+lod_2/fade_max_margin = 20.0
+lod_3/mesh = SubResource("SphereMesh_lod3")
+lod_3/fade_min = 200.0
+lod_3/fade_max = 500.0
+lod_3/fade_min_margin = 20.0
+lod_3/fade_max_margin = 50.0

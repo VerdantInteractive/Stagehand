@@ -22,9 +22,9 @@ def run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
     ]
 
     if quiet:
-        print(f"Running test: {test_name} ... ", end="", flush=True)
+        print(f"Running suite: {test_name} ... ", end="", flush=True)
     else:
-        print(f"Running test: {test_name}")
+        print(f"Running suite: {test_name}")
 
     # Capture output to hide it unless failure
     result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
@@ -47,7 +47,7 @@ def run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
     else:
         print("FAILED")
         if quiet:
-            print(f"Re-running test {test_name} with output...")
+            print(f"Re-running suite {test_name} with output...")
             print(result.stdout)
         return False
 

@@ -15,7 +15,9 @@
 #include "stagehand/ecs/components/godot_signal.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
+#include "stagehand/ecs/systems/entity_rendering_instanced.h"
 #include "stagehand/ecs/systems/entity_rendering_multimesh.h"
+#include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
 #include "stagehand/script_loader.h"
@@ -97,6 +99,53 @@ namespace stagehand {
             }
         }
         world.set<SceneChildren>(children);
+    }
+
+    void FlecsWorld::setup_entity_renderers_instanced() {
+        int renderer_count = 0;
+
+        // Get an existing copy of the Renderers singleton (may already contain multimesh configs) or start with a fresh one.
+        world.component<entity_rendering::Renderers>();
+        entity_rendering::Renderers renderers;
+        const entity_rendering::Renderers *existing = world.try_get<entity_rendering::Renderers>();
+        if (existing) {
+            renderers = *existing;
+        }
+
+        godot::TypedArray<Node> child_nodes = get_children();
+        for (int i = 0; i < child_nodes.size(); ++i) {
+            if (auto ir3d = godot::Object::cast_to<InstancedRenderer3D>(child_nodes[i])) {
+                register_instanced_renderer(world, ir3d, renderers, renderer_count);
+            }
+        }
+
+        if (renderer_count > 0) {
+            world.set<entity_rendering::Renderers>(renderers);
+            godot::UtilityFunctions::print(godot::String("Registered ") + godot::String::num_int64(renderer_count) + " Instanced entity renderers.");
+        } else {
+            stagehand::entity_rendering::EntityRenderingInstanced.disable();
+        }
+    }
+
+    void FlecsWorld::cleanup_instanced_renderer_rids() {
+        const entity_rendering::Renderers *renderers_ptr = world.try_get<entity_rendering::Renderers>();
+        if (!renderers_ptr) {
+            return;
+        }
+
+        godot::RenderingServer *rendering_server = godot::RenderingServer::get_singleton();
+        if (!rendering_server) {
+            return;
+        }
+
+        // Free all RenderingServer instance RIDs created by the instanced rendering system
+        for (const entity_rendering::InstancedRendererConfig &renderer : renderers_ptr->instanced_renderers) {
+            for (const godot::RID &rid : renderer.instance_rids) {
+                if (rid.is_valid()) {
+                    rendering_server->free_rid(rid);
+                }
+            }
+        }
     }
 
     void FlecsWorld::setup_entity_renderers_multimesh() {
@@ -263,9 +312,10 @@ namespace stagehand {
 
     void FlecsWorld::_notification(const int p_what) {
         switch (p_what) {
-        case NOTIFICATION_READY:
+        case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
             set_world_configuration(world_configuration);
             populate_scene_children_singleton();
+            setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
             break;
         case NOTIFICATION_PROCESS:
@@ -280,6 +330,7 @@ namespace stagehand {
             break;
         case NOTIFICATION_EXIT_TREE:
             if (is_initialised) {
+                cleanup_instanced_renderer_rids();
                 is_initialised = false;
             }
             break;

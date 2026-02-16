@@ -62,6 +62,10 @@ namespace stagehand_tests {
             .add<EntityValue>()
             .add<Color>()
             .add<stagehand::entity_rendering::CustomData>();
+
+        // ── Instanced rendering test prefab ──────────────────────────────────
+        // A 3D entity prefab used by InstancedRenderer3D integration tests.
+        world.prefab(stagehand_tests::names::prefabs::INSTANCED_ENTITY_3D).is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D)).add<EntityValue>();
     });
 
 } // namespace stagehand_tests

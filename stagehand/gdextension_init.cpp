@@ -5,6 +5,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
+#include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/world.h"
 
@@ -17,6 +18,7 @@ void initialize_flecs_module(ModuleInitializationLevel p_level) {
     }
 
     GDREGISTER_RUNTIME_CLASS(stagehand::FlecsWorld);
+    GDREGISTER_RUNTIME_CLASS(InstancedRenderer3D);
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer2D);
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer3D);
 }
