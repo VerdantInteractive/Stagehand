@@ -46,17 +46,15 @@ if env["arch"] == "x86_64":
 def find_source_files(base_dir):
     """Recursively find .cpp files under a base directory."""
     cpp_files = []
-
-    for root, dirs, files in os.walk(base_dir):
+    for root, _, files in os.walk(base_dir):
         for f in files:
-            if f.endswith(".cpp"):
+            if f.endswith(".cpp") or f.endswith(".cc") or f.endswith(".cxx"):
                 cpp_files.append(os.path.join(root, f).replace("\\", "/"))
-
     return cpp_files
 
 # Source code paths
-sources = find_source_files("stagehand")
-project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}/cpp")
+stagehand_cpp_sources = find_source_files("stagehand")
+project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}")
 
 env.Append(CPPPATH=["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", ".", f"{PROJECT_DIRECTORY}/cpp"])
 
@@ -156,7 +154,7 @@ else:
 
 # Build stagehand sources into shared build directory
 stagehand_objs = []
-for src in sources:
+for src in stagehand_cpp_sources:
     obj_target = os.path.join(BUILD_DIR, "stagehand", os.path.splitext(os.path.basename(src))[0])
     stagehand_objs.extend(project_env.SharedObject(
         target=obj_target,

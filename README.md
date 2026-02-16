@@ -15,8 +15,9 @@ TBC
 ## Usage
 
 ```
-git submodule add -b alpha https://github.com/VerdantInteractive/Stagehand.git addons/stagehand
-git submodule update --init --recursive addons/stagehand
+git remote add -f stagehand https://github.com/VerdantInteractive/Stagehand.git
+git subtree add --prefix addons/stagehand stagehand alpha --squash
+
 scons -C addons/stagehand
 ```
 
