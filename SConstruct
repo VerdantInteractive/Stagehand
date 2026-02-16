@@ -6,14 +6,15 @@ import os, sys
 from SCons.Script import ARGUMENTS, SConscript, Alias, Default
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
-from godot_project import check_and_setup_project_file_structure
 
 # Check that the Godot project file structure is set up correctly and get the project directory path
 if os.path.basename(os.getcwd()) == "stagehand" and os.path.basename(os.path.dirname(os.getcwd())) == "addons":
     project_path = "../.." # Running in a downstream project where stagehand is in addons/stagehand
+    from godot_project import check_and_setup_project_file_structure
+    PROJECT_DIRECTORY = check_and_setup_project_file_structure(project_path)
 else:
     project_path = "tests/integration" # Running in the stagehand repo itself, use the test integration project.
-PROJECT_DIRECTORY = check_and_setup_project_file_structure(project_path)
+    PROJECT_DIRECTORY = os.path.abspath(project_path)
 
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
