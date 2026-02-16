@@ -34,6 +34,9 @@ class InstancedRenderer3DLODConfiguration : public godot::Resource {
     void set_fade_max_margin(float p_value) { fade_max_margin = p_value; }
     [[nodiscard]] float get_fade_max_margin() const { return fade_max_margin; }
 
+    void set_visibility_fade_mode(godot::RenderingServer::VisibilityRangeFadeMode p_value) { visibility_fade_mode = p_value; }
+    [[nodiscard]] godot::RenderingServer::VisibilityRangeFadeMode get_visibility_fade_mode() const { return visibility_fade_mode; }
+
   protected:
     static void _bind_methods();
 
@@ -43,6 +46,7 @@ class InstancedRenderer3DLODConfiguration : public godot::Resource {
     float fade_max = 0.0f;
     float fade_min_margin = 0.0f;
     float fade_max_margin = 0.0f;
+    godot::RenderingServer::VisibilityRangeFadeMode visibility_fade_mode = godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF;
 };
 
 /// A Node3D that renders ECS entities with Transform3D components as individual

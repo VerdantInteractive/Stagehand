@@ -24,6 +24,7 @@ fade_min = 0.0
 fade_max = 50.0
 fade_min_margin = 0.0
 fade_max_margin = 5.0
+visibility_fade_mode = 0
 
 [sub_resource type="InstancedRenderer3DLODConfiguration" id="LODResource_1"]
 mesh = SubResource("SphereMesh_lod1")
@@ -31,6 +32,7 @@ fade_min = 50.0
 fade_max = 100.0
 fade_min_margin = 5.0
 fade_max_margin = 10.0
+visibility_fade_mode = 1
 
 [sub_resource type="InstancedRenderer3DLODConfiguration" id="LODResource_2"]
 mesh = SubResource("SphereMesh_lod2")
@@ -38,6 +40,7 @@ fade_min = 100.0
 fade_max = 200.0
 fade_min_margin = 10.0
 fade_max_margin = 20.0
+visibility_fade_mode = 2
 
 [sub_resource type="InstancedRenderer3DLODConfiguration" id="LODResource_3"]
 mesh = SubResource("SphereMesh_lod3")
@@ -45,6 +48,7 @@ fade_min = 200.0
 fade_max = 500.0
 fade_min_margin = 20.0
 fade_max_margin = 50.0
+visibility_fade_mode = 1
 
 [node name="EntityRenderingInstanced3D" type="FlecsWorld"]
 script = ExtResource("1_script")

@@ -93,7 +93,7 @@ inline stagehand::Registry register_entity_rendering_instanced_system([](flecs::
                                     // Set visibility range for this LOD level
                                     rendering_server->instance_geometry_set_visibility_range(instance_rid, lod_config.fade_min, lod_config.fade_max,
                                                                                              lod_config.fade_min_margin, lod_config.fade_max_margin,
-                                                                                             godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF);
+                                                                                             lod_config.visibility_fade_mode);
                                 }
 
                                 // Ensure visible if it was previously hidden or just created

@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <godot_cpp/classes/multi_mesh.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/rid.hpp>
 
 #include "stagehand/ecs/components/godot_variants.h"
@@ -38,6 +39,7 @@ namespace stagehand::entity_rendering {
         float fade_max = 0.0f;
         float fade_min_margin = 0.0f;
         float fade_max_margin = 0.0f;
+        godot::RenderingServer::VisibilityRangeFadeMode visibility_fade_mode = godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF;
     };
 
     /// Configuration for one InstancedRenderer3D node.

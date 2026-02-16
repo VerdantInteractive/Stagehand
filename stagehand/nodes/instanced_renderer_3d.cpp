@@ -22,6 +22,10 @@ void InstancedRenderer3DLODConfiguration::_bind_methods() {
     godot::ClassDB::bind_method(godot::D_METHOD("set_fade_max_margin", "fade_max_margin"), &InstancedRenderer3DLODConfiguration::set_fade_max_margin);
     godot::ClassDB::bind_method(godot::D_METHOD("get_fade_max_margin"), &InstancedRenderer3DLODConfiguration::get_fade_max_margin);
 
+    godot::ClassDB::bind_method(godot::D_METHOD("set_visibility_fade_mode", "visibility_fade_mode"),
+                                &InstancedRenderer3DLODConfiguration::set_visibility_fade_mode);
+    godot::ClassDB::bind_method(godot::D_METHOD("get_visibility_fade_mode"), &InstancedRenderer3DLODConfiguration::get_visibility_fade_mode);
+
     godot::ClassDB::add_property("InstancedRenderer3DLODConfiguration",
                                  godot::PropertyInfo(godot::Variant::OBJECT, "mesh", godot::PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
     godot::ClassDB::add_property("InstancedRenderer3DLODConfiguration",
@@ -36,6 +40,17 @@ void InstancedRenderer3DLODConfiguration::_bind_methods() {
     godot::ClassDB::add_property("InstancedRenderer3DLODConfiguration",
                                  godot::PropertyInfo(godot::Variant::FLOAT, "fade_max_margin", godot::PROPERTY_HINT_RANGE, "0,1000,0.1,or_greater"),
                                  "set_fade_max_margin", "get_fade_max_margin");
+    godot::ClassDB::add_property(
+        "InstancedRenderer3DLODConfiguration",
+        godot::PropertyInfo(godot::Variant::INT, "visibility_fade_mode", godot::PROPERTY_HINT_ENUM, "Disabled:0,Self:1,Dependencies:2"),
+        "set_visibility_fade_mode", "get_visibility_fade_mode");
+
+    godot::ClassDB::bind_integer_constant(InstancedRenderer3DLODConfiguration::get_class_static(), godot::StringName(), "VISIBILITY_FADE_DISABLED",
+                                          godot::RenderingServer::VISIBILITY_RANGE_FADE_DISABLED);
+    godot::ClassDB::bind_integer_constant(InstancedRenderer3DLODConfiguration::get_class_static(), godot::StringName(), "VISIBILITY_FADE_SELF",
+                                          godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF);
+    godot::ClassDB::bind_integer_constant(InstancedRenderer3DLODConfiguration::get_class_static(), godot::StringName(), "VISIBILITY_FADE_DEPENDENCIES",
+                                          godot::RenderingServer::VISIBILITY_RANGE_FADE_DEPENDENCIES);
 }
 
 bool InstancedRenderer3D::validate_configuration() const {
@@ -79,6 +94,15 @@ bool InstancedRenderer3D::validate_configuration() const {
         if (lod->get_fade_max_margin() < 0.0f) {
             godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) +
                                                   " has negative fade_max_margin.");
+        }
+
+        const godot::RenderingServer::VisibilityRangeFadeMode visibility_fade_mode = lod->get_visibility_fade_mode();
+        if (visibility_fade_mode != godot::RenderingServer::VISIBILITY_RANGE_FADE_DISABLED &&
+            visibility_fade_mode != godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF &&
+            visibility_fade_mode != godot::RenderingServer::VISIBILITY_RANGE_FADE_DEPENDENCIES) {
+            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) +
+                                                  " has invalid visibility_fade_mode.");
+            valid = false;
         }
     }
 
@@ -132,6 +156,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
         lod_config.fade_max = lod_resource->get_fade_max();
         lod_config.fade_min_margin = lod_resource->get_fade_min_margin();
         lod_config.fade_max_margin = lod_resource->get_fade_max_margin();
+        lod_config.visibility_fade_mode = lod_resource->get_visibility_fade_mode();
         lod_configs.push_back(lod_config);
     }
 

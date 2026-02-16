@@ -61,21 +61,25 @@ func _ready() -> void:
 	assert_true(lod_details[0]["mesh_rid_valid"], "LOD 0 mesh RID is valid")
 	assert_approx(lod_details[0]["fade_min"], 0.0, "LOD 0 fade_min")
 	assert_approx(lod_details[0]["fade_max"], 50.0, "LOD 0 fade_max")
+	assert_eq(lod_details[0]["visibility_fade_mode"], InstancedRenderer3DLODConfiguration.VISIBILITY_FADE_DISABLED, "LOD 0 visibility_fade_mode")
 
 	# LOD 1: medium-high detail
 	assert_true(lod_details[1]["mesh_rid_valid"], "LOD 1 mesh RID is valid")
 	assert_approx(lod_details[1]["fade_min"], 50.0, "LOD 1 fade_min")
 	assert_approx(lod_details[1]["fade_max"], 100.0, "LOD 1 fade_max")
+	assert_eq(lod_details[1]["visibility_fade_mode"], InstancedRenderer3DLODConfiguration.VISIBILITY_FADE_SELF, "LOD 1 visibility_fade_mode")
 
 	# LOD 2: medium-low detail
 	assert_true(lod_details[2]["mesh_rid_valid"], "LOD 2 mesh RID is valid")
 	assert_approx(lod_details[2]["fade_min"], 100.0, "LOD 2 fade_min")
 	assert_approx(lod_details[2]["fade_max"], 200.0, "LOD 2 fade_max")
+	assert_eq(lod_details[2]["visibility_fade_mode"], InstancedRenderer3DLODConfiguration.VISIBILITY_FADE_DEPENDENCIES, "LOD 2 visibility_fade_mode")
 
 	# LOD 3: lowest detail, farthest range
 	assert_true(lod_details[3]["mesh_rid_valid"], "LOD 3 mesh RID is valid")
 	assert_approx(lod_details[3]["fade_min"], 200.0, "LOD 3 fade_min")
 	assert_approx(lod_details[3]["fade_max"], 500.0, "LOD 3 fade_max")
+	assert_eq(lod_details[3]["visibility_fade_mode"], InstancedRenderer3DLODConfiguration.VISIBILITY_FADE_SELF, "LOD 3 visibility_fade_mode")
 
 	# ── Test 7: Verify no instances exist yet ────────────────────────────────
 	assert_eq(renderer_data["entity_count"], 0, "No entities tracked yet")

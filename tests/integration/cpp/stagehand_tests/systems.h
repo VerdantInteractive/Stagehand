@@ -327,6 +327,7 @@ namespace stagehand_tests {
                         lod_info["fade_max"] = lod.fade_max;
                         lod_info["fade_min_margin"] = lod.fade_min_margin;
                         lod_info["fade_max_margin"] = lod.fade_max_margin;
+                        lod_info["visibility_fade_mode"] = static_cast<int>(lod.visibility_fade_mode);
                         lod_details.push_back(lod_info);
                     }
                     renderer_info["lod_details"] = lod_details;
