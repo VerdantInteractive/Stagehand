@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://tests/entity_rendering_multi_mesh_2d/entity_rendering_colored.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://c3gvexl0uqj1h" path="res://tests/entity_rendering_multi_mesh/entity_rendering_colored.gd" id="1_script"]
 
 [sub_resource type="QuadMesh" id="QuadMesh_col"]
 

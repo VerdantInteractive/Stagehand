@@ -1,6 +1,6 @@
-[gd_scene load_steps=2 format=3]
+[gd_scene format=3]
 
-[ext_resource type="Script" path="res://tests/entity_rendering_multi_mesh_3d/entity_rendering_custom_data_3d.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://cylgf3rlrugey" path="res://tests/entity_rendering_multi_mesh/entity_rendering_custom_data_3d.gd" id="1_script"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_cd3d"]
 
