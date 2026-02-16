@@ -206,17 +206,17 @@ namespace stagehand {
     }
 
     void FlecsWorld::set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant> &p_configuration) {
-        if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_world_configuration was called "
-                                                                "before world was initialised"));
-            return;
-        }
-
         const godot::TypedDictionary<godot::String, godot::Variant> previous_configuration = world_configuration;
 
         // Avoid self-assignment which can crash
         if (&p_configuration != &world_configuration) {
             world_configuration = p_configuration;
+        }
+
+        if (!is_initialised) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_world_configuration was called "
+                                                                "before world was initialised"));
+            return;
         }
 
         const WorldConfiguration *existing_configuration = world.try_get<WorldConfiguration>();

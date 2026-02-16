@@ -1,7 +1,5 @@
 #pragma once
 
-#include <vector>
-
 #include <godot_cpp/classes/mesh.hpp>
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
@@ -9,8 +7,6 @@
 #include <godot_cpp/variant/packed_string_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
-
-#include "flecs.h"
 
 #include "stagehand/ecs/components/entity_rendering.h"
 
