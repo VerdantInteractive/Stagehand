@@ -36,8 +36,8 @@ def check_and_setup_project_file_structure(relative_path):
                 pass
             print(f"Notice: Created {gdignore_path} in 'cpp' directory to exclude it from Godot's asset scanning.")
     
-        # Update .gitignore in project/cpp/ with C++ build artifacts block from root .gitignore
-        gitignore_path = os.path.join(cpp_dir, ".gitignore")
+        # Update .gitignore in project root with C++ build artifacts block from Stagehand's .gitignore
+        gitignore_path = os.path.join(project_directory, ".gitignore")
         
         # Read the block from the project root .gitignore
         # This script is in scripts/scons_helpers/godot_project.py, so root is 3 levels up
@@ -62,13 +62,13 @@ def check_and_setup_project_file_structure(relative_path):
                         break
         
         if block_content:
-            # Read existing cpp/.gitignore
+            # Read existing .gitignore
             cpp_gitignore_lines = []
             if os.path.exists(gitignore_path):
                 with open(gitignore_path, "r") as f:
                     cpp_gitignore_lines = f.readlines()
             
-            # Reconstruct cpp/.gitignore with updated block
+            # Reconstruct .gitignore with updated block
             new_cpp_gitignore_lines = []
             in_old_block = False
             block_inserted = False
@@ -98,5 +98,15 @@ def check_and_setup_project_file_structure(relative_path):
         else:
             print(f"Warning: Could not find C++ build artifacts block in {root_gitignore_path}")
         
+        # Create symbolic links to Stagehand configuration files
+        for filename in ["compile_commands.json", ".clang-format", ".clangd"]:
+            link_path = os.path.join(project_directory, filename)
+            target_path = os.path.join("addons", "stagehand", filename)
+            try:
+                if not os.path.lexists(link_path):
+                    os.symlink(target_path, link_path)
+                    print(f"Notice: Created symbolic link '{link_path}' -> '{target_path}'")
+            except OSError:
+                pass
 
     return project_directory
