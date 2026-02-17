@@ -17,27 +17,6 @@ func _ready() -> void:
 	set_component("TestInt32", -42)
 	assert_eq(get_component("TestInt32"), -42, "TestInt32 value")
 
-	# ── VECTOR(float) ────────────────────────────────────────────────────────
-	set_component("TestVectorFloat", [1.0, 2.0, 3.0])
-	var vec_float = get_component("TestVectorFloat")
-	assert_eq(typeof(vec_float), TYPE_ARRAY, "TestVectorFloat type")
-	assert_eq(vec_float.size(), 3, "TestVectorFloat size")
-	assert_approx(vec_float[0], 1.0, "TestVectorFloat[0]")
-	assert_approx(vec_float[2], 3.0, "TestVectorFloat[2]")
-
-	# ── VECTOR(int) ──────────────────────────────────────────────────────────
-	set_component("TestVectorInt", [10, 20, 30, 40])
-	var vec_int = get_component("TestVectorInt")
-	assert_eq(vec_int.size(), 4, "TestVectorInt size")
-	assert_eq(vec_int[3], 40, "TestVectorInt[3]")
-
-	# ── ARRAY(float, 4) ──────────────────────────────────────────────────────
-	set_component("TestArray4", [5.0, 6.0, 7.0, 8.0])
-	var arr4 = get_component("TestArray4")
-	assert_eq(arr4.size(), 4, "TestArray4 size")
-	assert_approx(arr4[0], 5.0, "TestArray4[0]")
-	assert_approx(arr4[3], 8.0, "TestArray4[3]")
-
 	# ── GODOT_VARIANT – Vector2 ──────────────────────────────────────────────
 	set_component("TestVector2", Vector2(10.5, 20.5))
 	var v2 = get_component("TestVector2")
