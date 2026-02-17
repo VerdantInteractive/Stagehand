@@ -3,6 +3,7 @@
 #include <godot_cpp/classes/resource.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/string.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 #include <godot_cpp/variant/typed_dictionary.hpp>
 
 namespace stagehand {
@@ -19,10 +20,8 @@ namespace stagehand {
         void set_prefab_name(const godot::String &p_name);
         godot::String get_prefab_name() const;
 
-        void set_parent(const godot::Ref<Prefab> &p_parent);
-        godot::Ref<Prefab> get_parent() const;
-
-        void is_a(const godot::Ref<Prefab> &p_parent);
+        void set_parents(const godot::TypedArray<Prefab> &p_parents);
+        godot::TypedArray<Prefab> get_parents() const;
 
         void set_components(const godot::TypedDictionary<godot::String, godot::Variant> &p_components);
         godot::TypedDictionary<godot::String, godot::Variant> get_components() const;
@@ -37,7 +36,7 @@ namespace stagehand {
 
       private:
         godot::String prefab_name;
-        godot::Ref<Prefab> parent;
+        godot::TypedArray<Prefab> parents;
         godot::TypedDictionary<godot::String, godot::Variant> components;
     };
 

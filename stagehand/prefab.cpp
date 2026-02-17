@@ -15,11 +15,9 @@ namespace stagehand {
 
     godot::String Prefab::get_prefab_name() const { return prefab_name; }
 
-    void Prefab::set_parent(const godot::Ref<Prefab> &p_parent) { parent = p_parent; }
+    void Prefab::set_parents(const godot::TypedArray<Prefab> &p_parents) { parents = p_parents; }
 
-    godot::Ref<Prefab> Prefab::get_parent() const { return parent; }
-
-    void Prefab::is_a(const godot::Ref<Prefab> &p_parent) { parent = p_parent; }
+    godot::TypedArray<Prefab> Prefab::get_parents() const { return parents; }
 
     void Prefab::set_components(const godot::TypedDictionary<godot::String, godot::Variant> &p_components) { components = p_components; }
 
@@ -42,10 +40,14 @@ namespace stagehand {
         }
 
         // Handle inheritance
-        if (parent.is_valid()) {
-            uint64_t parent_id = parent->register_with_world(world);
-            if (parent_id != 0) {
-                world->world.entity(static_cast<ecs_entity_t>(prefab_id)).is_a(world->world.entity(static_cast<ecs_entity_t>(parent_id)));
+        world->world.entity(static_cast<ecs_entity_t>(prefab_id)).remove(flecs::IsA, flecs::Wildcard);
+        for (int i = 0; i < parents.size(); ++i) {
+            godot::Ref<Prefab> parent = parents[i];
+            if (parent.is_valid()) {
+                uint64_t parent_id = parent->register_with_world(world);
+                if (parent_id != 0) {
+                    world->world.entity(static_cast<ecs_entity_t>(prefab_id)).is_a(world->world.entity(static_cast<ecs_entity_t>(parent_id)));
+                }
             }
         }
 
@@ -55,15 +57,17 @@ namespace stagehand {
     void Prefab::_bind_methods() {
         godot::ClassDB::bind_method(godot::D_METHOD("set_prefab_name", "name"), &Prefab::set_prefab_name);
         godot::ClassDB::bind_method(godot::D_METHOD("get_prefab_name"), &Prefab::get_prefab_name);
-        godot::ClassDB::bind_method(godot::D_METHOD("set_parent", "parent"), &Prefab::set_parent);
-        godot::ClassDB::bind_method(godot::D_METHOD("get_parent"), &Prefab::get_parent);
-        godot::ClassDB::bind_method(godot::D_METHOD("is_a", "parent"), &Prefab::is_a);
+        godot::ClassDB::bind_method(godot::D_METHOD("set_parents", "parents"), &Prefab::set_parents);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_parents"), &Prefab::get_parents);
         godot::ClassDB::bind_method(godot::D_METHOD("set_components", "components"), &Prefab::set_components);
         godot::ClassDB::bind_method(godot::D_METHOD("get_components"), &Prefab::get_components);
         godot::ClassDB::bind_method(godot::D_METHOD("register_to_world", "world"), &Prefab::register_with_world);
 
         ADD_PROPERTY(godot::PropertyInfo(godot::Variant::STRING, "prefab_name"), "set_prefab_name", "get_prefab_name");
-        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::OBJECT, "parent", godot::PROPERTY_HINT_RESOURCE_TYPE, "Prefab"), "set_parent", "get_parent");
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "parents", godot::PROPERTY_HINT_RESOURCE_TYPE,
+                                         godot::String::num_int64(godot::Variant::OBJECT) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_RESOURCE_TYPE) +
+                                             ":Prefab"),
+                     "set_parents", "get_parents");
         ADD_PROPERTY(godot::PropertyInfo(godot::Variant::DICTIONARY, "components", godot::PROPERTY_HINT_TYPE_STRING,
                                          godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
                                          godot::PROPERTY_USAGE_DEFAULT),
