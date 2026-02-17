@@ -190,3 +190,90 @@ using std::uint8_t;
 #define TAG(Name)                                                                                                                                              \
     struct Name {};                                                                                                                                            \
     inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) { world.component<Name>(); })
+
+/// Macro that defines a component wrapping a std::vector.
+///
+/// The component works fully with Flecs ECS operations (add, remove, get, queries, systems).
+/// Godot getter/setter functions are provided for GDScript integration.
+///
+/// NOTE: Flecs' opt-in Meta reflection (for JSON serialization and Flecs Script access)
+/// is not supported for std::vector members. The Meta addon requires std::vector to be
+/// registered as an "opaque type" with custom serialization callbacks, which these macros
+/// do not provide. This does not affect normal ECS usage.
+///
+/// @param Name The name of the component struct.
+/// @param ElementType The type of elements in the vector.
+/// @param ... Optional initializer for the vector (e.g., {1, 2, 3}).
+///
+/// Example: VECTOR(MyVectorComponent, float, {1.0f, 2.0f, 3.0f})
+#define VECTOR(Name, ElementType, ...)                                                                                                                         \
+    struct Name {                                                                                                                                              \
+        std::vector<ElementType> value{__VA_ARGS__};                                                                                                           \
+        Name() = default;                                                                                                                                      \
+        Name(const std::vector<ElementType> &v) : value(v) {}                                                                                                  \
+        Name(std::vector<ElementType> &&v) : value(std::move(v)) {}                                                                                            \
+        Name &operator=(const std::vector<ElementType> &v) {                                                                                                   \
+            value = v;                                                                                                                                         \
+            return *this;                                                                                                                                      \
+        }                                                                                                                                                      \
+        Name &operator=(std::vector<ElementType> &&v) {                                                                                                        \
+            value = std::move(v);                                                                                                                              \
+            return *this;                                                                                                                                      \
+        }                                                                                                                                                      \
+        ElementType &operator[](std::size_t i) { return value[i]; }                                                                                            \
+        const ElementType &operator[](std::size_t i) const { return value[i]; }                                                                                \
+        std::size_t size() const { return value.size(); }                                                                                                      \
+        auto begin() { return value.begin(); }                                                                                                                 \
+        auto end() { return value.end(); }                                                                                                                     \
+        auto begin() const { return value.begin(); }                                                                                                           \
+        auto end() const { return value.end(); }                                                                                                               \
+    };                                                                                                                                                         \
+    inline auto register_##Name##_vector = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
+        world.component<Name>();                                                                                                                               \
+        stagehand::register_vector_component_getter<Name, ElementType>(#Name);                                                                                 \
+        stagehand::register_vector_component_setter<Name, ElementType>(#Name);                                                                                 \
+    })
+
+/// Macro that defines a component wrapping a std::array.
+///
+/// The component works fully with Flecs ECS operations (add, remove, get, queries, systems).
+/// Godot getter/setter functions are provided for GDScript integration.
+///
+/// NOTE: Flecs' opt-in Meta reflection (for JSON serialization and Flecs Script access)
+/// is not supported for std::array members. The Meta addon requires arrays to be
+/// registered with custom member reflection, which these macros do not provide.
+/// This does not affect normal ECS usage.
+///
+/// @param Name The name of the component struct.
+/// @param ElementType The type of elements in the array.
+/// @param Size The size of the array (must be a compile-time constant).
+/// @param ... Optional initializer for the array (e.g., {1, 2, 3}).
+///
+/// Example: ARRAY(MyArrayComponent, int, 5, {10, 20, 30, 40, 50})
+#define ARRAY(Name, ElementType, Size, ...)                                                                                                                    \
+    struct Name {                                                                                                                                              \
+        std::array<ElementType, Size> value{__VA_ARGS__};                                                                                                      \
+        Name() = default;                                                                                                                                      \
+        Name(const std::array<ElementType, Size> &v) : value(v) {}                                                                                             \
+        Name(std::array<ElementType, Size> &&v) : value(std::move(v)) {}                                                                                       \
+        Name &operator=(const std::array<ElementType, Size> &v) {                                                                                              \
+            value = v;                                                                                                                                         \
+            return *this;                                                                                                                                      \
+        }                                                                                                                                                      \
+        Name &operator=(std::array<ElementType, Size> &&v) {                                                                                                   \
+            value = std::move(v);                                                                                                                              \
+            return *this;                                                                                                                                      \
+        }                                                                                                                                                      \
+        ElementType &operator[](std::size_t i) { return value[i]; }                                                                                            \
+        const ElementType &operator[](std::size_t i) const { return value[i]; }                                                                                \
+        constexpr std::size_t size() const { return Size; }                                                                                                    \
+        auto begin() { return value.begin(); }                                                                                                                 \
+        auto end() { return value.end(); }                                                                                                                     \
+        auto begin() const { return value.begin(); }                                                                                                           \
+        auto end() const { return value.end(); }                                                                                                               \
+    };                                                                                                                                                         \
+    inline auto register_##Name##_array = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
+        world.component<Name>();                                                                                                                               \
+        stagehand::register_array_component_getter<Name, ElementType, Size>(#Name);                                                                            \
+        stagehand::register_array_component_setter<Name, ElementType, Size>(#Name);                                                                            \
+    })

@@ -22,6 +22,12 @@ namespace stagehand_tests {
     TAG(MarkerA);
     TAG(MarkerB);
 
+    // ─── Collection component macros ─────────────────────────────────────────────
+
+    VECTOR(TestVectorFloat, float);
+    VECTOR(TestVectorInt, int32_t);
+    ARRAY(TestArray4, float, 4);
+
     // ─── Godot Variant component macros ──────────────────────────────────────────
 
     GODOT_VARIANT(TestVector2, godot::Vector2);
