@@ -9,18 +9,40 @@ using std::uint16_t;
 using std::uint32_t;
 using std::uint8_t;
 
+/// Macro that defines common operators for numeric component wrappers.
+#define NUMERIC_COMPONENT_OPERATORS(Name, Type)                                                                                                                \
+    operator Type &() { return value; }                                                                                                                        \
+    operator Type() const { return value; }                                                                                                                    \
+    Name &operator=(Type v) {                                                                                                                                  \
+        value = v;                                                                                                                                             \
+        return *this;                                                                                                                                          \
+    }                                                                                                                                                          \
+    Name &operator++() { /* pre-increment */                                                                                                                   \
+        ++value;                                                                                                                                               \
+        return *this;                                                                                                                                          \
+    }                                                                                                                                                          \
+    Name operator++(int) { /* post-increment */                                                                                                                \
+        Name temp = *this;                                                                                                                                     \
+        ++value;                                                                                                                                               \
+        return temp;                                                                                                                                           \
+    }                                                                                                                                                          \
+    Name &operator--() { /* pre-decrement */                                                                                                                   \
+        --value;                                                                                                                                               \
+        return *this;                                                                                                                                          \
+    }                                                                                                                                                          \
+    Name operator--(int) { /* post-decrement */                                                                                                                \
+        Name temp = *this;                                                                                                                                     \
+        --value;                                                                                                                                               \
+        return temp;                                                                                                                                           \
+    }
+
 /// Macro that defines a component wrapping a single-precision floating-point number.
 #define FLOAT(Name, ...)                                                                                                                                       \
     struct Name {                                                                                                                                              \
         float value{__VA_ARGS__};                                                                                                                              \
         Name() = default;                                                                                                                                      \
         Name(float v) : value(v) {}                                                                                                                            \
-        operator float &() { return value; }                                                                                                                   \
-        operator float() const { return value; }                                                                                                               \
-        Name &operator=(float v) {                                                                                                                             \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, float)                                                                                                               \
     };                                                                                                                                                         \
     inline auto register_##Name##_float = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<float>("value");                                                                                                        \
@@ -34,12 +56,7 @@ using std::uint8_t;
         double value{__VA_ARGS__};                                                                                                                             \
         Name() = default;                                                                                                                                      \
         Name(double v) : value(v) {}                                                                                                                           \
-        operator double &() { return value; }                                                                                                                  \
-        operator double() const { return value; }                                                                                                              \
-        Name &operator=(double v) {                                                                                                                            \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, double)                                                                                                              \
     };                                                                                                                                                         \
     inline auto register_##Name##_double = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<double>("value");                                                                                                       \
@@ -53,12 +70,7 @@ using std::uint8_t;
         int32_t value{__VA_ARGS__};                                                                                                                            \
         Name() = default;                                                                                                                                      \
         Name(int32_t v) : value(v) {}                                                                                                                          \
-        operator int32_t &() { return value; }                                                                                                                 \
-        operator int32_t() const { return value; }                                                                                                             \
-        Name &operator=(int32_t v) {                                                                                                                           \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, int32_t)                                                                                                             \
     };                                                                                                                                                         \
     inline auto register_##Name##_int32 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<int32_t>("value");                                                                                                      \
@@ -72,12 +84,7 @@ using std::uint8_t;
         uint32_t value{__VA_ARGS__};                                                                                                                           \
         Name() = default;                                                                                                                                      \
         Name(uint32_t v) : value(v) {}                                                                                                                         \
-        operator uint32_t &() { return value; }                                                                                                                \
-        operator uint32_t() const { return value; }                                                                                                            \
-        Name &operator=(uint32_t v) {                                                                                                                          \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, uint32_t)                                                                                                            \
     };                                                                                                                                                         \
     inline auto register_##Name##_uint32 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<uint32_t>("value");                                                                                                     \
@@ -91,12 +98,7 @@ using std::uint8_t;
         int16_t value{__VA_ARGS__};                                                                                                                            \
         Name() = default;                                                                                                                                      \
         Name(int16_t v) : value(v) {}                                                                                                                          \
-        operator int16_t &() { return value; }                                                                                                                 \
-        operator int16_t() const { return value; }                                                                                                             \
-        Name &operator=(int16_t v) {                                                                                                                           \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, int16_t)                                                                                                             \
     };                                                                                                                                                         \
     inline auto register_##Name##_int16 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<int16_t>("value");                                                                                                      \
@@ -110,12 +112,7 @@ using std::uint8_t;
         uint16_t value{__VA_ARGS__};                                                                                                                           \
         Name() = default;                                                                                                                                      \
         Name(uint16_t v) : value(v) {}                                                                                                                         \
-        operator uint16_t &() { return value; }                                                                                                                \
-        operator uint16_t() const { return value; }                                                                                                            \
-        Name &operator=(uint16_t v) {                                                                                                                          \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, uint16_t)                                                                                                            \
     };                                                                                                                                                         \
     inline auto register_##Name##_uint16 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<uint16_t>("value");                                                                                                     \
@@ -129,12 +126,7 @@ using std::uint8_t;
         int8_t value{__VA_ARGS__};                                                                                                                             \
         Name() = default;                                                                                                                                      \
         Name(int8_t v) : value(v) {}                                                                                                                           \
-        operator int8_t &() { return value; }                                                                                                                  \
-        operator int8_t() const { return value; }                                                                                                              \
-        Name &operator=(int8_t v) {                                                                                                                            \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, int8_t)                                                                                                              \
     };                                                                                                                                                         \
     inline auto register_##Name##_int8 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
         world.component<Name>().member<int8_t>("value");                                                                                                       \
@@ -148,12 +140,7 @@ using std::uint8_t;
         uint8_t value{__VA_ARGS__};                                                                                                                            \
         Name() = default;                                                                                                                                      \
         Name(uint8_t v) : value(v) {}                                                                                                                          \
-        operator uint8_t &() { return value; }                                                                                                                 \
-        operator uint8_t() const { return value; }                                                                                                             \
-        Name &operator=(uint8_t v) {                                                                                                                           \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
+        NUMERIC_COMPONENT_OPERATORS(Name, uint8_t)                                                                                                             \
     };                                                                                                                                                         \
     inline auto register_##Name##_uint8 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<uint8_t>("value");                                                                                                      \
@@ -191,16 +178,31 @@ using std::uint8_t;
     struct Name {};                                                                                                                                            \
     inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) { world.component<Name>(); })
 
-/// Macro that defines a component wrapping a std::vector.
-///
-/// The component works fully with Flecs ECS operations (add, remove, get, queries, systems).
+/// Macros that wrap various std:: container types
+/// The components work fully with Flecs ECS operations (add, remove, get, queries, systems).
 /// Godot getter/setter functions are provided for GDScript integration.
-///
-/// NOTE: Flecs' opt-in Meta reflection (for JSON serialization and Flecs Script access)
-/// is not supported for std::vector members. The Meta addon requires std::vector to be
-/// registered as an "opaque type" with custom serialization callbacks, which these macros
-/// do not provide. This does not affect normal ECS usage.
-///
+/// This macro defines the common boilerplate for container-like components.
+#define CONTAINER_COMPONENT_BODY(Name, ElementType, ...)                                                                                                       \
+    using ContainerType = __VA_ARGS__;                                                                                                                         \
+    Name() = default;                                                                                                                                          \
+    Name(const ContainerType &v) : value(v) {}                                                                                                                 \
+    Name(ContainerType &&v) : value(std::move(v)) {}                                                                                                           \
+    Name &operator=(const ContainerType &v) {                                                                                                                  \
+        value = v;                                                                                                                                             \
+        return *this;                                                                                                                                          \
+    }                                                                                                                                                          \
+    Name &operator=(ContainerType &&v) {                                                                                                                       \
+        value = std::move(v);                                                                                                                                  \
+        return *this;                                                                                                                                          \
+    }                                                                                                                                                          \
+    ElementType &operator[](std::size_t i) { return value[i]; }                                                                                                \
+    const ElementType &operator[](std::size_t i) const { return value[i]; }                                                                                    \
+    auto begin() { return value.begin(); }                                                                                                                     \
+    auto end() { return value.end(); }                                                                                                                         \
+    auto begin() const { return value.begin(); }                                                                                                               \
+    auto end() const { return value.end(); }
+
+/// Macro that defines a component wrapping a std::vector.
 /// @param Name The name of the component struct.
 /// @param ElementType The type of elements in the vector.
 /// @param ... Optional initializer for the vector (e.g., {1, 2, 3}).
@@ -209,24 +211,8 @@ using std::uint8_t;
 #define VECTOR(Name, ElementType, ...)                                                                                                                         \
     struct Name {                                                                                                                                              \
         std::vector<ElementType> value{__VA_ARGS__};                                                                                                           \
-        Name() = default;                                                                                                                                      \
-        Name(const std::vector<ElementType> &v) : value(v) {}                                                                                                  \
-        Name(std::vector<ElementType> &&v) : value(std::move(v)) {}                                                                                            \
-        Name &operator=(const std::vector<ElementType> &v) {                                                                                                   \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
-        Name &operator=(std::vector<ElementType> &&v) {                                                                                                        \
-            value = std::move(v);                                                                                                                              \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
-        ElementType &operator[](std::size_t i) { return value[i]; }                                                                                            \
-        const ElementType &operator[](std::size_t i) const { return value[i]; }                                                                                \
+        CONTAINER_COMPONENT_BODY(Name, ElementType, std::vector<ElementType>)                                                                                  \
         std::size_t size() const { return value.size(); }                                                                                                      \
-        auto begin() { return value.begin(); }                                                                                                                 \
-        auto end() { return value.end(); }                                                                                                                     \
-        auto begin() const { return value.begin(); }                                                                                                           \
-        auto end() const { return value.end(); }                                                                                                               \
     };                                                                                                                                                         \
     inline auto register_##Name##_vector = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>();                                                                                                                               \
@@ -235,15 +221,6 @@ using std::uint8_t;
     })
 
 /// Macro that defines a component wrapping a std::array.
-///
-/// The component works fully with Flecs ECS operations (add, remove, get, queries, systems).
-/// Godot getter/setter functions are provided for GDScript integration.
-///
-/// NOTE: Flecs' opt-in Meta reflection (for JSON serialization and Flecs Script access)
-/// is not supported for std::array members. The Meta addon requires arrays to be
-/// registered with custom member reflection, which these macros do not provide.
-/// This does not affect normal ECS usage.
-///
 /// @param Name The name of the component struct.
 /// @param ElementType The type of elements in the array.
 /// @param Size The size of the array (must be a compile-time constant).
@@ -253,24 +230,8 @@ using std::uint8_t;
 #define ARRAY(Name, ElementType, Size, ...)                                                                                                                    \
     struct Name {                                                                                                                                              \
         std::array<ElementType, Size> value{__VA_ARGS__};                                                                                                      \
-        Name() = default;                                                                                                                                      \
-        Name(const std::array<ElementType, Size> &v) : value(v) {}                                                                                             \
-        Name(std::array<ElementType, Size> &&v) : value(std::move(v)) {}                                                                                       \
-        Name &operator=(const std::array<ElementType, Size> &v) {                                                                                              \
-            value = v;                                                                                                                                         \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
-        Name &operator=(std::array<ElementType, Size> &&v) {                                                                                                   \
-            value = std::move(v);                                                                                                                              \
-            return *this;                                                                                                                                      \
-        }                                                                                                                                                      \
-        ElementType &operator[](std::size_t i) { return value[i]; }                                                                                            \
-        const ElementType &operator[](std::size_t i) const { return value[i]; }                                                                                \
+        CONTAINER_COMPONENT_BODY(Name, ElementType, std::array<ElementType, Size>)                                                                             \
         constexpr std::size_t size() const { return Size; }                                                                                                    \
-        auto begin() { return value.begin(); }                                                                                                                 \
-        auto end() { return value.end(); }                                                                                                                     \
-        auto begin() const { return value.begin(); }                                                                                                           \
-        auto end() const { return value.end(); }                                                                                                               \
     };                                                                                                                                                         \
     inline auto register_##Name##_array = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>();                                                                                                                               \
