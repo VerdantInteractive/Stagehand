@@ -13,8 +13,6 @@
 
 #include "flecs.h"
 
-#include "stagehand/prefab.h"
-
 namespace stagehand {
     /// The main FlecsWorld node that integrates Flecs with Godot.
     class FlecsWorld : public godot::Node {

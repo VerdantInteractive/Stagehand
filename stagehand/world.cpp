@@ -1,7 +1,5 @@
 #include "stagehand/world.h"
 
-#include <cctype>
-
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/multi_mesh.hpp>
 #include <godot_cpp/classes/multi_mesh_instance2d.hpp>
@@ -20,6 +18,7 @@
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
+#include "stagehand/resources/prefab.h"
 #include "stagehand/script_loader.h"
 #include "stagehand/utilities/platform.h"
 
@@ -480,26 +479,6 @@ namespace stagehand {
     }
 
     void FlecsWorld::_bind_methods() {
-        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "progress_tick", godot::PROPERTY_HINT_ENUM, "Rendering,Physics,Manual"), "set_progress_tick",
-                     "get_progress_tick");
-
-        BIND_ENUM_CONSTANT(PROGRESS_TICK_RENDERING);
-        BIND_ENUM_CONSTANT(PROGRESS_TICK_PHYSICS);
-        BIND_ENUM_CONSTANT(PROGRESS_TICK_MANUAL);
-
-        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration", godot::PROPERTY_HINT_TYPE_STRING,
-                                         godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
-                                         godot::PROPERTY_USAGE_DEFAULT),
-                     "set_world_configuration", "get_world_configuration");
-
-        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "prefabs", godot::PROPERTY_HINT_RESOURCE_TYPE,
-                                         godot::String::num_int64(godot::Variant::OBJECT) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_RESOURCE_TYPE) +
-                                             ":Prefab"),
-                     "set_prefabs", "get_prefabs");
-
-        ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
-                                     godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
-
         godot::ClassDB::bind_method(godot::D_METHOD("set_component", "component_name", "data", "entity_id"), &FlecsWorld::set_component, DEFVAL(0));
         godot::ClassDB::bind_method(godot::D_METHOD("get_component", "component_name", "entity_id"), &FlecsWorld::get_component, DEFVAL(0));
         godot::ClassDB::bind_method(godot::D_METHOD("has_component", "component_name", "entity_id"), &FlecsWorld::has_component);
@@ -528,6 +507,25 @@ namespace stagehand {
 
         godot::ClassDB::bind_method(godot::D_METHOD("set_prefabs", "prefabs"), &FlecsWorld::set_prefabs);
         godot::ClassDB::bind_method(godot::D_METHOD("get_prefabs"), &FlecsWorld::get_prefabs);
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "progress_tick", godot::PROPERTY_HINT_ENUM, "Rendering,Physics,Manual"), "set_progress_tick",
+                     "get_progress_tick");
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_RENDERING);
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_PHYSICS);
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_MANUAL);
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration", godot::PROPERTY_HINT_TYPE_STRING,
+                                         godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
+                                         godot::PROPERTY_USAGE_DEFAULT),
+                     "set_world_configuration", "get_world_configuration");
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "prefabs", godot::PROPERTY_HINT_RESOURCE_TYPE,
+                                         godot::String::num_int64(godot::Variant::OBJECT) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_RESOURCE_TYPE) +
+                                             ":Prefab"),
+                     "set_prefabs", "get_prefabs");
+
+        ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
+                                     godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
     }
 
     FlecsWorld::~FlecsWorld() {}

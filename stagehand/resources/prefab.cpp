@@ -1,4 +1,4 @@
-#include "stagehand/prefab.h"
+#include "stagehand/resources/prefab.h"
 
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/array.hpp>
