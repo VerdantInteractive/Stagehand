@@ -441,10 +441,21 @@ namespace stagehand {
         world.progress(static_cast<ecs_ftime_t>(delta));
     }
 
+    void FlecsWorld::set_prefabs(const godot::TypedArray<Prefab> &p_prefabs) { prefabs = p_prefabs; }
+
+    godot::TypedArray<Prefab> FlecsWorld::get_prefabs() const { return prefabs; }
+
     void FlecsWorld::_notification(const int p_what) {
         switch (p_what) {
         case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
             set_world_configuration(world_configuration);
+            // Register configured prefabs
+            for (int i = 0; i < prefabs.size(); ++i) {
+                godot::Ref<Prefab> prefab = prefabs[i];
+                if (prefab.is_valid()) {
+                    prefab->register_with_world(this);
+                }
+            }
             populate_scene_children_singleton();
             setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
@@ -481,6 +492,11 @@ namespace stagehand {
                                          godot::PROPERTY_USAGE_DEFAULT),
                      "set_world_configuration", "get_world_configuration");
 
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "prefabs", godot::PROPERTY_HINT_RESOURCE_TYPE,
+                                         godot::String::num_int64(godot::Variant::OBJECT) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_RESOURCE_TYPE) +
+                                             ":Prefab"),
+                     "set_prefabs", "get_prefabs");
+
         ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
                                      godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
 
@@ -489,9 +505,6 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("has_component", "component_name", "entity_id"), &FlecsWorld::has_component);
         godot::ClassDB::bind_method(godot::D_METHOD("add_component", "component_name", "entity_id"), &FlecsWorld::add_component);
         godot::ClassDB::bind_method(godot::D_METHOD("remove_component", "component_name", "entity_id"), &FlecsWorld::remove_component);
-
-        godot::ClassDB::bind_method(godot::D_METHOD("set_world_configuration", "configuration"), &FlecsWorld::set_world_configuration);
-        godot::ClassDB::bind_method(godot::D_METHOD("get_world_configuration"), &FlecsWorld::get_world_configuration);
 
         godot::ClassDB::bind_method(godot::D_METHOD("enable_system", "system_name", "enabled"), &FlecsWorld::enable_system, DEFVAL(true));
         godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
@@ -509,6 +522,12 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("set_progress_tick", "progress_tick"), &FlecsWorld::set_progress_tick);
         godot::ClassDB::bind_method(godot::D_METHOD("get_progress_tick"), &FlecsWorld::get_progress_tick);
         godot::ClassDB::bind_method(godot::D_METHOD("progress", "delta"), &FlecsWorld::progress);
+
+        godot::ClassDB::bind_method(godot::D_METHOD("set_world_configuration", "configuration"), &FlecsWorld::set_world_configuration);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_world_configuration"), &FlecsWorld::get_world_configuration);
+
+        godot::ClassDB::bind_method(godot::D_METHOD("set_prefabs", "prefabs"), &FlecsWorld::set_prefabs);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_prefabs"), &FlecsWorld::get_prefabs);
     }
 
     FlecsWorld::~FlecsWorld() {}

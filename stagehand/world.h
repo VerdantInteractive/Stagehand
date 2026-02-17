@@ -13,10 +13,14 @@
 
 #include "flecs.h"
 
+#include "stagehand/prefab.h"
+
 namespace stagehand {
     /// The main FlecsWorld node that integrates Flecs with Godot.
     class FlecsWorld : public godot::Node {
         GDCLASS(FlecsWorld, godot::Node)
+
+        friend class Prefab;
 
       public:
         enum ProgressTick {
@@ -44,11 +48,6 @@ namespace stagehand {
         void add_component(const godot::String &component_name, uint64_t entity_id);
         /// Removes a component from an entity.
         void remove_component(const godot::String &component_name, uint64_t entity_id);
-
-        /// Sets the world configuration singleton. Format: { "key": value, ... }
-        void set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant> &p_configuration);
-        /// Gets the world configuration singleton.
-        [[nodiscard]] godot::TypedDictionary<godot::String, godot::Variant> get_world_configuration() const;
 
         /// Enables or disables a system by name.
         bool enable_system(const godot::String &system_name, bool enabled = true);
@@ -88,6 +87,14 @@ namespace stagehand {
         /// @note Can be called from GDScript attached to the FlecsWorld node.
         void progress(double delta);
 
+        /// Sets the world configuration singleton. Format: { "key": value, ... }
+        void set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant> &p_configuration);
+        /// Gets the world configuration singleton.
+        [[nodiscard]] godot::TypedDictionary<godot::String, godot::Variant> get_world_configuration() const;
+
+        void set_prefabs(const godot::TypedArray<Prefab> &p_prefabs);
+        godot::TypedArray<Prefab> get_prefabs() const;
+
         ~FlecsWorld();
 
       protected:
@@ -97,8 +104,9 @@ namespace stagehand {
       private:
         flecs::world world;
         bool is_initialised = false;
-        godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
         ProgressTick progress_tick = ProgressTick::PROGRESS_TICK_RENDERING;
+        godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
+        godot::TypedArray<Prefab> prefabs;
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String &system_name);

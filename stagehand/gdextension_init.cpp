@@ -7,6 +7,7 @@
 
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
+#include "stagehand/prefab.h"
 #include "stagehand/world.h"
 
 using godot::MODULE_INITIALIZATION_LEVEL_SCENE;
@@ -18,6 +19,7 @@ void initialize_flecs_module(ModuleInitializationLevel p_level) {
     }
 
     GDREGISTER_RUNTIME_CLASS(stagehand::FlecsWorld);
+    GDREGISTER_CLASS(stagehand::Prefab);
 
     GDREGISTER_RUNTIME_CLASS(InstancedRenderer3D);
     GDREGISTER_CLASS(InstancedRenderer3DLODConfiguration);
