@@ -115,13 +115,14 @@ namespace stagehand {
         std::unordered_map<std::string, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
         std::unordered_map<std::string, std::function<godot::Variant(flecs::entity_t)>> component_getters;
 
-        /// Populates the SceneChildren singleton with references to child nodes.
         void populate_scene_children_singleton();
 
         void setup_entity_renderers_instanced();
         void cleanup_instanced_renderer_rids();
 
         void setup_entity_renderers_multimesh();
+
+        void import_configured_modules();
     };
 } // namespace stagehand
 

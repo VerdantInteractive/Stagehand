@@ -254,6 +254,21 @@ namespace stagehand {
         return world_configuration;
     }
 
+    void FlecsWorld::import_configured_modules() {
+        for (int i = 0; i < modules_to_load.size(); ++i) {
+            godot::String module_entry = modules_to_load[i];
+            std::string module_name = module_entry.utf8().get_data();
+            ecs_entity_t module_import = ecs_import_from_library(world.c_ptr(), module_name.c_str(), module_name.c_str());
+            if (!module_import) {
+                std::string warn = std::string("Failed to import Flecs module: ") + module_name;
+                godot::UtilityFunctions::push_warning(godot::String(warn.c_str()));
+            } else {
+                std::string ok = std::string("Successfully imported Flecs module: ") + module_name;
+                godot::UtilityFunctions::print(godot::String(ok.c_str()));
+            }
+        }
+    }
+
     void FlecsWorld::set_modules_to_load(const godot::TypedArray<godot::String> &p_modules) { modules_to_load = p_modules; }
 
     godot::TypedArray<godot::String> FlecsWorld::get_modules_to_load() const { return modules_to_load; }
@@ -459,6 +474,7 @@ namespace stagehand {
             populate_scene_children_singleton();
             setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
+            import_configured_modules();
             break;
         case NOTIFICATION_PROCESS:
             if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
