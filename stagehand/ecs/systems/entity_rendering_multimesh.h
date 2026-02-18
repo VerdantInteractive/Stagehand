@@ -3,15 +3,15 @@
 #include <godot_cpp/variant/packed_float32_array.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/entity_rendering.h"
+#include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/pipeline_phases.h"
 #include "stagehand/names.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
 
-using namespace stagehand::entity_rendering;
+using namespace stagehand::rendering;
 
-namespace stagehand::entity_rendering {
+namespace stagehand::rendering {
     inline flecs::system EntityRenderingMultiMesh;
 }
 
@@ -161,7 +161,7 @@ template <typename TransformType> void update_renderer_for_prefab(godot::Renderi
 inline stagehand::Registry register_entity_rendering_multimesh_system([](flecs::world &world) {
     // This system iterates over all MultiMesh renderers and updates their buffers.
     // It's designed to be efficient by using pre-built queries stored in the MultiMeshRendererConfig component.
-    stagehand::entity_rendering::EntityRenderingMultiMesh =
+    stagehand::rendering::EntityRenderingMultiMesh =
         world.system(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH).kind(stagehand::OnRender).run([](flecs::iter &it) {
             if (!it.world().has<Renderers>()) {
                 return; // No renderers component

@@ -11,7 +11,7 @@
 #include "stagehand/registry.h"
 #include "stagehand/utilities/godot_hashes.h" // IWYU pragma: keep
 
-namespace stagehand::entity_rendering {
+namespace stagehand::rendering {
     GODOT_VARIANT(CustomData, Vector4); // Used as MultiMesh instance custom data in the Entity Rendering (MultiMesh) system
 
     enum class RendererType {
@@ -66,8 +66,8 @@ namespace stagehand::entity_rendering {
         // Instanced renderers have a different config type, stored in a separate map.
         std::vector<InstancedRendererConfig> instanced_renderers;
     };
-} // namespace stagehand::entity_rendering
+} // namespace stagehand::rendering
 
 inline stagehand::Registry register_entity_rendering_components([](flecs::world &world) {
-    world.component<stagehand::entity_rendering::Renderers>().add(flecs::Singleton);
+    world.component<stagehand::rendering::Renderers>().add(flecs::Singleton);
 });

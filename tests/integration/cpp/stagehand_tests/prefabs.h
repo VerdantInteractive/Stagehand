@@ -1,6 +1,6 @@
 #pragma once
 
-#include "stagehand/ecs/components/entity_rendering.h"
+#include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/transform.h"
 #include "stagehand/names.h"
 #include "stagehand/registry.h"
@@ -43,25 +43,25 @@ namespace stagehand_tests {
         world.prefab(stagehand_tests::names::prefabs::CUSTOM_DATA_ENTITY_2D)
             .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_2D))
             .add<EntityValue>()
-            .add<stagehand::entity_rendering::CustomData>();
+            .add<stagehand::rendering::CustomData>();
 
         world.prefab(stagehand_tests::names::prefabs::CUSTOM_DATA_ENTITY_3D)
             .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
             .add<EntityValue>()
-            .add<stagehand::entity_rendering::CustomData>();
+            .add<stagehand::rendering::CustomData>();
 
         // Full entity: transform + Color + CustomData
         world.prefab(stagehand_tests::names::prefabs::FULL_ENTITY_2D)
             .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_2D))
             .add<EntityValue>()
             .add<Color>()
-            .add<stagehand::entity_rendering::CustomData>();
+            .add<stagehand::rendering::CustomData>();
 
         world.prefab(stagehand_tests::names::prefabs::FULL_ENTITY_3D)
             .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
             .add<EntityValue>()
             .add<Color>()
-            .add<stagehand::entity_rendering::CustomData>();
+            .add<stagehand::rendering::CustomData>();
 
         // ── Instanced rendering test prefab ──────────────────────────────────
         // A 3D entity prefab used by InstancedRenderer3D integration tests.

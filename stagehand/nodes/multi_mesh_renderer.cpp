@@ -9,7 +9,7 @@
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
 
 template <MultiMeshRendererType T>
-void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::entity_rendering::Renderers &renderers, int &renderer_count) {
+void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count) {
     godot::RID multimesh_rid;
     godot::MultiMesh *multimesh = nullptr;
     const godot::PackedStringArray prefabs = renderer->get_prefabs_rendered();
@@ -48,7 +48,7 @@ void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::en
         return;
     }
 
-    auto &renderer_map = renderers.renderers_by_type[stagehand::entity_rendering::RendererType::MultiMesh];
+    auto &renderer_map = renderers.renderers_by_type[stagehand::rendering::RendererType::MultiMesh];
     // Use RID directly as the key. try_emplace will create a new renderer only if one for this RID doesn't exist.
     auto [it, inserted] = renderer_map.try_emplace(multimesh_rid);
     if (inserted) {
@@ -60,7 +60,7 @@ void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::en
         it->second.visible_instance_count = multimesh->get_visible_instance_count();
         renderer_count++;
     }
-    stagehand::entity_rendering::MultiMeshRendererConfig *mm_renderer = &it->second;
+    stagehand::rendering::MultiMeshRendererConfig *mm_renderer = &it->second;
 
     // Build a single query for all prefabs associated with this renderer.
     // This ensures that entities from different prefabs are sorted together.
@@ -128,7 +128,7 @@ void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::en
         query.with<const Color>();
     }
     if (multimesh->is_using_custom_data()) {
-        query.with<const stagehand::entity_rendering::CustomData>();
+        query.with<const stagehand::rendering::CustomData>();
     }
 
     // Chain prefabs with the OR operator. The logic is to add `.or_()` to all but the last term.
@@ -145,9 +145,9 @@ void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::en
     mm_renderer->queries.push_back(query.build());
 }
 
-template void register_multimesh_renderer<MultiMeshRenderer2D>(flecs::world &, MultiMeshRenderer2D *, stagehand::entity_rendering::Renderers &, int &);
+template void register_multimesh_renderer<MultiMeshRenderer2D>(flecs::world &, MultiMeshRenderer2D *, stagehand::rendering::Renderers &, int &);
 
-template void register_multimesh_renderer<MultiMeshRenderer3D>(flecs::world &, MultiMeshRenderer3D *, stagehand::entity_rendering::Renderers &, int &);
+template void register_multimesh_renderer<MultiMeshRenderer3D>(flecs::world &, MultiMeshRenderer3D *, stagehand::rendering::Renderers &, int &);
 
 template <typename T> void bind_multimesh_renderer_methods() {
     godot::ClassDB::bind_method(godot::D_METHOD("set_prefabs_rendered", "prefabs"),

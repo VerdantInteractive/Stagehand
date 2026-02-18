@@ -8,7 +8,7 @@
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
 
-#include "stagehand/ecs/components/entity_rendering.h"
+#include "stagehand/ecs/components/rendering.h"
 
 /// Resource representing a single LOD level on an InstancedRenderer3D.
 class InstancedRenderer3DLODConfiguration : public godot::Resource {
@@ -77,4 +77,4 @@ class InstancedRenderer3D : public godot::Node3D {
 };
 
 // Helper to register an InstancedRenderer3D node into the ECS world
-void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *renderer, stagehand::entity_rendering::Renderers &renderers, int &renderer_count);
+void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count);

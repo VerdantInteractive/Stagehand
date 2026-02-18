@@ -2,8 +2,8 @@
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/entity_rendering.h"
 #include "stagehand/ecs/components/godot_signal.h"
+#include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
 #include "stagehand/ecs/pipeline_phases.h"
@@ -200,7 +200,7 @@ namespace stagehand_tests {
                             colors.push_back(*color);
                         }
 
-                        const stagehand::entity_rendering::CustomData *cd = e.try_get<stagehand::entity_rendering::CustomData>();
+                        const stagehand::rendering::CustomData *cd = e.try_get<stagehand::rendering::CustomData>();
                         if (cd) {
                             has_custom_data = true;
                             custom_data_arr.push_back(godot::Vector4(cd->x, cd->y, cd->z, cd->w));
@@ -223,7 +223,7 @@ namespace stagehand_tests {
                             colors.push_back(*color);
                         }
 
-                        const stagehand::entity_rendering::CustomData *cd = e.try_get<stagehand::entity_rendering::CustomData>();
+                        const stagehand::rendering::CustomData *cd = e.try_get<stagehand::rendering::CustomData>();
                         if (cd) {
                             has_custom_data = true;
                             custom_data_arr.push_back(godot::Vector4(cd->x, cd->y, cd->z, cd->w));
@@ -292,7 +292,7 @@ namespace stagehand_tests {
             .kind(0) // on-demand
             .run([](flecs::iter &it) {
                 flecs::world world = it.world();
-                const stagehand::entity_rendering::Renderers *renderers = world.try_get<stagehand::entity_rendering::Renderers>();
+                const stagehand::rendering::Renderers *renderers = world.try_get<stagehand::rendering::Renderers>();
 
                 godot::Dictionary result;
                 if (!renderers) {
@@ -303,7 +303,7 @@ namespace stagehand_tests {
                 }
 
                 godot::Array renderer_array;
-                for (const stagehand::entity_rendering::InstancedRendererConfig &renderer : renderers->instanced_renderers) {
+                for (const stagehand::rendering::InstancedRendererConfig &renderer : renderers->instanced_renderers) {
                     godot::Dictionary renderer_info;
                     renderer_info["lod_count"] = static_cast<int>(renderer.lod_configs.size());
                     renderer_info["entity_count"] = static_cast<int>(renderer.previous_entity_count);
@@ -320,7 +320,7 @@ namespace stagehand_tests {
 
                     // Report LOD config details
                     godot::Array lod_details;
-                    for (const stagehand::entity_rendering::InstancedRendererLODConfig &lod : renderer.lod_configs) {
+                    for (const stagehand::rendering::InstancedRendererLODConfig &lod : renderer.lod_configs) {
                         godot::Dictionary lod_info;
                         lod_info["mesh_rid_valid"] = lod.mesh_rid.is_valid();
                         lod_info["fade_min"] = lod.fade_min;

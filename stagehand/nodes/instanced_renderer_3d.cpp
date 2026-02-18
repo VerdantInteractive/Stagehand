@@ -107,7 +107,7 @@ bool InstancedRenderer3D::validate_configuration() const {
     return valid;
 }
 
-void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *renderer, stagehand::entity_rendering::Renderers &renderers, int &renderer_count) {
+void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count) {
     if (!renderer->validate_configuration()) {
         return;
     }
@@ -137,7 +137,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     flecs::query<> query = query_builder.build();
 
     // Build LOD configuration for this renderer
-    std::vector<stagehand::entity_rendering::InstancedRendererLODConfig> lod_configs;
+    std::vector<stagehand::rendering::InstancedRendererLODConfig> lod_configs;
     lod_configs.reserve(lod_levels.size());
     for (int i = 0; i < lod_levels.size(); ++i) {
         godot::Ref<InstancedRenderer3DLODConfiguration> lod_resource = lod_levels[i];
@@ -145,7 +145,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
             continue;
         }
 
-        stagehand::entity_rendering::InstancedRendererLODConfig lod_config;
+        stagehand::rendering::InstancedRendererLODConfig lod_config;
         godot::Ref<godot::Mesh> mesh = lod_resource->get_mesh();
         if (mesh.is_valid()) {
             lod_config.mesh_rid = mesh->get_rid();
@@ -168,7 +168,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
         return;
     }
 
-    stagehand::entity_rendering::InstancedRendererConfig config;
+    stagehand::rendering::InstancedRendererConfig config;
     config.scenario_rid = scenario_rid;
     config.lod_configs = std::move(lod_configs);
     config.query = query;

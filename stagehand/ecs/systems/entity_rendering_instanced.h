@@ -3,19 +3,19 @@
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/entity_rendering.h"
+#include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/pipeline_phases.h"
 #include "stagehand/names.h"
 #include "stagehand/registry.h"
 
-using namespace stagehand::entity_rendering;
+using namespace stagehand::rendering;
 
-namespace stagehand::entity_rendering {
+namespace stagehand::rendering {
     inline flecs::system EntityRenderingInstanced;
 }
 
 inline stagehand::Registry register_entity_rendering_instanced_system([](flecs::world &world) {
-    stagehand::entity_rendering::EntityRenderingInstanced =
+    stagehand::rendering::EntityRenderingInstanced =
         world.system(stagehand::names::systems::ENTITY_RENDERING_INSTANCED).kind(stagehand::OnRender).run([](flecs::iter &it) {
             if (!it.world().has<Renderers>()) {
                 return;

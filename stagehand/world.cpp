@@ -9,8 +9,8 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/entity_rendering.h"
 #include "stagehand/ecs/components/godot_signal.h"
+#include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
 #include "stagehand/ecs/systems/entity_rendering_instanced.h"
@@ -104,9 +104,9 @@ namespace stagehand {
         int renderer_count = 0;
 
         // Get an existing copy of the Renderers singleton (may already contain multimesh configs) or start with a fresh one.
-        world.component<entity_rendering::Renderers>();
-        entity_rendering::Renderers renderers;
-        const entity_rendering::Renderers *existing = world.try_get<entity_rendering::Renderers>();
+        world.component<rendering::Renderers>();
+        rendering::Renderers renderers;
+        const rendering::Renderers *existing = world.try_get<rendering::Renderers>();
         if (existing) {
             renderers = *existing;
         }
@@ -119,15 +119,15 @@ namespace stagehand {
         }
 
         if (renderer_count > 0) {
-            world.set<entity_rendering::Renderers>(renderers);
+            world.set<rendering::Renderers>(renderers);
             godot::UtilityFunctions::print(godot::String("Registered ") + godot::String::num_int64(renderer_count) + " Instanced entity renderers.");
         } else {
-            stagehand::entity_rendering::EntityRenderingInstanced.disable();
+            stagehand::rendering::EntityRenderingInstanced.disable();
         }
     }
 
     void FlecsWorld::cleanup_instanced_renderer_rids() {
-        const entity_rendering::Renderers *renderers_ptr = world.try_get<entity_rendering::Renderers>();
+        const rendering::Renderers *renderers_ptr = world.try_get<rendering::Renderers>();
         if (!renderers_ptr) {
             return;
         }
@@ -138,7 +138,7 @@ namespace stagehand {
         }
 
         // Free all RenderingServer instance RIDs created by the instanced rendering system
-        for (const entity_rendering::InstancedRendererConfig &renderer : renderers_ptr->instanced_renderers) {
+        for (const rendering::InstancedRendererConfig &renderer : renderers_ptr->instanced_renderers) {
             for (const godot::RID &rid : renderer.instance_rids) {
                 if (rid.is_valid()) {
                     rendering_server->free_rid(rid);
@@ -148,7 +148,7 @@ namespace stagehand {
     }
 
     void FlecsWorld::setup_entity_renderers_multimesh() {
-        entity_rendering::Renderers renderers;
+        rendering::Renderers renderers;
         int renderer_count = 0;
 
         godot::TypedArray<Node> child_nodes = get_children();
@@ -163,13 +163,13 @@ namespace stagehand {
         }
 
         if (renderer_count > 0) {
-            world.component<entity_rendering::Renderers>();
-            world.set<entity_rendering::Renderers>(renderers);
+            world.component<rendering::Renderers>();
+            world.set<rendering::Renderers>(renderers);
             godot::UtilityFunctions::print(godot::String("Registered ") + godot::String::num_int64(renderer_count) + " MultiMesh entity renderers.");
         } else {
             // No multimesh instances found to use as entity renderers, disable
             // the system.
-            stagehand::entity_rendering::EntityRenderingMultiMesh.disable();
+            stagehand::rendering::EntityRenderingMultiMesh.disable();
         }
     }
 

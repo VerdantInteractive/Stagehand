@@ -12,7 +12,7 @@
 
 #include "flecs.h"
 
-#include "stagehand/ecs/components/entity_rendering.h"
+#include "stagehand/ecs/components/rendering.h"
 #include "stagehand/utilities/godot_hashes.h" // IWYU pragma: keep
 
 enum MultiMeshDrawOrder {
@@ -57,6 +57,6 @@ concept MultiMeshRendererType = std::is_same_v<T, MultiMeshRenderer2D> || std::i
 
 // Helper to register a Godot MultiMesh node into the ECS world
 template <MultiMeshRendererType T>
-void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::entity_rendering::Renderers &renderers, int &renderer_count);
+void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count);
 
 VARIANT_ENUM_CAST(MultiMeshDrawOrder);
