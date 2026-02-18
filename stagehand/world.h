@@ -14,6 +14,8 @@
 
 #include "flecs.h"
 
+#include "stagehand/script_loader.h"
+
 namespace stagehand {
     /// The main FlecsWorld node that integrates Flecs with Godot.
     class FlecsWorld : public godot::Node {
@@ -108,6 +110,7 @@ namespace stagehand {
         ProgressTick progress_tick = ProgressTick::PROGRESS_TICK_RENDERING;
         godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
         godot::TypedArray<godot::String> modules_to_load;
+        ScriptLoader script_loader;
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String &system_name);
@@ -115,14 +118,12 @@ namespace stagehand {
         std::unordered_map<std::string, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
         std::unordered_map<std::string, std::function<godot::Variant(flecs::entity_t)>> component_getters;
 
+        void register_signal_observer();
         void populate_scene_children_singleton();
-
-        void setup_entity_renderers_instanced();
-        void cleanup_instanced_renderer_rids();
-
-        void setup_entity_renderers_multimesh();
-
         void import_configured_modules();
+        void setup_entity_renderers_instanced();
+        void setup_entity_renderers_multimesh();
+        void cleanup_instanced_renderer_rids();
     };
 } // namespace stagehand
 
