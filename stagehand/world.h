@@ -90,9 +90,6 @@ namespace stagehand {
         /// Gets the world configuration singleton.
         [[nodiscard]] godot::TypedDictionary<godot::String, godot::Variant> get_world_configuration() const;
 
-        void set_prefabs(const godot::TypedArray<Prefab> &p_prefabs);
-        godot::TypedArray<Prefab> get_prefabs() const;
-
         ~FlecsWorld();
 
       protected:
@@ -104,7 +101,6 @@ namespace stagehand {
         bool is_initialised = false;
         ProgressTick progress_tick = ProgressTick::PROGRESS_TICK_RENDERING;
         godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
-        godot::TypedArray<Prefab> prefabs;
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String &system_name);

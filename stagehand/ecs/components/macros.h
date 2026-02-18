@@ -48,6 +48,8 @@ using std::uint8_t;
         world.component<Name>().member<float>("value");                                                                                                        \
         stagehand::register_component_getter<Name, float>(#Name);                                                                                              \
         stagehand::register_component_setter<Name, float>(#Name);                                                                                              \
+        stagehand::register_component_defaulter<Name, float>(#Name);                                                                                           \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping a double-precision floating-point number.
@@ -62,6 +64,8 @@ using std::uint8_t;
         world.component<Name>().member<double>("value");                                                                                                       \
         stagehand::register_component_getter<Name, double>(#Name);                                                                                             \
         stagehand::register_component_setter<Name, double>(#Name);                                                                                             \
+        stagehand::register_component_defaulter<Name, double>(#Name);                                                                                          \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping a signed 32-bit integer.
@@ -76,6 +80,8 @@ using std::uint8_t;
         world.component<Name>().member<int32_t>("value");                                                                                                      \
         stagehand::register_component_getter<Name, int32_t>(#Name);                                                                                            \
         stagehand::register_component_setter<Name, int32_t>(#Name);                                                                                            \
+        stagehand::register_component_defaulter<Name, int32_t>(#Name);                                                                                         \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping an unsigned 32-bit integer.
@@ -90,6 +96,8 @@ using std::uint8_t;
         world.component<Name>().member<uint32_t>("value");                                                                                                     \
         stagehand::register_component_getter<Name, uint32_t>(#Name);                                                                                           \
         stagehand::register_component_setter<Name, uint32_t>(#Name);                                                                                           \
+        stagehand::register_component_defaulter<Name, uint32_t>(#Name);                                                                                        \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping a signed 16-bit integer (-32,768 to 32,767).
@@ -104,6 +112,8 @@ using std::uint8_t;
         world.component<Name>().member<int16_t>("value");                                                                                                      \
         stagehand::register_component_getter<Name, int16_t>(#Name);                                                                                            \
         stagehand::register_component_setter<Name, int16_t>(#Name);                                                                                            \
+        stagehand::register_component_defaulter<Name, int16_t>(#Name);                                                                                         \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping an unsigned 16-bit integer (0 to 65,535).
@@ -118,6 +128,8 @@ using std::uint8_t;
         world.component<Name>().member<uint16_t>("value");                                                                                                     \
         stagehand::register_component_getter<Name, uint16_t>(#Name);                                                                                           \
         stagehand::register_component_setter<Name, uint16_t>(#Name);                                                                                           \
+        stagehand::register_component_defaulter<Name, uint16_t>(#Name);                                                                                        \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping a signed 8-bit integer (-128 to 127).
@@ -132,6 +144,8 @@ using std::uint8_t;
         world.component<Name>().member<int8_t>("value");                                                                                                       \
         stagehand::register_component_getter<Name, int8_t>(#Name);                                                                                             \
         stagehand::register_component_setter<Name, int8_t>(#Name);                                                                                             \
+        stagehand::register_component_defaulter<Name, int8_t>(#Name);                                                                                          \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping an unsigned 8-bit integer (0 to 255).
@@ -146,6 +160,8 @@ using std::uint8_t;
         world.component<Name>().member<uint8_t>("value");                                                                                                      \
         stagehand::register_component_getter<Name, uint8_t>(#Name);                                                                                            \
         stagehand::register_component_setter<Name, uint8_t>(#Name);                                                                                            \
+        stagehand::register_component_defaulter<Name, uint8_t>(#Name);                                                                                         \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping a pointer type.
@@ -171,12 +187,33 @@ using std::uint8_t;
         world.component<Name>().member<std::uintptr_t>("ptr");                                                                                                 \
         stagehand::register_component_getter<Name, uint64_t>(#Name);                                                                                           \
         stagehand::register_component_setter<Name, uint64_t>(#Name);                                                                                           \
+        stagehand::register_component_defaulter<Name, uint64_t>(#Name);                                                                                        \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a tag component (empty struct).
 #define TAG(Name)                                                                                                                                              \
     struct Name {};                                                                                                                                            \
-    inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) { world.component<Name>(); })
+    inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                          \
+        world.component<Name>();                                                                                                                               \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
+    })
+
+/// Macro that defines an enum component wrapper.
+/// Usage: ENUM(Name) or ENUM(Name, UnderlyingType). Default UnderlyingType is uint8_t.
+#define ENUM_IMPL(Name, Type)                                                                                                                                  \
+    inline auto register_##Name##_enum = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
+        world.component<Name>();                                                                                                                               \
+        stagehand::register_component_getter<Name, Type>(#Name);                                                                                               \
+        stagehand::register_component_setter<Name, Type>(#Name);                                                                                               \
+        stagehand::register_component_defaulter<Name, Type>(#Name);                                                                                            \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
+    })
+
+#define ENUM_1(Name) ENUM_IMPL(Name, uint8_t)
+#define ENUM_2(Name, Type) ENUM_IMPL(Name, Type)
+#define GET_ENUM_MACRO(_1, _2, NAME, ...) NAME
+#define ENUM(...) GET_ENUM_MACRO(__VA_ARGS__, ENUM_2, ENUM_1)(__VA_ARGS__)
 
 /// Macros that wrap various std:: container types
 /// The components work fully with Flecs ECS operations (add, remove, get, queries, systems).
@@ -218,6 +255,8 @@ using std::uint8_t;
         world.component<Name>();                                                                                                                               \
         stagehand::register_vector_component_getter<Name, ElementType>(#Name);                                                                                 \
         stagehand::register_vector_component_setter<Name, ElementType>(#Name);                                                                                 \
+        stagehand::register_vector_component_defaulter<Name, ElementType>(#Name);                                                                              \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
 
 /// Macro that defines a component wrapping a std::array.
@@ -237,4 +276,6 @@ using std::uint8_t;
         world.component<Name>();                                                                                                                               \
         stagehand::register_array_component_getter<Name, ElementType, Size>(#Name);                                                                            \
         stagehand::register_array_component_setter<Name, ElementType, Size>(#Name);                                                                            \
+        stagehand::register_array_component_defaulter<Name, ElementType, Size>(#Name);                                                                         \
+        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
     })
