@@ -49,12 +49,22 @@ namespace stagehand {
 
         // Set the number of threads Flecs should use based on CPU thread count
         unsigned int num_threads = ::utilities::Platform::get_thread_count();
-
-        // I'm suspecting that the thread exhaustion in the Web builds are
-        // caused by this In this project the systems are single-threaded
-        // anyway. world.set_threads(static_cast<int>(num_threads));
+        world.set_threads(static_cast<int>(num_threads));
 
         register_components_and_systems_with_world(world);
+
+        // Import any external Flecs modules configured via the `modules_to_load` property. Each entry is treated as a library name;
+        // the same string will be provided as the module name when invoking the Flecs C API.
+        if (!modules_to_load.is_empty()) {
+            for (int i = 0; i < modules_to_load.size(); ++i) {
+                godot::String entry = modules_to_load[i];
+                std::string name = entry.utf8().get_data();
+                ecs_entity_t mod = ecs_import_from_library(world.c_ptr(), name.c_str(), name.c_str());
+                if (!mod) {
+                    godot::UtilityFunctions::push_warning(godot::String("Failed to import Flecs module: ") + entry);
+                }
+            }
+        }
 
         // Populate the instance's component setters from the global registry
         for (const auto &[component_name, global_setter] : get_component_setters()) {
@@ -243,6 +253,10 @@ namespace stagehand {
 
         return world_configuration;
     }
+
+    void FlecsWorld::set_modules_to_load(const godot::TypedArray<godot::String> &p_modules) { modules_to_load = p_modules; }
+
+    godot::TypedArray<godot::String> FlecsWorld::get_modules_to_load() const { return modules_to_load; }
 
     flecs::system FlecsWorld::get_system(const godot::String &system_name) {
         if (!is_initialised) {
@@ -492,6 +506,9 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("set_world_configuration", "configuration"), &FlecsWorld::set_world_configuration);
         godot::ClassDB::bind_method(godot::D_METHOD("get_world_configuration"), &FlecsWorld::get_world_configuration);
 
+        godot::ClassDB::bind_method(godot::D_METHOD("set_modules_to_load", "modules"), &FlecsWorld::set_modules_to_load);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_modules_to_load"), &FlecsWorld::get_modules_to_load);
+
         ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "progress_tick", godot::PROPERTY_HINT_ENUM, "Rendering,Physics,Manual"), "set_progress_tick",
                      "get_progress_tick");
         BIND_ENUM_CONSTANT(PROGRESS_TICK_RENDERING);
@@ -502,6 +519,8 @@ namespace stagehand {
                                          godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
                                          godot::PROPERTY_USAGE_DEFAULT),
                      "set_world_configuration", "get_world_configuration");
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "modules_to_load"), "set_modules_to_load", "get_modules_to_load");
 
         ADD_SIGNAL(godot::MethodInfo("stagehand_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
                                      godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));

@@ -9,6 +9,7 @@
 #include <godot_cpp/classes/mesh_instance2d.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/typed_array.hpp>
 #include <godot_cpp/variant/typed_dictionary.hpp>
 
 #include "flecs.h"
@@ -90,6 +91,11 @@ namespace stagehand {
         /// Gets the world configuration singleton.
         [[nodiscard]] godot::TypedDictionary<godot::String, godot::Variant> get_world_configuration() const;
 
+        /// Sets the list of Flecs modules (library names) to import on startup.
+        void set_modules_to_load(const godot::TypedArray<godot::String> &p_modules);
+        /// Gets the list of Flecs modules configured for import.
+        [[nodiscard]] godot::TypedArray<godot::String> get_modules_to_load() const;
+
         ~FlecsWorld();
 
       protected:
@@ -101,6 +107,7 @@ namespace stagehand {
         bool is_initialised = false;
         ProgressTick progress_tick = ProgressTick::PROGRESS_TICK_RENDERING;
         godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
+        godot::TypedArray<godot::String> modules_to_load;
 
         /// Helper to look up a system entity by name.
         flecs::system get_system(const godot::String &system_name);
