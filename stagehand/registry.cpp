@@ -11,6 +11,13 @@ namespace stagehand {
             return callbacks;
         }
 
+        /// Returns the static vector of module-scoped registration callbacks.
+        /// Each entry pairs the module name with the callback that should be executed when that module is imported into a world.
+        std::vector<std::pair<std::string, RegistrationCallback>> &get_module_callbacks() {
+            static std::vector<std::pair<std::string, RegistrationCallback>> callbacks;
+            return callbacks;
+        }
+
         /// Returns the static mutex used to protect the callback list.
         std::mutex &get_mutex() {
             static std::mutex mtx;
@@ -23,19 +30,8 @@ namespace stagehand {
     Registry::Registry(const char *module_name, RegistrationCallback callback) {
         if (!callback)
             return;
-        // Wrap the provided callback so it runs inside the named module's scope.
-        register_callback([name = std::string(module_name), cb = std::move(callback)](flecs::world &world) {
-            // Create/find module entity and run the callback while the world's
-            // scope is set to that module. Use the C++ wrapper's scoped API to
-            // ensure the previous scope is restored on exit.
-            flecs::entity mod = world.entity(name.c_str());
-            mod.add(flecs::Module);
-            auto guard = world.scope(mod.id());
-
-            // Execute the original registration logic inside the module scope.
-            cb(world);
-            (void)guard; // silence unused-warning if any
-        });
+        // Store the module name and the raw callback. The callback will be executed later only when the module is actually imported.
+        get_module_callbacks().emplace_back(std::string(module_name), std::move(callback));
     }
     void register_callback(RegistrationCallback callback) {
         if (!callback)
@@ -46,11 +42,36 @@ namespace stagehand {
 
     void register_components_and_systems_with_world(flecs::world &world) {
         std::lock_guard<std::mutex> lock(get_mutex());
+        // Only run non-module callbacks during global registration. Module callbacks are executed when their module is explicitly imported.
         for (RegistrationCallback callback : get_callbacks()) {
             if (callback != nullptr) {
                 callback(world);
             }
         }
+    }
+
+    void run_module_callbacks_for(flecs::world &world, const std::string &module_name) {
+        std::lock_guard<std::mutex> lock(get_mutex());
+        for (auto &pair : get_module_callbacks()) {
+            if (pair.first == module_name && pair.second) {
+                // Execute the callback inside the module scope so entities created by the callback receive the proper qualified name.
+                flecs::entity mod = world.entity(module_name.c_str());
+                mod.add(flecs::Module);
+                auto guard = world.scope(mod.id());
+                pair.second(world);
+                (void)guard;
+            }
+        }
+    }
+
+    bool has_module_callbacks_for(const std::string &module_name) {
+        std::lock_guard<std::mutex> lock(get_mutex());
+        for (auto &pair : get_module_callbacks()) {
+            if (pair.first == module_name) {
+                return true;
+            }
+        }
+        return false;
     }
 
     std::unordered_map<std::string, ComponentGetter> &get_component_getters() {

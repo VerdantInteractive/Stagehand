@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
 #include <godot_cpp/core/type_info.hpp>
@@ -20,6 +21,14 @@ namespace stagehand {
     /// Call all registered callbacks to configure the ECS world.
     /// @param world The Flecs world to configure.
     void register_components_and_systems_with_world(flecs::world &world);
+
+    /// Run registration callbacks that were registered for a specific module.
+    /// These callbacks are executed when the module is imported/loaded into the given world.
+    void run_module_callbacks_for(flecs::world &world, const std::string &module_name);
+
+    /// Returns true if any module-scoped callbacks were registered for
+    /// `module_name` in this process.
+    bool has_module_callbacks_for(const std::string &module_name);
 
     /// Register a callback to be called during world initialization.
     /// @param callback The callback to register.

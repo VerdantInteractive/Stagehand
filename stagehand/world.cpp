@@ -37,8 +37,7 @@ namespace stagehand {
         // Set up process callbacks based on the configured progress tick mode
         set_progress_tick(progress_tick);
 
-        // Enable Flecs REST, statistics and extra logging verbosity in debug
-        // builds
+        // Enable Flecs REST, statistics and extra logging verbosity in debug builds
 #if defined(DEBUG_ENABLED)
         godot::UtilityFunctions::print(godot::String("Debug build. Enabling Flecs Explorer and verbose logging ..."));
         world.set<flecs::Rest>({});
@@ -130,8 +129,7 @@ namespace stagehand {
 
         godot::TypedArray<Node> child_nodes = get_children();
         for (int i = 0; i < child_nodes.size(); ++i) {
-            // Only register nodes which are MultiMeshRenderer2D or
-            // MultiMeshRenderer3D
+            // Only register nodes which are MultiMeshRenderer2D or MultiMeshRenderer3D
             if (auto mm2d = godot::Object::cast_to<MultiMeshRenderer2D>(child_nodes[i])) {
                 register_multimesh_renderer(world, mm2d, renderers, renderer_count);
             } else if (auto mm3d = godot::Object::cast_to<MultiMeshRenderer3D>(child_nodes[i])) {
@@ -144,8 +142,7 @@ namespace stagehand {
             world.set<rendering::Renderers>(renderers);
             godot::UtilityFunctions::print(godot::String("Registered ") + godot::String::num_int64(renderer_count) + " MultiMesh entity renderers.");
         } else {
-            // No multimesh instances found to use as entity renderers, disable
-            // the system.
+            // No multimesh instances found to use as entity renderers, disable the system.
             stagehand::rendering::EntityRenderingMultiMesh.disable();
         }
     }
@@ -241,12 +238,23 @@ namespace stagehand {
         }
 
         for (int i = 0; i < modules_to_load.size(); ++i) {
-            godot::String entry = modules_to_load[i];
-            std::string name = entry.utf8().get_data();
+            godot::String module_entry = modules_to_load[i];
+            std::string module_name = module_entry.utf8().get_data();
 
-            ecs_entity_t mod = ecs_import_from_library(world.c_ptr(), name.c_str(), name.c_str());
-            if (!mod) {
-                godot::UtilityFunctions::push_warning(godot::String("Failed to import Flecs module: ") + entry);
+            // If this process has internal registrations for the module, prefer running those and skip attempting to dlopen an external
+            // module library (which may not be supported on the current platform or build configuration).
+            if (stagehand::has_module_callbacks_for(module_name)) {
+                stagehand::run_module_callbacks_for(world, module_name);
+                continue;
+            }
+
+            ecs_entity_t module_import = ecs_import_from_library(world.c_ptr(), module_name.c_str(), module_name.c_str());
+            if (!module_import) {
+                godot::UtilityFunctions::push_warning(godot::String("Failed to import Flecs module: '") + module_entry +
+                                                      "'. No internal registration found; module will not be loaded.");
+            } else {
+                // If an external module was imported, also execute any internal callbacks that match (rare, but safe).
+                stagehand::run_module_callbacks_for(world, module_name);
             }
         }
     }

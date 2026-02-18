@@ -1,7 +1,7 @@
 @tool
 extends GraphEdit
 
-var _schema: FlecsSchema
+var _schema: ComponentSchema
 var _node_counter: int = 0
 var _rename_edit: LineEdit
 var _editing_node: GraphNode
@@ -17,10 +17,10 @@ const NOMINAL_NODE_SIZE = Vector2(200, 150)
 const TITLE_LENGTH_LIMIT = 25
 
 func _ready() -> void:
-	if ClassDB.class_exists("FlecsSchema"):
-		_schema = FlecsSchema.new()
+	if ClassDB.class_exists("ComponentSchema"):
+		_schema = ComponentSchema.new()
 	else:
-		printerr("FlecsSchema class not found. Make sure the GDExtension is loaded.")
+		printerr("ComponentSchema class not found. Make sure the GDExtension is loaded.")
 	_undo_redo = EditorInterface.get_editor_undo_redo()
 	
 	# Setup GraphEdit
@@ -330,7 +330,7 @@ func _delete_node(node: GraphNode) -> void:
 
 func _show_component_selector(graph_node: GraphNode, button: Button = null) -> void:
 	if not _schema:
-		printerr("FlecsSchema not initialized.")
+		printerr("ComponentSchema not initialized.")
 		return
 
 	var component_list = _schema.get_registered_components()
