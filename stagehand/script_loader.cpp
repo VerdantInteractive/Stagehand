@@ -14,7 +14,7 @@ using godot::UtilityFunctions;
 
 namespace stagehand {
 
-    void ScriptLoader::load(flecs::world &world) const {
+    void ScriptsLoader::load(flecs::world &world) const {
         constexpr std::string_view res_prefix = "res://";
 
         // We'll collect resource-style paths (res://...) using Godot's DirAccess so exported
