@@ -19,7 +19,6 @@
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
 #include "stagehand/resources/prefab.h"
-#include "stagehand/script_loader.h"
 #include "stagehand/utilities/platform.h"
 
 namespace stagehand {
@@ -53,45 +52,15 @@ namespace stagehand {
 
         register_components_and_systems_with_world(world);
 
-        // Import any external Flecs modules configured via the `modules_to_load` property. Each entry is treated as a library name;
-        // the same string will be provided as the module name when invoking the Flecs C API.
-        if (!modules_to_load.is_empty()) {
-            for (int i = 0; i < modules_to_load.size(); ++i) {
-                godot::String entry = modules_to_load[i];
-                std::string name = entry.utf8().get_data();
-                ecs_entity_t mod = ecs_import_from_library(world.c_ptr(), name.c_str(), name.c_str());
-                if (!mod) {
-                    godot::UtilityFunctions::push_warning(godot::String("Failed to import Flecs module: ") + entry);
-                }
-            }
-        }
-
-        // Populate the instance's component setters from the global registry
         for (const auto &[component_name, global_setter] : get_component_setters()) {
             component_setters[component_name] = [this, global_setter](flecs::entity_t entity_id, const godot::Variant &data) {
                 global_setter(this->world, entity_id, data);
             };
         }
 
-        // Populate the instance's component getters from the global registry
         for (const auto &[component_name, global_getter] : get_component_getters()) {
             component_getters[component_name] = [this, global_getter](flecs::entity_t entity_id) { return global_getter(this->world, entity_id); };
         }
-        // Load Flecs script files that live in the project's flecs_scripts
-        // folder. Use a Godot resource path so the loader can resolve it via
-        // ProjectSettings.
-        ScriptsLoader loader;
-        loader.load(world);
-
-        world.observer("stagehand::SignalObserver")
-            .event<GodotSignal>()
-            .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
-            .each([this](flecs::iter &it, size_t index) {
-                const GodotSignal *signal = it.param<GodotSignal>();
-                if (signal) {
-                    this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
-                }
-            });
 
         is_initialised = true;
     }
@@ -181,6 +150,18 @@ namespace stagehand {
         }
     }
 
+    void FlecsWorld::register_signal_observer() {
+        world.observer("stagehand::SignalObserver")
+            .event<GodotSignal>()
+            .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
+            .each([this](flecs::iter &it, size_t index) {
+                const GodotSignal *signal = it.param<GodotSignal>();
+                if (signal) {
+                    this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
+                }
+            });
+    }
+
     void FlecsWorld::set_component(const godot::String &component_name, const godot::Variant &data, uint64_t entity_id) {
         if (!is_initialised) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_component was called before world "
@@ -252,6 +233,22 @@ namespace stagehand {
         }
 
         return world_configuration;
+    }
+
+    void FlecsWorld::import_configured_modules() {
+        if (modules_to_load.is_empty()) {
+            return;
+        }
+
+        for (int i = 0; i < modules_to_load.size(); ++i) {
+            godot::String entry = modules_to_load[i];
+            std::string name = entry.utf8().get_data();
+
+            ecs_entity_t mod = ecs_import_from_library(world.c_ptr(), name.c_str(), name.c_str());
+            if (!mod) {
+                godot::UtilityFunctions::push_warning(godot::String("Failed to import Flecs module: ") + entry);
+            }
+        }
     }
 
     void FlecsWorld::set_modules_to_load(const godot::TypedArray<godot::String> &p_modules) { modules_to_load = p_modules; }
@@ -456,9 +453,12 @@ namespace stagehand {
         switch (p_what) {
         case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
             set_world_configuration(world_configuration);
+            register_signal_observer();
             populate_scene_children_singleton();
             setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
+            import_configured_modules();
+            script_loader.load(world);
             break;
         case NOTIFICATION_PROCESS:
             if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
