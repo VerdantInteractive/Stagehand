@@ -20,6 +20,23 @@ namespace stagehand {
 
     Registry::Registry(RegistrationCallback callback) { register_callback(std::move(callback)); }
 
+    Registry::Registry(const char *module_name, RegistrationCallback callback) {
+        if (!callback)
+            return;
+        // Wrap the provided callback so it runs inside the named module's scope.
+        register_callback([name = std::string(module_name), cb = std::move(callback)](flecs::world &world) {
+            // Create/find module entity and run the callback while the world's
+            // scope is set to that module. Use the C++ wrapper's scoped API to
+            // ensure the previous scope is restored on exit.
+            flecs::entity mod = world.entity(name.c_str());
+            mod.add(flecs::Module);
+            auto guard = world.scope(mod.id());
+
+            // Execute the original registration logic inside the module scope.
+            cb(world);
+            (void)guard; // silence unused-warning if any
+        });
+    }
     void register_callback(RegistrationCallback callback) {
         if (!callback)
             return;

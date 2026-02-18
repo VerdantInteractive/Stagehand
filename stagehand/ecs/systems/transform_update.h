@@ -13,7 +13,7 @@ namespace stagehand::transform {
     inline flecs::system TransformUpdate3D;
 } // namespace stagehand::transform
 
-inline stagehand::Registry register_transform_update_systems([](flecs::world &world) {
+REGISTER([](flecs::world &world) {
     stagehand::transform::TransformUpdate2D =
         world
             .system<Transform2D, const stagehand::transform::Position2D, const stagehand::transform::Rotation2D, const stagehand::transform::Scale2D>(

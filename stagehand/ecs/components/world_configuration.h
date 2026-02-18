@@ -10,7 +10,7 @@ namespace stagehand {
         godot::TypedDictionary<godot::String, godot::Variant> value;
     };
 
-    inline stagehand::Registry register_world_configuration([](flecs::world &world) {
+    REGISTER([](flecs::world &world) {
         world.component<WorldConfiguration>().add(flecs::Singleton);
 
         stagehand::get_component_getters()["WorldConfiguration"] = [](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {

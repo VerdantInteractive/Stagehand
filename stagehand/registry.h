@@ -29,7 +29,27 @@ namespace stagehand {
     /// Instantiating this struct with a callback will register it to be called during world initialization.
     struct Registry {
         explicit Registry(RegistrationCallback callback);
+        // Construct a Registry that runs the callback inside a Flecs module
+        // with the given name. The module entity will be created (idempotent)
+        // and the world's scope will be temporarily set to that module
+        // while the callback executes.
+        Registry(const char *module_name, RegistrationCallback callback);
     };
+
+// Helper macros to create inline, translation-unit-unique registration objects.
+// Usage:
+//   REGISTER([](flecs::world &w){ ... });
+//   REGISTER_IN_MODULE(stagehand::transform, [](flecs::world &w){ ... });
+#define STAGEHAND_CONCAT2(a, b) a##b
+#define STAGEHAND_CONCAT(a, b) STAGEHAND_CONCAT2(a, b)
+#define STAGEHAND_CONCAT3(a, b, c) STAGEHAND_CONCAT(a, STAGEHAND_CONCAT(b, c))
+#if defined(__COUNTER__)
+#define STAGEHAND_UNIQUE_NAME(prefix) STAGEHAND_CONCAT3(prefix, __COUNTER__, __LINE__)
+#else
+#define STAGEHAND_UNIQUE_NAME(prefix) STAGEHAND_CONCAT(prefix, __LINE__)
+#endif
+#define REGISTER(...) inline stagehand::Registry STAGEHAND_UNIQUE_NAME(_stagehand_reg_)(__VA_ARGS__)
+#define REGISTER_IN_MODULE(module, ...) inline stagehand::Registry STAGEHAND_UNIQUE_NAME(_stagehand_reg_)(#module, __VA_ARGS__)
 
     /// Template class for component registration with deferred chaining support.
     /// Used by component definition macros to allow configuring the flecs::component<T>

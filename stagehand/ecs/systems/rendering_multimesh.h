@@ -158,7 +158,7 @@ template <typename TransformType> void update_renderer_for_prefab(godot::Renderi
     rendering_server->multimesh_set_visible_instances(renderer.rid, static_cast<int32_t>(instance_count));
 }
 
-inline stagehand::Registry register_entity_rendering_multimesh_system([](flecs::world &world) {
+REGISTER([](flecs::world &world) {
     // This system iterates over all MultiMesh renderers and updates their buffers.
     // It's designed to be efficient by using pre-built queries stored in the MultiMeshRendererConfig component.
     stagehand::rendering::EntityRenderingMultiMesh =

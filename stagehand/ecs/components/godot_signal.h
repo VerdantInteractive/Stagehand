@@ -15,7 +15,7 @@ namespace stagehand {
 
 } // namespace stagehand
 
-inline stagehand::Registry register_godot_signal_component([](flecs::world &world) { world.component<stagehand::GodotSignal>("stagehand::GodotSignal"); });
+REGISTER([](flecs::world &world) { world.component<stagehand::GodotSignal>("stagehand::GodotSignal"); });
 
 /// Helper function to emit Godot signals from Flecs systems safely.
 /// @param world The Flecs world.

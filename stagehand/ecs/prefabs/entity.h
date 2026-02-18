@@ -7,7 +7,7 @@
 
 using namespace stagehand;
 
-inline stagehand::Registry register_entity_prefabs([](flecs::world &world) {
+REGISTER([](flecs::world &world) {
     world.prefab(names::prefabs::ENTITY_2D)
         .add<stagehand::transform::Position2D>()
         .add<stagehand::transform::Rotation2D>()

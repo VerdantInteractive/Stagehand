@@ -13,7 +13,7 @@
 
 namespace stagehand_tests {
 
-    inline stagehand::Registry register_stagehand_test_systems([](flecs::world &world) {
+    REGISTER([](flecs::world &world) {
         // ── TickCount singleton ──────────────────────────────────────────────
         // Needed so that GDScript can read the singleton via get_component.
         world.set<TickCount>({0});
@@ -247,7 +247,7 @@ namespace stagehand_tests {
     // Accepts { "names": ["EntityA", "EntityB", ...] } and returns a
     // Dictionary stored in SceneChildrenResult with:
     //   { "found": ["EntityA", ...], "missing": ["EntityB", ...] }
-    inline stagehand::Registry register_lookup_entities_system([](flecs::world &world) {
+    REGISTER([](flecs::world &world) {
         world.system(names::systems::LOOKUP_ENTITIES)
             .kind(0) // on-demand
             .run([](flecs::iter &it) {
@@ -287,7 +287,7 @@ namespace stagehand_tests {
     //   "renderer_count": N,
     //   "renderers": [{ "lod_count": M, "entity_count": K, "instance_rid_count": L }, ...]
     // }
-    inline stagehand::Registry register_query_instanced_renderers_system([](flecs::world &world) {
+    REGISTER([](flecs::world &world) {
         world.system(names::systems::QUERY_INSTANCED_RENDERERS)
             .kind(0) // on-demand
             .run([](flecs::iter &it) {

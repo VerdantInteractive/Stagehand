@@ -231,7 +231,7 @@ template <typename T> void register_godot_members(flecs::component<T> c, Callabl
 template <typename T> void register_godot_members(flecs::component<T> c, RID *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, Signal *) {}
 
-inline stagehand::Registry register_godot_variant_components([](flecs::world &world) {
+REGISTER([](flecs::world &world) {
     register_color_members(world.component<Color>()); // 16 bytes
     stagehand::register_component_getter<Color>("Color");
     stagehand::register_component_setter<Color>("Color");

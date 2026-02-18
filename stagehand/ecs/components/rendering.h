@@ -68,6 +68,4 @@ namespace stagehand::rendering {
     };
 } // namespace stagehand::rendering
 
-inline stagehand::Registry register_entity_rendering_components([](flecs::world &world) {
-    world.component<stagehand::rendering::Renderers>().add(flecs::Singleton);
-});
+REGISTER([](flecs::world &world) { world.component<stagehand::rendering::Renderers>().add(flecs::Singleton); });

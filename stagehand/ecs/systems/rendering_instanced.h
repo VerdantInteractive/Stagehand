@@ -14,7 +14,7 @@ namespace stagehand::rendering {
     inline flecs::system EntityRenderingInstanced;
 }
 
-inline stagehand::Registry register_entity_rendering_instanced_system([](flecs::world &world) {
+REGISTER([](flecs::world &world) {
     stagehand::rendering::EntityRenderingInstanced =
         world.system(stagehand::names::systems::ENTITY_RENDERING_INSTANCED).kind(stagehand::OnRender).run([](flecs::iter &it) {
             if (!it.world().has<Renderers>()) {

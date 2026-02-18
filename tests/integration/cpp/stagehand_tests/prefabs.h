@@ -10,7 +10,7 @@
 
 namespace stagehand_tests {
 
-    inline stagehand::Registry register_test_prefabs([](flecs::world &world) {
+    REGISTER([](flecs::world &world) {
         // A 2D test prefab that inherits from the built-in Entity2D prefab.
         // It carries all the transform components (Position2D, Rotation2D, Scale2D, Transform2D)
         // plus a custom TestFloat component for testing.
