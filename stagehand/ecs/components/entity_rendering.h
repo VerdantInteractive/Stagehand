@@ -8,10 +8,8 @@
 #include <godot_cpp/variant/rid.hpp>
 
 #include "stagehand/ecs/components/godot_variants.h"
-#include "stagehand/ecs/components/macros.h"
 #include "stagehand/registry.h"
 #include "stagehand/utilities/godot_hashes.h" // IWYU pragma: keep
-
 
 namespace stagehand::entity_rendering {
     GODOT_VARIANT(CustomData, Vector4); // Used as MultiMesh instance custom data in the Entity Rendering (MultiMesh) system
@@ -70,11 +68,6 @@ namespace stagehand::entity_rendering {
     };
 } // namespace stagehand::entity_rendering
 
-namespace stagehand::entity_rendering {
-    ENUM(RendererType, int32_t).then([](auto c) { c.constant("Instanced", RendererType::Instanced).constant("MultiMesh", RendererType::MultiMesh); });
-} // namespace stagehand::entity_rendering
-
 inline stagehand::Registry register_entity_rendering_components([](flecs::world &world) {
     world.component<stagehand::entity_rendering::Renderers>().add(flecs::Singleton);
-    stagehand::register_component_inspector<stagehand::entity_rendering::Renderers>("Renderers");
 });
