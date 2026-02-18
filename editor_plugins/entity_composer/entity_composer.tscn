@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://c7fvex011jmww"]
+
+[ext_resource type="Script" uid="uid://bp5k1jrbihxuv" path="res://addons/stagehand/editor_plugins/entity_composer/entity_composer.gd" id="1_2qkb7"]
+
+[node name="EntityComposer" type="GraphEdit" unique_id=2057999281]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_2qkb7")

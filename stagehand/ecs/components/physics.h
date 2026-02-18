@@ -123,36 +123,34 @@ namespace stagehand {
         internal::get_physics_body_handlers(body_type).free(rid);
     }
 
-    inline auto register_physics_body_type_component = stagehand::ComponentRegistrar<PhysicsBodyType>([](flecs::world &world) {
-                                                           world.component<PhysicsBodyType>()
-                                                               .constant("Static2D", PhysicsBodyType::Static2D)
-                                                               .constant("Kinematic2D", PhysicsBodyType::Kinematic2D)
-                                                               .constant("Rigid2D", PhysicsBodyType::Rigid2D)
-                                                               .constant("RigidLinear2D", PhysicsBodyType::RigidLinear2D)
-                                                               .constant("Static3D", PhysicsBodyType::Static3D)
-                                                               .constant("Kinematic3D", PhysicsBodyType::Kinematic3D)
-                                                               .constant("Rigid3D", PhysicsBodyType::Rigid3D)
-                                                               .constant("RigidLinear3D", PhysicsBodyType::RigidLinear3D);
+    ENUM(PhysicsBodyType)
+        .then([](auto c) {
+            c.constant("Static2D", PhysicsBodyType::Static2D)
+                .constant("Kinematic2D", PhysicsBodyType::Kinematic2D)
+                .constant("Rigid2D", PhysicsBodyType::Rigid2D)
+                .constant("RigidLinear2D", PhysicsBodyType::RigidLinear2D)
+                .constant("Static3D", PhysicsBodyType::Static3D)
+                .constant("Kinematic3D", PhysicsBodyType::Kinematic3D)
+                .constant("Rigid3D", PhysicsBodyType::Rigid3D)
+                .constant("RigidLinear3D", PhysicsBodyType::RigidLinear3D);
+        })
+        .then([](auto c) {
+            c.on_add([](flecs::entity entity, PhysicsBodyType &physics_body_type) {
+                const godot::RID body_rid = create_physics_body(physics_body_type);
+                if (body_rid.is_valid()) {
+                    entity.set<PhysicsBodyRID>(body_rid);
+                }
+            });
 
-                                                           stagehand::register_component_getter<PhysicsBodyType, uint8_t>("PhysicsBodyType");
-                                                           stagehand::register_component_setter<PhysicsBodyType, uint8_t>("PhysicsBodyType");
-                                                       }).then([](auto c) {
-        c.on_add([](flecs::entity entity, PhysicsBodyType &physics_body_type) {
-            const godot::RID body_rid = create_physics_body(physics_body_type);
-            if (body_rid.is_valid()) {
-                entity.set<PhysicsBodyRID>(body_rid);
-            }
+            c.on_remove([](flecs::entity entity, PhysicsBodyType &physics_body_type) {
+                const PhysicsBodyRID *body_rid_component = entity.try_get<PhysicsBodyRID>();
+                if (body_rid_component == nullptr) {
+                    return;
+                }
+
+                free_physics_body(physics_body_type, *body_rid_component);
+                entity.remove<PhysicsBodyRID>();
+            });
         });
-
-        c.on_remove([](flecs::entity entity, PhysicsBodyType &physics_body_type) {
-            const PhysicsBodyRID *body_rid_component = entity.try_get<PhysicsBodyRID>();
-            if (body_rid_component == nullptr) {
-                return;
-            }
-
-            free_physics_body(physics_body_type, *body_rid_component);
-            entity.remove<PhysicsBodyRID>();
-        });
-    });
 
 } // namespace stagehand

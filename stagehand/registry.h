@@ -58,11 +58,27 @@ namespace stagehand {
     /// Function type for setting a component value from a Godot Variant.
     using ComponentSetter = std::function<void(flecs::world &, flecs::entity_t, const godot::Variant &)>;
 
+    /// Function type for creating a default Godot Variant for a component.
+    using ComponentDefaulter = std::function<godot::Variant()>;
+
+    struct ComponentInfo {
+        bool is_singleton = false;
+        godot::String name; // Full name from Flecs (e.g. "namespace::Component")
+    };
+
+    using ComponentInspector = std::function<void(flecs::world &, ComponentInfo &)>;
+
     /// Returns the global map of component getters, keyed by component name.
     std::unordered_map<std::string, ComponentGetter> &get_component_getters();
 
     /// Returns the global map of component setters, keyed by component name.
     std::unordered_map<std::string, ComponentSetter> &get_component_setters();
+
+    /// Returns the global map of component defaulters, keyed by component name.
+    std::unordered_map<std::string, ComponentDefaulter> &get_component_defaulters();
+
+    /// Returns the global map of component inspectors, keyed by component name.
+    std::unordered_map<std::string, ComponentInspector> &get_component_inspectors();
 
     /// Registers a getter function for a specific component type.
     template <typename T, typename StorageType = T> void register_component_getter(const char *name) {
@@ -112,6 +128,11 @@ namespace stagehand {
         };
     }
 
+    /// Registers a defaulter function for a specific component type.
+    template <typename T, typename StorageType = T> void register_component_defaulter(const char *name) {
+        get_component_defaulters()[name] = []() -> godot::Variant { return godot::Variant(static_cast<StorageType>(T())); };
+    }
+
     /// Registers a getter function for a std::vector component type.
     template <typename T, typename ElementType> void register_vector_component_getter(const char *name) {
         get_component_getters()[name] = [name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
@@ -137,6 +158,15 @@ namespace stagehand {
             godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) +
                                                   " returned empty component data for " + name + ". Returning empty Variant.");
             return godot::Variant();
+        };
+    }
+
+    /// Registers an inspector function for a specific component type.
+    template <typename T> void register_component_inspector(const char *name) {
+        get_component_inspectors()[name] = [](flecs::world &world, ComponentInfo &info) {
+            auto comp = world.component<T>();
+            info.is_singleton = comp.has(flecs::Singleton);
+            info.name = comp.name().c_str();
         };
     }
 
@@ -167,6 +197,11 @@ namespace stagehand {
                 e.set<T>(T(std::move(vec)));
             }
         };
+    }
+
+    /// Registers a defaulter function for a std::vector component type.
+    template <typename T, typename ElementType> void register_vector_component_defaulter(const char *name) {
+        get_component_defaulters()[name] = []() -> godot::Variant { return godot::Variant(godot::Array()); };
     }
 
     /// Registers a getter function for a std::array component type.
@@ -231,4 +266,13 @@ namespace stagehand {
         };
     }
 
+    /// Registers a defaulter function for a std::array component type.
+    template <typename T, typename ElementType, std::size_t N> void register_array_component_defaulter(const char *name) {
+        get_component_defaulters()[name] = []() -> godot::Variant {
+            godot::Array arr;
+            arr.resize(static_cast<int>(N));
+            // Elements are default constructed (null/0)
+            return godot::Variant(arr);
+        };
+    }
 } // namespace stagehand

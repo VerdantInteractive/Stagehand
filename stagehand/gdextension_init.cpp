@@ -5,6 +5,7 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
+#include "stagehand/editor/flecs_schema.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/resources/prefab.h"
@@ -20,6 +21,7 @@ void initialize_flecs_module(ModuleInitializationLevel p_level) {
 
     GDREGISTER_RUNTIME_CLASS(stagehand::FlecsWorld);
     GDREGISTER_CLASS(stagehand::Prefab);
+    GDREGISTER_CLASS(stagehand::FlecsSchema);
 
     GDREGISTER_RUNTIME_CLASS(InstancedRenderer3D);
     GDREGISTER_CLASS(InstancedRenderer3DLODConfiguration);

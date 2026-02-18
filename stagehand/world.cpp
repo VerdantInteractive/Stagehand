@@ -440,21 +440,10 @@ namespace stagehand {
         world.progress(static_cast<ecs_ftime_t>(delta));
     }
 
-    void FlecsWorld::set_prefabs(const godot::TypedArray<Prefab> &p_prefabs) { prefabs = p_prefabs; }
-
-    godot::TypedArray<Prefab> FlecsWorld::get_prefabs() const { return prefabs; }
-
     void FlecsWorld::_notification(const int p_what) {
         switch (p_what) {
         case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
             set_world_configuration(world_configuration);
-            // Register configured prefabs
-            for (int i = 0; i < prefabs.size(); ++i) {
-                godot::Ref<Prefab> prefab = prefabs[i];
-                if (prefab.is_valid()) {
-                    prefab->register_with_world(this);
-                }
-            }
             populate_scene_children_singleton();
             setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
@@ -505,9 +494,6 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("set_world_configuration", "configuration"), &FlecsWorld::set_world_configuration);
         godot::ClassDB::bind_method(godot::D_METHOD("get_world_configuration"), &FlecsWorld::get_world_configuration);
 
-        godot::ClassDB::bind_method(godot::D_METHOD("set_prefabs", "prefabs"), &FlecsWorld::set_prefabs);
-        godot::ClassDB::bind_method(godot::D_METHOD("get_prefabs"), &FlecsWorld::get_prefabs);
-
         ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "progress_tick", godot::PROPERTY_HINT_ENUM, "Rendering,Physics,Manual"), "set_progress_tick",
                      "get_progress_tick");
         BIND_ENUM_CONSTANT(PROGRESS_TICK_RENDERING);
@@ -518,11 +504,6 @@ namespace stagehand {
                                          godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
                                          godot::PROPERTY_USAGE_DEFAULT),
                      "set_world_configuration", "get_world_configuration");
-
-        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "prefabs", godot::PROPERTY_HINT_RESOURCE_TYPE,
-                                         godot::String::num_int64(godot::Variant::OBJECT) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_RESOURCE_TYPE) +
-                                             ":Prefab"),
-                     "set_prefabs", "get_prefabs");
 
         ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
                                      godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
