@@ -6,15 +6,15 @@
 
 namespace stagehand {
 
-    class FlecsSchema : public godot::Object {
-        GDCLASS(FlecsSchema, godot::Object);
+    class ComponentSchema : public godot::Object {
+        GDCLASS(ComponentSchema, godot::Object);
 
       protected:
         static void _bind_methods();
 
       public:
-        FlecsSchema();
-        ~FlecsSchema();
+        ComponentSchema();
+        ~ComponentSchema();
 
         godot::Dictionary get_registered_components() const;
         godot::Variant get_component_default(const godot::String &name) const;

@@ -4,7 +4,7 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/systems/entity_rendering_multimesh.h"
+#include "stagehand/ecs/systems/rendering_multimesh.h"
 
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
 

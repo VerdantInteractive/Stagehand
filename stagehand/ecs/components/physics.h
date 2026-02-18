@@ -12,7 +12,7 @@
 #include "stagehand/ecs/components/macros.h"
 #include "stagehand/registry.h"
 
-namespace stagehand {
+namespace stagehand::physics {
 
     enum class PhysicsBodyType : uint8_t {
         Static2D = 0,
@@ -27,9 +27,9 @@ namespace stagehand {
 
     GODOT_VARIANT(PhysicsBodyRID, godot::RID);
 
-    GODOT_VARIANT(LinearVelocity2D, godot::Vector2);
+    GODOT_VARIANT(Velocity2D, godot::Vector2);
     FLOAT(AngularVelocity2D);
-    GODOT_VARIANT(LinearVelocity3D, godot::Vector3);
+    GODOT_VARIANT(Velocity3D, godot::Vector3);
     GODOT_VARIANT(AngularVelocity3D, godot::Vector3);
 
     template <typename ServerType> struct PhysicsServerTraits {
@@ -153,4 +153,4 @@ namespace stagehand {
             });
         });
 
-} // namespace stagehand
+} // namespace stagehand::physics

@@ -13,8 +13,8 @@
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
-#include "stagehand/ecs/systems/entity_rendering_instanced.h"
-#include "stagehand/ecs/systems/entity_rendering_multimesh.h"
+#include "stagehand/ecs/systems/rendering_instanced.h"
+#include "stagehand/ecs/systems/rendering_multimesh.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
@@ -75,13 +75,11 @@ namespace stagehand {
 
         world.observer("stagehand::SignalObserver")
             .event<GodotSignal>()
-            .with(flecs::Any) // Tells the observer: "I don't care what
-                              // components the entity has. If any entity emits
-                              // this event, trigger the callback."
+            .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
             .each([this](flecs::iter &it, size_t index) {
                 const GodotSignal *signal = it.param<GodotSignal>();
                 if (signal) {
-                    this->emit_signal("flecs_signal_emitted", signal->name, signal->data);
+                    this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
                 }
             });
 
@@ -505,7 +503,7 @@ namespace stagehand {
                                          godot::PROPERTY_USAGE_DEFAULT),
                      "set_world_configuration", "get_world_configuration");
 
-        ADD_SIGNAL(godot::MethodInfo("flecs_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
+        ADD_SIGNAL(godot::MethodInfo("stagehand_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
                                      godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
     }
 

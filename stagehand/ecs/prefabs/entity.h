@@ -8,6 +8,15 @@
 using namespace stagehand;
 
 inline stagehand::Registry register_entity_prefabs([](flecs::world &world) {
-    world.prefab(names::prefabs::ENTITY_2D).add<Position2D>().add<Rotation2D>().add<Scale2D>().add<Transform2D>();
-    world.prefab(names::prefabs::ENTITY_3D).add<Position3D>().add<Rotation3D>().add<Scale3D>().add<Transform3D>();
+    world.prefab(names::prefabs::ENTITY_2D)
+        .add<stagehand::transform::Position2D>()
+        .add<stagehand::transform::Rotation2D>()
+        .add<stagehand::transform::Scale2D>()
+        .add<Transform2D>();
+
+    world.prefab(names::prefabs::ENTITY_3D)
+        .add<stagehand::transform::Position3D>()
+        .add<stagehand::transform::Rotation3D>()
+        .add<stagehand::transform::Scale3D>()
+        .add<Transform3D>();
 });

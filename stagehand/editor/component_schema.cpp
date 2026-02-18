@@ -1,4 +1,4 @@
-#include "stagehand/editor/flecs_schema.h"
+#include "stagehand/editor/component_schema.h"
 
 #include <godot_cpp/core/class_db.hpp>
 
@@ -13,16 +13,16 @@ namespace stagehand {
         }
     }
 
-    void FlecsSchema::_bind_methods() {
-        godot::ClassDB::bind_method(godot::D_METHOD("get_registered_components"), &FlecsSchema::get_registered_components);
-        godot::ClassDB::bind_method(godot::D_METHOD("get_component_default", "name"), &FlecsSchema::get_component_default);
+    void ComponentSchema::_bind_methods() {
+        godot::ClassDB::bind_method(godot::D_METHOD("get_registered_components"), &ComponentSchema::get_registered_components);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_component_default", "name"), &ComponentSchema::get_component_default);
     }
 
-    FlecsSchema::FlecsSchema() {}
+    ComponentSchema::ComponentSchema() {}
 
-    FlecsSchema::~FlecsSchema() {}
+    ComponentSchema::~ComponentSchema() {}
 
-    godot::Dictionary FlecsSchema::get_registered_components() const {
+    godot::Dictionary ComponentSchema::get_registered_components() const {
         ensure_registry_populated();
 
         // Create a temporary world to inspect component metadata
@@ -57,7 +57,7 @@ namespace stagehand {
         return components_by_namespace;
     }
 
-    godot::Variant FlecsSchema::get_component_default(const godot::String &name) const {
+    godot::Variant ComponentSchema::get_component_default(const godot::String &name) const {
         ensure_registry_populated();
         std::string c_name = name.utf8().get_data();
         const auto &defaulters = get_component_defaulters();

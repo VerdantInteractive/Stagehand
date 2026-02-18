@@ -3,7 +3,7 @@
 #include "stagehand/ecs/components/godot_variants.h"
 #include "stagehand/ecs/components/macros.h"
 
-namespace stagehand {
+namespace stagehand::transform {
 
     GODOT_VARIANT(Position2D, godot::Vector2);
     GODOT_VARIANT(Position3D, godot::Vector3);
@@ -14,4 +14,4 @@ namespace stagehand {
     GODOT_VARIANT(Scale2D, godot::Vector2, {1.0, 1.0});
     GODOT_VARIANT(Scale3D, godot::Vector3, {1.0, 1.0, 1.0});
 
-} // namespace stagehand
+} // namespace stagehand::transform

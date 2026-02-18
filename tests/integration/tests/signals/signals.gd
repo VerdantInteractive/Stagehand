@@ -1,7 +1,7 @@
 extends FlecsWorld
 
 ## Tests the GodotSignal system: emits a signal from a C++ on-demand system
-## and verifies it is received in GDScript via the "flecs_signal_emitted" signal.
+## and verifies it is received in GDScript via the "stagehand_signal_emitted" signal.
 
 var signals_received: Array[Dictionary] = []
 var test_complete := false
@@ -12,7 +12,7 @@ func _ready() -> void:
 	set_progress_tick(PROGRESS_TICK_MANUAL)
 
 	# Connect to the built-in signal
-	flecs_signal_emitted.connect(_on_flecs_signal_emitted)
+	stagehand_signal_emitted.connect(_on_flecs_signal_emitted)
 
 	# ── Test 1: Emit a simple test signal ────────────────────────────────────
 	run_system("stagehand_tests::Emit Test Signal", {
