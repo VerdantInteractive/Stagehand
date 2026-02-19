@@ -340,7 +340,7 @@ namespace stagehand {
             setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
             import_configured_modules();
-            script_loader.load(world);
+            script_loader.load(world, modules_to_load);
             break;
         case NOTIFICATION_PROCESS:
             if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {

@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <functional>
+#include <sstream>
 #include <string_view>
 #include <vector>
 
@@ -14,12 +15,46 @@ using godot::UtilityFunctions;
 
 namespace stagehand {
 
-    void ScriptLoader::load(flecs::world &world) const {
+    /// Helper to extract module name from script content if present. Returns empty string if no module statement is found.
+    static std::string get_module_name(const std::string &script) {
+        std::istringstream stream(script);
+        std::string line;
+        while (std::getline(stream, line)) {
+            // Strip comments
+            size_t comment_pos = line.find("//");
+            if (comment_pos != std::string::npos) {
+                line = line.substr(0, comment_pos);
+            }
+
+            // Trim whitespace
+            size_t first = line.find_first_not_of(" \t\r");
+            if (first == std::string::npos)
+                continue;
+            size_t last = line.find_last_not_of(" \t\r");
+            line = line.substr(first, (last - first + 1));
+
+            if (line.rfind("module", 0) == 0) { // Starts with "module"
+                // Extract name
+                size_t name_start = line.find_first_not_of(" \t", 6); // 6 is length of "module"
+                if (name_start != std::string::npos) {
+                    std::string name = line.substr(name_start);
+                    // Name might be followed by whitespace
+                    size_t name_end = name.find_first_of(" \t");
+                    if (name_end != std::string::npos) {
+                        name = name.substr(0, name_end);
+                    }
+                    return name;
+                }
+            }
+        }
+        return "";
+    }
+
+    void ScriptLoader::load(flecs::world &world, const godot::TypedArray<godot::String> &modules_to_load) const {
         constexpr std::string_view res_prefix = "res://";
 
-        // We'll collect resource-style paths (res://...) using Godot's DirAccess so exported
-        // builds work. If the configured `root_path` isn't already a resource path, treat it
-        // as relative to `res://` (purely resource-based loading).
+        // We'll collect resource-style paths (res://...) using Godot's DirAccess so exported builds work.
+        // If the configured `root_path` isn't already a resource path, treat it as relative to `res://` (purely resource-based loading).
         std::string res_root = root_path;
         std::string_view root_view = res_root;
         if (!root_view.starts_with(res_prefix)) {
@@ -86,6 +121,31 @@ namespace stagehand {
             if (script_str.empty()) {
                 UtilityFunctions::push_error(godot::String("Failed to read flecs script file: ") + godot_path);
                 continue;
+            }
+
+            // If the script declares a module, only load it if the module is in the allowed list.
+            std::string module_name = get_module_name(script_str);
+            if (!module_name.empty()) {
+                bool should_load = false;
+                // Check exact match (dot separator)
+                if (modules_to_load.has(godot::String(module_name.c_str()))) {
+                    should_load = true;
+                } else {
+                    // Check C++ style match (double colon separator)
+                    std::string cpp_name = module_name;
+                    size_t pos = 0;
+                    while ((pos = cpp_name.find(".", pos)) != std::string::npos) {
+                        cpp_name.replace(pos, 1, "::");
+                        pos += 2;
+                    }
+                    if (modules_to_load.has(godot::String(cpp_name.c_str()))) {
+                        should_load = true;
+                    }
+                }
+
+                if (!should_load) {
+                    continue;
+                }
             }
 
             // Run the script from the in-memory string; pass the resource path for error reporting.
