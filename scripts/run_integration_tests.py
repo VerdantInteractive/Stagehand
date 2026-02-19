@@ -89,87 +89,62 @@ def main():
         print(f"Error: Godot binary not found at '{godot_bin}'", file=sys.stderr)
         sys.exit(1)
 
-    # Create a symlink `tests/integration/addons/stagehand` -> repository root (../../..)
-    addons_dir = os.path.join(project_dir, "addons")
-    symlink_path = os.path.join(addons_dir, "stagehand")
-    symlink_target = os.path.join("..", "..", "..")
-    created_symlink = False
+    print("")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print("  Running Stagehand integration tests...")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
-    try:
-        if not os.path.exists(addons_dir):
-            os.makedirs(addons_dir, exist_ok=True)
-        # Only create the symlink if it doesn't already exist
-        if not os.path.lexists(symlink_path):
-            try:
-                os.symlink(symlink_target, symlink_path)
-                created_symlink = True
-            except OSError:
-                # If symlink creation fails, warn but continue
-                print(f"Warning: failed to create symlink {symlink_path} -> {symlink_target}")
+    # Find all integration test scenes
+    all_scenes = []
+    for root, _, files in os.walk(tests_dir):
+        for file in files:
+            if file.lower().endswith(".tscn"):
+                all_scenes.append(os.path.join(root, file))
+    all_scenes.sort(key=os.path.split)
 
-        print("")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("  Running Stagehand integration tests...")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-
-        # Find all integration test scenes
-        all_scenes = []
-        for root, _, files in os.walk(tests_dir):
-            for file in files:
-                if file.lower().endswith(".tscn"):
-                    all_scenes.append(os.path.join(root, file))
-        all_scenes.sort(key=os.path.split)
-
-        # Determine which tests to run
-        tests_to_run = []
-        if args.scene:
-            input_path = args.scene
-            # Check if absolute path provided
-            if os.path.isfile(input_path):
-                tests_to_run = [os.path.abspath(input_path)]
-            # Check if relative to tests dir
-            elif os.path.isfile(os.path.join(tests_dir, input_path)):
-                tests_to_run = [os.path.join(tests_dir, input_path)]
-            # Check if relative to current working dir
-            elif os.path.isfile(os.path.abspath(input_path)):
-                 tests_to_run = [os.path.abspath(input_path)]
-            else:
-                print(f"Test scene file '{input_path}' not found. Running all integration test scenes.")
-                tests_to_run = all_scenes
+    # Determine which tests to run
+    tests_to_run = []
+    if args.scene:
+        input_path = args.scene
+        # Check if absolute path provided
+        if os.path.isfile(input_path):
+            tests_to_run = [os.path.abspath(input_path)]
+        # Check if relative to tests dir
+        elif os.path.isfile(os.path.join(tests_dir, input_path)):
+            tests_to_run = [os.path.join(tests_dir, input_path)]
+        # Check if relative to current working dir
+        elif os.path.isfile(os.path.abspath(input_path)):
+             tests_to_run = [os.path.abspath(input_path)]
         else:
+            print(f"Test scene file '{input_path}' not found. Running all integration test scenes.")
             tests_to_run = all_scenes
+    else:
+        tests_to_run = all_scenes
 
-        total_tests = 0
-        passed_tests = 0
-        failed_tests = 0
+    total_tests = 0
+    passed_tests = 0
+    failed_tests = 0
 
-        for scene_path in tests_to_run:
-            total_tests += 1
-            if run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
-                passed_tests += 1
-            else:
-                failed_tests += 1
-                if not quiet:
-                    sys.exit(1)
-                break
+    for scene_path in tests_to_run:
+        total_tests += 1
+        if run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
+            passed_tests += 1
+        else:
+            failed_tests += 1
+            if not quiet:
+                sys.exit(1)
+            break
 
-        print("")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print("  Summary")
-        print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
-        print(f"Total:  {total_tests}")
-        print(f"Passed: {passed_tests}")
-        print(f"Failed: {failed_tests}")
+    print("")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print("  Summary")
+    print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
+    print(f"Total:  {total_tests}")
+    print(f"Passed: {passed_tests}")
+    print(f"Failed: {failed_tests}")
 
-        if failed_tests > 0:
-            sys.exit(1)
-    finally:
-        # Remove the symlink if we created it. Do not remove an existing user symlink.
-        if created_symlink and os.path.lexists(symlink_path):
-            try:
-                os.remove(symlink_path)
-            except Exception:
-                pass
+    if failed_tests > 0:
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()
