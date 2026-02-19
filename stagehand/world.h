@@ -88,22 +88,18 @@ namespace stagehand {
         [[nodiscard]] godot::TypedDictionary<godot::String, godot::Variant> get_world_configuration() const;
 
         /// Sets the list of Flecs modules (library names) to import on startup.
-        void set_modules_to_load(const godot::TypedArray<godot::String> &p_modules);
+        void set_modules_to_import(const godot::TypedArray<godot::String> &p_modules);
         /// Gets the list of Flecs modules configured for import.
-        [[nodiscard]] godot::TypedArray<godot::String> get_modules_to_load() const;
+        [[nodiscard]] godot::TypedArray<godot::String> get_modules_to_import() const;
 
         ~FlecsWorld();
-
-      protected:
-        void _notification(const int p_what);
-        static void _bind_methods();
 
       private:
         flecs::world world;
         bool is_initialised = false;
         ProgressTick progress_tick = ProgressTick::PROGRESS_TICK_RENDERING;
         godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
-        godot::TypedArray<godot::String> modules_to_load;
+        godot::TypedArray<godot::String> modules_to_import;
         ScriptLoader script_loader;
 
         /// Helper to look up a system entity by name.
@@ -112,12 +108,17 @@ namespace stagehand {
         std::unordered_map<std::string, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
         std::unordered_map<std::string, std::function<godot::Variant(flecs::entity_t)>> component_getters;
 
-        void register_signal_observer();
         void populate_scene_children_singleton();
-        void import_configured_modules();
         void setup_entity_renderers_instanced();
         void setup_entity_renderers_multimesh();
+        void register_signal_observer();
+        void import_configured_modules();
+
         void cleanup_instanced_renderer_rids();
+
+      protected:
+        void _notification(const int p_what);
+        static void _bind_methods();
     };
 } // namespace stagehand
 

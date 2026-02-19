@@ -50,7 +50,7 @@ namespace stagehand {
         return "";
     }
 
-    void ScriptLoader::load(flecs::world &world, const godot::TypedArray<godot::String> &modules_to_load) const {
+    void ScriptLoader::run_all(flecs::world &world, const godot::TypedArray<godot::String> &modules_to_import) const {
         constexpr std::string_view res_prefix = "res://";
 
         // We'll collect resource-style paths (res://...) using Godot's DirAccess so exported builds work.
@@ -123,12 +123,12 @@ namespace stagehand {
                 continue;
             }
 
-            // If the script declares a module, only load it if the module is in the list of modules to load of the world.
+            // If the script declares a module, only load it if the module is in the list of modules to load for the world.
             std::string module_name = get_module_name(script_str);
             if (!module_name.empty()) {
                 bool should_load = false;
                 // Check exact match (dot separator)
-                if (modules_to_load.has(godot::String(module_name.c_str()))) {
+                if (modules_to_import.has(godot::String(module_name.c_str()))) {
                     should_load = true;
                 } else {
                     // Check C++ style match (double colon separator)
@@ -138,7 +138,7 @@ namespace stagehand {
                         cpp_name.replace(pos, 1, "::");
                         pos += 2;
                     }
-                    if (modules_to_load.has(godot::String(cpp_name.c_str()))) {
+                    if (modules_to_import.has(godot::String(cpp_name.c_str()))) {
                         should_load = true;
                     }
                 }

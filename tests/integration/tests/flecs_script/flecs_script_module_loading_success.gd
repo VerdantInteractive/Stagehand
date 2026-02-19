@@ -4,7 +4,7 @@ func _ready() -> void:
     print("Test: Flecs script module loading (success)")
 
     # Configure world to load the foo::bar module
-    set_modules_to_load(["foo::bar"])
+    set_modules_to_import(["foo::bar"])
 
     set_progress_tick(PROGRESS_TICK_MANUAL)
     progress(0.016)
