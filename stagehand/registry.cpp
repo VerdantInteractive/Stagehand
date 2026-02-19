@@ -94,14 +94,4 @@ namespace stagehand {
         return inspectors;
     }
 
-    std::unordered_map<std::string, ComponentDefaulter> &get_component_defaulters() {
-        static std::unordered_map<std::string, ComponentDefaulter> defaulters;
-        return defaulters;
-    }
-
-    std::unordered_map<std::string, ComponentInspector> &get_component_inspectors() {
-        static std::unordered_map<std::string, ComponentInspector> inspectors;
-        return inspectors;
-    }
-
 } // namespace stagehand
