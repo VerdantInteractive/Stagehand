@@ -39,17 +39,6 @@ namespace stagehand {
         FlecsWorld();
 
         // GDScript-visible methods that we bind
-        /// Sets a component value for an entity.
-        void set_component(const godot::String &component_name, const godot::Variant &data, uint64_t entity_id = 0);
-        /// Gets a component value from an entity.
-        [[nodiscard]] godot::Variant get_component(const godot::String &component_name, uint64_t entity_id = 0);
-        /// Checks if an entity has a component.
-        [[nodiscard]] bool has_component(const godot::String &component_name, uint64_t entity_id);
-        /// Adds a component (or tag) to an entity.
-        void add_component(const godot::String &component_name, uint64_t entity_id);
-        /// Removes a component from an entity.
-        void remove_component(const godot::String &component_name, uint64_t entity_id);
-
         /// Enables or disables a system by name.
         bool enable_system(const godot::String &system_name, bool enabled = true);
         /// Runs a specific system manually, optionally with parameters.
@@ -59,26 +48,6 @@ namespace stagehand {
         /// GDScript.
         bool run_system(const godot::String &system_name, const godot::Dictionary &parameters);
 
-        /// Creates a new entity, optionally with a name.
-        uint64_t create_entity(const godot::String &name = "");
-        /// Destroys an entity.
-        void destroy_entity(uint64_t entity_id);
-        /// Checks if an entity is alive.
-        [[nodiscard]] bool is_alive(uint64_t entity_id);
-        /// Looks up an entity by name.
-        [[nodiscard]] uint64_t lookup(const godot::String &name);
-        /// Gets the name of an entity.
-        [[nodiscard]] godot::String get_entity_name(uint64_t entity_id);
-        /// Creates a new prefab entity.
-        uint64_t create_prefab(const godot::String &name = "");
-        /// Checks if an entity is a prefab.
-        [[nodiscard]] bool is_prefab(uint64_t entity_id);
-        /// Checks if an entity is an instance of a specific prefab.
-        [[nodiscard]] bool is_entity_a(uint64_t entity_id, uint64_t prefab_id);
-        /// Instantiates a prefab by name.
-        /// @param prefab_name The name of the prefab to instantiate.
-        /// @param components A dictionary of component names to values to set on the instance.
-        /// @return The entity ID of the new instance, or 0 if failed.
         uint64_t instantiate_prefab(const godot::String &prefab_name, const godot::Dictionary &components = {});
 
         void set_progress_tick(ProgressTick p_progress_tick);
