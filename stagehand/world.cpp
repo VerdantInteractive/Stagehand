@@ -240,21 +240,12 @@ namespace stagehand {
             godot::String module_entry = modules_to_load[i];
             std::string module_name = module_entry.utf8().get_data();
 
-            // If this process has internal registrations for the module, prefer running those and skip attempting to dlopen an external
-            // module library (which may not be supported on the current platform or build configuration).
             if (stagehand::has_module_callbacks_for(module_name)) {
                 stagehand::run_module_callbacks_for(world, module_name);
                 continue;
             }
 
-            ecs_entity_t module_import = ecs_import_from_library(world.c_ptr(), module_name.c_str(), module_name.c_str());
-            if (!module_import) {
-                godot::UtilityFunctions::push_warning(godot::String("Failed to import Flecs module: '") + module_entry +
-                                                      "'. No internal registration found; module will not be loaded.");
-            } else {
-                // If an external module was imported, also execute any internal callbacks that match (rare, but safe).
-                stagehand::run_module_callbacks_for(world, module_name);
-            }
+            godot::UtilityFunctions::push_warning(godot::String("Failed to import Flecs module: '") + module_entry);
         }
     }
 
