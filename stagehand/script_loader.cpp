@@ -123,7 +123,7 @@ namespace stagehand {
                 continue;
             }
 
-            // If the script declares a module, only load it if the module is in the allowed list.
+            // If the script declares a module, only load it if the module is in the list of modules to load of the world.
             std::string module_name = get_module_name(script_str);
             if (!module_name.empty()) {
                 bool should_load = false;
