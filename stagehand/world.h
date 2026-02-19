@@ -47,7 +47,7 @@ namespace stagehand {
         [[nodiscard]] bool has_component(const godot::String &component_name, uint64_t entity_id);
         /// Adds a component (or tag) to an entity.
         void add_component(const godot::String &component_name, uint64_t entity_id);
-        /// Removes a component from an entity.
+        /// Removes a component (or tag) from an entity.
         void remove_component(const godot::String &component_name, uint64_t entity_id);
 
         /// Enables or disables a system by name.
@@ -69,12 +69,6 @@ namespace stagehand {
         [[nodiscard]] uint64_t lookup(const godot::String &name);
         /// Gets the name of an entity.
         [[nodiscard]] godot::String get_entity_name(uint64_t entity_id);
-        /// Creates a new prefab entity.
-        uint64_t create_prefab(const godot::String &name = "");
-        /// Checks if an entity is a prefab.
-        [[nodiscard]] bool is_prefab(uint64_t entity_id);
-        /// Checks if an entity is an instance of a specific prefab.
-        [[nodiscard]] bool is_entity_a(uint64_t entity_id, uint64_t prefab_id);
         /// Instantiates a prefab by name.
         /// @param prefab_name The name of the prefab to instantiate.
         /// @param components A dictionary of component names to values to set on the instance.

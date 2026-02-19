@@ -18,7 +18,6 @@
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
-#include "stagehand/resources/prefab.h"
 #include "stagehand/utilities/platform.h"
 
 namespace stagehand {
@@ -380,29 +379,6 @@ namespace stagehand {
         return godot::String(world.entity(static_cast<ecs_entity_t>(entity_id)).name().c_str());
     }
 
-    uint64_t FlecsWorld::create_prefab(const godot::String &name) {
-        if (!is_initialised) {
-            godot::UtilityFunctions::push_warning("FlecsWorld::create_prefab called before world initialised");
-            return 0;
-        }
-        if (name.is_empty()) {
-            return world.prefab().id();
-        }
-        return world.prefab(name.utf8().get_data()).id();
-    }
-
-    bool FlecsWorld::is_prefab(uint64_t entity_id) {
-        if (!is_initialised)
-            return false;
-        return world.entity(static_cast<ecs_entity_t>(entity_id)).has(flecs::Prefab);
-    }
-
-    bool FlecsWorld::is_entity_a(uint64_t entity_id, uint64_t prefab_id) {
-        if (!is_initialised)
-            return false;
-        return world.entity(static_cast<ecs_entity_t>(entity_id)).has(flecs::IsA, world.entity(static_cast<ecs_entity_t>(prefab_id)));
-    }
-
     uint64_t FlecsWorld::instantiate_prefab(const godot::String &prefab_name, const godot::Dictionary &components) {
         if (!is_initialised) {
             godot::UtilityFunctions::push_warning("FlecsWorld::instantiate_prefab called before world initialised");
@@ -466,7 +442,7 @@ namespace stagehand {
             setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
             import_configured_modules();
-            script_loader.load(world);
+            script_loader.load(world, modules_to_load);
             break;
         case NOTIFICATION_PROCESS:
             if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
@@ -502,9 +478,6 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("is_alive", "entity_id"), &FlecsWorld::is_alive);
         godot::ClassDB::bind_method(godot::D_METHOD("lookup", "name"), &FlecsWorld::lookup);
         godot::ClassDB::bind_method(godot::D_METHOD("get_entity_name", "entity_id"), &FlecsWorld::get_entity_name);
-        godot::ClassDB::bind_method(godot::D_METHOD("create_prefab", "name"), &FlecsWorld::create_prefab, DEFVAL(""));
-        godot::ClassDB::bind_method(godot::D_METHOD("is_prefab", "entity_id"), &FlecsWorld::is_prefab);
-        godot::ClassDB::bind_method(godot::D_METHOD("is_entity_a", "entity_id", "prefab_id"), &FlecsWorld::is_entity_a);
         godot::ClassDB::bind_method(godot::D_METHOD("instantiate_prefab", "prefab_name", "components"), &FlecsWorld::instantiate_prefab, DEFVAL(Dictionary()));
 
         godot::ClassDB::bind_method(godot::D_METHOD("set_progress_tick", "progress_tick"), &FlecsWorld::set_progress_tick);
