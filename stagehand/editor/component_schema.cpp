@@ -7,7 +7,7 @@
 namespace stagehand {
 
     static void ensure_registry_populated() {
-        if (get_component_defaulters().empty()) {
+        if (get_component_registry().empty()) {
             flecs::world tmp_world;
             register_components_and_systems_with_world(tmp_world);
         }
@@ -30,11 +30,13 @@ namespace stagehand {
         register_components_and_systems_with_world(tmp_world);
 
         godot::Dictionary components_by_namespace;
-        const auto &inspectors = get_component_inspectors();
+        const auto &registry = get_component_registry();
 
-        for (const auto &[name, inspector] : inspectors) {
+        for (const auto &[name, funcs] : registry) {
+            if (!funcs.inspector)
+                continue;
             ComponentInfo info;
-            inspector(tmp_world, info);
+            funcs.inspector(tmp_world, info);
 
             if (info.is_singleton) {
                 continue;
@@ -60,10 +62,10 @@ namespace stagehand {
     godot::Variant ComponentSchema::get_component_default(const godot::String &name) const {
         ensure_registry_populated();
         std::string c_name = name.utf8().get_data();
-        const auto &defaulters = get_component_defaulters();
-        auto it = defaulters.find(c_name);
-        if (it != defaulters.end()) {
-            return it->second();
+        const auto &registry = get_component_registry();
+        auto it = registry.find(c_name);
+        if (it != registry.end() && it->second.defaulter) {
+            return it->second.defaulter();
         }
         return godot::Variant();
     }

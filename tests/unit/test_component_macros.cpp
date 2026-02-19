@@ -4,11 +4,12 @@
 ///   2. Flecs component registration (component exists and has correct member metadata).
 ///   3. Entity-level roundtrips for all macro types.
 
-#include <gtest/gtest.h>
 #include <flecs.h>
-#include "stagehand/registry.h"
-#include "stagehand/ecs/components/macros.h"
+#include <gtest/gtest.h>
+
 #include "stagehand/ecs/components/godot_variants.h"
+#include "stagehand/ecs/components/macros.h"
+#include "stagehand/registry.h"
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Define test components using the macros.
@@ -35,7 +36,9 @@ namespace test_macros {
     UINT8(TestUint8Default, 255);
     TAG(TestTag);
 
-    struct DummyTarget { int x = 0; };
+    struct DummyTarget {
+        int x = 0;
+    };
     POINTER(TestPointer, DummyTarget);
 
     // Godot variant components without defaults
@@ -71,12 +74,12 @@ namespace test_macros {
 
     // Vector components
     VECTOR(TestVectorFloat, float);
-    VECTOR(TestVectorInt, int, { 1, 2, 3 });
+    VECTOR(TestVectorInt, int, {1, 2, 3});
     VECTOR(TestVectorDouble, double);
 
     // Array components
     ARRAY(TestArrayFloat, float, 3);
-    ARRAY(TestArrayInt, int, 5, { 10, 20, 30, 40, 50 });
+    ARRAY(TestArrayInt, int, 5, {10, 20, 30, 40, 50});
     ARRAY(TestArrayDouble, double, 2);
 } // namespace test_macros
 
@@ -88,11 +91,9 @@ namespace {
     struct MacroFixture : ::testing::Test {
         flecs::world world;
 
-        void SetUp() override {
-            stagehand::register_components_and_systems_with_world(world);
-        }
+        void SetUp() override { stagehand::register_components_and_systems_with_world(world); }
     };
-}
+} // namespace
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // FLOAT macro tests
@@ -131,13 +132,17 @@ TEST_F(MacroFixture, FloatComponentIsRegisteredInFlecs) {
 }
 
 TEST_F(MacroFixture, FloatGetterIsRegistered) {
-    auto& getters = stagehand::get_component_getters();
-    ASSERT_TRUE(getters.count("TestFloat") == 1);
+    auto &registry = stagehand::get_component_registry();
+    auto it = registry.find("TestFloat");
+    ASSERT_NE(it, registry.end());
+    ASSERT_TRUE((bool)it->second.getter);
 }
 
 TEST_F(MacroFixture, FloatSetterIsRegistered) {
-    auto& setters = stagehand::get_component_setters();
-    ASSERT_TRUE(setters.count("TestFloat") == 1);
+    auto &registry = stagehand::get_component_registry();
+    auto it = registry.find("TestFloat");
+    ASSERT_NE(it, registry.end());
+    ASSERT_TRUE((bool)it->second.setter);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -204,7 +209,7 @@ TEST(MacrosInt32, AssignmentOperator) {
 
 TEST(MacrosInt32, MutableReferenceConversion) {
     test_macros::TestInt32 i(5);
-    int32_t& ref = i;
+    int32_t &ref = i;
     ref = 10;
     ASSERT_EQ(i.value, 10);
 }
@@ -401,32 +406,32 @@ TEST(MacrosPointer, UintptrConversion) {
 
 TEST_F(MacroFixture, Int32ComponentOnEntityRoundtrip) {
     auto e = world.entity();
-    e.set<test_macros::TestInt32>({ 77 });
-    const auto* data = e.try_get<test_macros::TestInt32>();
+    e.set<test_macros::TestInt32>({77});
+    const auto *data = e.try_get<test_macros::TestInt32>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->value, 77);
 }
 
 TEST_F(MacroFixture, FloatComponentOnEntityRoundtrip) {
     auto e = world.entity();
-    e.set<test_macros::TestFloat>({ 1.5f });
-    const auto* data = e.try_get<test_macros::TestFloat>();
+    e.set<test_macros::TestFloat>({1.5f});
+    const auto *data = e.try_get<test_macros::TestFloat>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->value, 1.5f, 1e-9f);
 }
 
 TEST_F(MacroFixture, DoubleComponentOnEntityRoundtrip) {
     auto e = world.entity();
-    e.set<test_macros::TestDouble>({ 9.99 });
-    const auto* data = e.try_get<test_macros::TestDouble>();
+    e.set<test_macros::TestDouble>({9.99});
+    const auto *data = e.try_get<test_macros::TestDouble>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->value, 9.99, 1e-12);
 }
 
 TEST_F(MacroFixture, Uint8ComponentOnEntityRoundtrip) {
     auto e = world.entity();
-    e.set<test_macros::TestUint8>({ 200 });
-    const auto* data = e.try_get<test_macros::TestUint8>();
+    e.set<test_macros::TestUint8>({200});
+    const auto *data = e.try_get<test_macros::TestUint8>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->value, 200);
 }
@@ -436,8 +441,8 @@ TEST_F(MacroFixture, PointerComponentOnEntityRoundtrip) {
     target.x = 123;
 
     auto e = world.entity();
-    e.set<test_macros::TestPointer>({ &target });
-    const auto* data = e.try_get<test_macros::TestPointer>();
+    e.set<test_macros::TestPointer>({&target});
+    const auto *data = e.try_get<test_macros::TestPointer>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->ptr, &target);
     ASSERT_EQ(data->ptr->x, 123);
@@ -445,8 +450,8 @@ TEST_F(MacroFixture, PointerComponentOnEntityRoundtrip) {
 
 TEST_F(MacroFixture, MultipleComponentsOnSameEntity) {
     auto e = world.entity();
-    e.set<test_macros::TestInt32>({ 10 });
-    e.set<test_macros::TestFloat>({ 20.0f });
+    e.set<test_macros::TestInt32>({10});
+    e.set<test_macros::TestFloat>({20.0f});
     e.add<test_macros::TestTag>();
 
     ASSERT_TRUE(e.has<test_macros::TestInt32>());
@@ -516,17 +521,18 @@ TEST_F(MacroFixture, ColorComponentIsRegistered) {
 }
 
 TEST_F(MacroFixture, ColorGetterAndSetterAreRegistered) {
-    auto& getters = stagehand::get_component_getters();
-    auto& setters = stagehand::get_component_setters();
-    ASSERT_EQ(getters.count("TestColor"), 1);
-    ASSERT_EQ(setters.count("TestColor"), 1);
+    auto &registry = stagehand::get_component_registry();
+    auto it = registry.find("TestColor");
+    ASSERT_NE(it, registry.end());
+    ASSERT_TRUE((bool)it->second.getter);
+    ASSERT_TRUE((bool)it->second.setter);
 }
 
 TEST_F(MacroFixture, ColorComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Color value(0.3f, 0.5f, 0.7f, 0.9f);
     e.set<test_macros::TestColor>(value);
-    const auto* data = e.try_get<test_macros::TestColor>();
+    const auto *data = e.try_get<test_macros::TestColor>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->r, 0.3f, 1e-5f);
     ASSERT_NEAR(data->g, 0.5f, 1e-5f);
@@ -570,7 +576,7 @@ TEST_F(MacroFixture, Vector2ComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Vector2 value(10.5f, 20.5f);
     e.set<test_macros::TestVector2>(value);
-    const auto* data = e.try_get<test_macros::TestVector2>();
+    const auto *data = e.try_get<test_macros::TestVector2>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->x, 10.5f, 1e-5f);
     ASSERT_NEAR(data->y, 20.5f, 1e-5f);
@@ -603,7 +609,7 @@ TEST_F(MacroFixture, Vector2iComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Vector2i value(42, -99);
     e.set<test_macros::TestVector2i>(value);
-    const auto* data = e.try_get<test_macros::TestVector2i>();
+    const auto *data = e.try_get<test_macros::TestVector2i>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->x, 42);
     ASSERT_EQ(data->y, -99);
@@ -639,7 +645,7 @@ TEST_F(MacroFixture, Vector3ComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Vector3 value(7.5f, 8.5f, 9.5f);
     e.set<test_macros::TestVector3>(value);
-    const auto* data = e.try_get<test_macros::TestVector3>();
+    const auto *data = e.try_get<test_macros::TestVector3>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->x, 7.5f, 1e-5f);
     ASSERT_NEAR(data->y, 8.5f, 1e-5f);
@@ -676,7 +682,7 @@ TEST_F(MacroFixture, Vector3iComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Vector3i value(-5, 15, 25);
     e.set<test_macros::TestVector3i>(value);
-    const auto* data = e.try_get<test_macros::TestVector3i>();
+    const auto *data = e.try_get<test_macros::TestVector3i>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->x, -5);
     ASSERT_EQ(data->y, 15);
@@ -716,7 +722,7 @@ TEST_F(MacroFixture, Vector4ComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Vector4 value(5.5f, 6.5f, 7.5f, 8.5f);
     e.set<test_macros::TestVector4>(value);
-    const auto* data = e.try_get<test_macros::TestVector4>();
+    const auto *data = e.try_get<test_macros::TestVector4>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->x, 5.5f, 1e-5f);
     ASSERT_NEAR(data->y, 6.5f, 1e-5f);
@@ -757,7 +763,7 @@ TEST_F(MacroFixture, Vector4iComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Vector4i value(-1, -2, -3, -4);
     e.set<test_macros::TestVector4i>(value);
-    const auto* data = e.try_get<test_macros::TestVector4i>();
+    const auto *data = e.try_get<test_macros::TestVector4i>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->x, -1);
     ASSERT_EQ(data->y, -2);
@@ -798,7 +804,7 @@ TEST_F(MacroFixture, Rect2ComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Rect2 value(Vector2(5.0f, 15.0f), Vector2(25.0f, 35.0f));
     e.set<test_macros::TestRect2>(value);
-    const auto* data = e.try_get<test_macros::TestRect2>();
+    const auto *data = e.try_get<test_macros::TestRect2>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->position.x, 5.0f, 1e-5f);
     ASSERT_NEAR(data->position.y, 15.0f, 1e-5f);
@@ -839,7 +845,7 @@ TEST_F(MacroFixture, Rect2iComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Rect2i value(Vector2i(-10, 20), Vector2i(30, 40));
     e.set<test_macros::TestRect2i>(value);
-    const auto* data = e.try_get<test_macros::TestRect2i>();
+    const auto *data = e.try_get<test_macros::TestRect2i>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->position.x, -10);
     ASSERT_EQ(data->position.y, 20);
@@ -880,7 +886,7 @@ TEST_F(MacroFixture, PlaneComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Plane value(Vector3(0.0f, 1.0f, 0.0f), 10.0f);
     e.set<test_macros::TestPlane>(value);
-    const auto* data = e.try_get<test_macros::TestPlane>();
+    const auto *data = e.try_get<test_macros::TestPlane>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->normal.x, 0.0f, 1e-5f);
     ASSERT_NEAR(data->normal.y, 1.0f, 1e-5f);
@@ -922,7 +928,7 @@ TEST_F(MacroFixture, QuaternionComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Quaternion value(0.5f, 0.5f, 0.5f, 0.5f);
     e.set<test_macros::TestQuaternion>(value);
-    const auto* data = e.try_get<test_macros::TestQuaternion>();
+    const auto *data = e.try_get<test_macros::TestQuaternion>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->x, 0.5f, 1e-5f);
     ASSERT_NEAR(data->y, 0.5f, 1e-5f);
@@ -958,7 +964,7 @@ TEST_F(MacroFixture, BasisComponentOnEntityRoundtrip) {
     value.set_column(1, Vector3(4.0f, 5.0f, 6.0f));
     value.set_column(2, Vector3(7.0f, 8.0f, 9.0f));
     e.set<test_macros::TestBasis>(value);
-    const auto* data = e.try_get<test_macros::TestBasis>();
+    const auto *data = e.try_get<test_macros::TestBasis>();
     ASSERT_TRUE(data != nullptr);
     Vector3 col0 = data->get_column(0);
     ASSERT_NEAR(col0.x, 1.0f, 1e-5f);
@@ -987,7 +993,7 @@ TEST_F(MacroFixture, Transform2DComponentOnEntityRoundtrip) {
     Transform2D value;
     value.set_origin(Vector2(5.0f, 15.0f));
     e.set<test_macros::TestTransform2D>(value);
-    const auto* data = e.try_get<test_macros::TestTransform2D>();
+    const auto *data = e.try_get<test_macros::TestTransform2D>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->get_origin().x, 5.0f, 1e-5f);
     ASSERT_NEAR(data->get_origin().y, 15.0f, 1e-5f);
@@ -1017,7 +1023,7 @@ TEST_F(MacroFixture, Transform3DComponentOnEntityRoundtrip) {
     Transform3D value;
     value.set_origin(Vector3(1.0f, 2.0f, 3.0f));
     e.set<test_macros::TestTransform3D>(value);
-    const auto* data = e.try_get<test_macros::TestTransform3D>();
+    const auto *data = e.try_get<test_macros::TestTransform3D>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->get_origin().x, 1.0f, 1e-5f);
     ASSERT_NEAR(data->get_origin().y, 2.0f, 1e-5f);
@@ -1053,7 +1059,7 @@ TEST_F(MacroFixture, AABBComponentOnEntityRoundtrip) {
     auto e = world.entity();
     AABB value(Vector3(10.0f, 20.0f, 30.0f), Vector3(40.0f, 50.0f, 60.0f));
     e.set<test_macros::TestAABB>(value);
-    const auto* data = e.try_get<test_macros::TestAABB>();
+    const auto *data = e.try_get<test_macros::TestAABB>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_NEAR(data->position.x, 10.0f, 1e-5f);
     ASSERT_NEAR(data->position.y, 20.0f, 1e-5f);
@@ -1084,7 +1090,7 @@ TEST_F(MacroFixture, ProjectionComponentOnEntityRoundtrip) {
     auto e = world.entity();
     Projection value;
     e.set<test_macros::TestProjection>(value);
-    const auto* data = e.try_get<test_macros::TestProjection>();
+    const auto *data = e.try_get<test_macros::TestProjection>();
     ASSERT_TRUE(data != nullptr);
 }
 
@@ -1106,7 +1112,7 @@ TEST(MacrosVector, CustomInitializer) {
 }
 
 TEST(MacrosVector, ConstructFromVector) {
-    std::vector<float> vec = { 1.5f, 2.5f, 3.5f };
+    std::vector<float> vec = {1.5f, 2.5f, 3.5f};
     test_macros::TestVectorFloat v(vec);
     ASSERT_EQ(v.value.size(), 3);
     ASSERT_FLOAT_EQ(v.value[0], 1.5f);
@@ -1134,7 +1140,7 @@ TEST(MacrosVector, SizeMethod) {
 
 TEST(MacrosVector, IteratorSupport) {
     test_macros::TestVectorInt v;
-    v.value = { 10, 20, 30 };
+    v.value = {10, 20, 30};
     int sum = 0;
     for (int val : v) {
         sum += val;
@@ -1144,18 +1150,18 @@ TEST(MacrosVector, IteratorSupport) {
 
 TEST(MacrosVector, Assignment) {
     test_macros::TestVectorFloat v;
-    v = std::vector<float>{ 1.0f, 2.0f, 3.0f };
+    v = std::vector<float>{1.0f, 2.0f, 3.0f};
     ASSERT_EQ(v.size(), 3);
     ASSERT_FLOAT_EQ(v[2], 3.0f);
 }
 
 TEST(MacrosVector, ImplicitConversion) {
     test_macros::TestVectorDouble v;
-    v.value = { 1.1, 2.2, 3.3 };
-    std::vector<double>& vec_ref = v.value;
+    v.value = {1.1, 2.2, 3.3};
+    std::vector<double> &vec_ref = v.value;
     ASSERT_EQ(vec_ref.size(), 3);
-    const test_macros::TestVectorDouble& cv = v;
-    const std::vector<double>& const_vec_ref = cv.value;
+    const test_macros::TestVectorDouble &cv = v;
+    const std::vector<double> &const_vec_ref = cv.value;
     ASSERT_EQ(const_vec_ref.size(), 3);
 }
 
@@ -1166,20 +1172,22 @@ TEST_F(MacroFixture, VectorComponentIsRegisteredInFlecs) {
 }
 
 TEST_F(MacroFixture, VectorGetterIsRegistered) {
-    const auto& getters = stagehand::get_component_getters();
-    ASSERT_TRUE(getters.find("TestVectorFloat") != getters.end());
+    const auto &registry = stagehand::get_component_registry();
+    ASSERT_TRUE(registry.find("TestVectorFloat") != registry.end());
 }
 
 TEST_F(MacroFixture, VectorSetterIsRegistered) {
-    const auto& setters = stagehand::get_component_setters();
-    ASSERT_TRUE(setters.find("TestVectorFloat") != setters.end());
+    const auto &registry = stagehand::get_component_registry();
+    auto it = registry.find("TestVectorFloat");
+    ASSERT_NE(it, registry.end());
+    ASSERT_TRUE((bool)it->second.setter);
 }
 
 TEST_F(MacroFixture, VectorComponentOnEntityRoundtrip) {
     auto e = world.entity();
-    std::vector<float> vec = { 1.0f, 2.0f, 3.0f };
+    std::vector<float> vec = {1.0f, 2.0f, 3.0f};
     e.set<test_macros::TestVectorFloat>(test_macros::TestVectorFloat(vec));
-    const auto* data = e.try_get<test_macros::TestVectorFloat>();
+    const auto *data = e.try_get<test_macros::TestVectorFloat>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->value.size(), 3);
     ASSERT_FLOAT_EQ(data->value[0], 1.0f);
@@ -1207,7 +1215,7 @@ TEST(MacrosArray, CustomInitializer) {
 }
 
 TEST(MacrosArray, ConstructFromArray) {
-    std::array<double, 2> arr = { 1.1, 2.2 };
+    std::array<double, 2> arr = {1.1, 2.2};
     test_macros::TestArrayDouble a(arr);
     ASSERT_EQ(a.value.size(), 2);
     ASSERT_DOUBLE_EQ(a.value[0], 1.1);
@@ -1245,10 +1253,10 @@ TEST(MacrosArray, Assignment) {
 
 TEST(MacrosArray, ImplicitConversion) {
     test_macros::TestArrayFloat arr;
-    std::array<float, 3>& arr_ref = arr.value;
+    std::array<float, 3> &arr_ref = arr.value;
     ASSERT_EQ(arr_ref.size(), 3);
-    const test_macros::TestArrayFloat& carr = arr;
-    const std::array<float, 3>& const_arr_ref = carr.value;
+    const test_macros::TestArrayFloat &carr = arr;
+    const std::array<float, 3> &const_arr_ref = carr.value;
     ASSERT_EQ(const_arr_ref.size(), 3);
 }
 
@@ -1259,20 +1267,22 @@ TEST_F(MacroFixture, ArrayComponentIsRegisteredInFlecs) {
 }
 
 TEST_F(MacroFixture, ArrayGetterIsRegistered) {
-    const auto& getters = stagehand::get_component_getters();
-    ASSERT_TRUE(getters.find("TestArrayFloat") != getters.end());
+    const auto &registry = stagehand::get_component_registry();
+    ASSERT_TRUE(registry.find("TestArrayFloat") != registry.end());
 }
 
 TEST_F(MacroFixture, ArraySetterIsRegistered) {
-    const auto& setters = stagehand::get_component_setters();
-    ASSERT_TRUE(setters.find("TestArrayFloat") != setters.end());
+    const auto &registry = stagehand::get_component_registry();
+    auto it = registry.find("TestArrayFloat");
+    ASSERT_NE(it, registry.end());
+    ASSERT_TRUE((bool)it->second.setter);
 }
 
 TEST_F(MacroFixture, ArrayComponentOnEntityRoundtrip) {
     auto e = world.entity();
-    std::array<float, 3> arr = { 1.0f, 2.0f, 3.0f };
+    std::array<float, 3> arr = {1.0f, 2.0f, 3.0f};
     e.set<test_macros::TestArrayFloat>(test_macros::TestArrayFloat(arr));
-    const auto* data = e.try_get<test_macros::TestArrayFloat>();
+    const auto *data = e.try_get<test_macros::TestArrayFloat>();
     ASSERT_TRUE(data != nullptr);
     ASSERT_EQ(data->value.size(), 3);
     ASSERT_FLOAT_EQ(data->value[0], 1.0f);

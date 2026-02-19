@@ -186,10 +186,7 @@ template <typename T> void register_projection_members(flecs::component<T> c) { 
     };                                                                                                                                                         \
     inline auto register_##Name##_variant = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                      \
         register_godot_members(world.component<Name>(), static_cast<Base *>(nullptr));                                                                         \
-        stagehand::register_component_getter<Name, Base>(#Name);                                                                                               \
-        stagehand::register_component_setter<Name, Base>(#Name);                                                                                               \
-        stagehand::register_component_defaulter<Name, Base>(#Name);                                                                                            \
-        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
+        stagehand::register_component<Name, Base>(#Name);                                                                                                      \
     })
 
 // Dispatcher overloads to automatically select the correct registration function
@@ -233,107 +230,73 @@ template <typename T> void register_godot_members(flecs::component<T> c, Signal 
 
 REGISTER([](flecs::world &world) {
     register_color_members(world.component<Color>()); // 16 bytes
-    stagehand::register_component_getter<Color>("Color");
-    stagehand::register_component_setter<Color>("Color");
+    stagehand::register_component<Color>("Color");
     register_vector2_members(world.component<Vector2>()); // 8 bytes
-    stagehand::register_component_getter<Vector2>("Vector2");
-    stagehand::register_component_setter<Vector2>("Vector2");
+    stagehand::register_component<Vector2>("Vector2");
     register_vector2i_members(world.component<Vector2i>()); // 8 bytes
-    stagehand::register_component_getter<Vector2i>("Vector2i");
-    stagehand::register_component_setter<Vector2i>("Vector2i");
+    stagehand::register_component<Vector2i>("Vector2i");
     register_vector3_members(world.component<Vector3>()); // 12 bytes
-    stagehand::register_component_getter<Vector3>("Vector3");
-    stagehand::register_component_setter<Vector3>("Vector3");
+    stagehand::register_component<Vector3>("Vector3");
     register_vector3i_members(world.component<Vector3i>()); // 12 bytes
-    stagehand::register_component_getter<Vector3i>("Vector3i");
-    stagehand::register_component_setter<Vector3i>("Vector3i");
+    stagehand::register_component<Vector3i>("Vector3i");
     register_vector4_members(world.component<Vector4>()); // 16 bytes
-    stagehand::register_component_getter<Vector4>("Vector4");
-    stagehand::register_component_setter<Vector4>("Vector4");
+    stagehand::register_component<Vector4>("Vector4");
     register_vector4i_members(world.component<Vector4i>()); // 16 bytes
-    stagehand::register_component_getter<Vector4i>("Vector4i");
-    stagehand::register_component_setter<Vector4i>("Vector4i");
+    stagehand::register_component<Vector4i>("Vector4i");
     register_rect2_members(world.component<Rect2>()); // 16 bytes
-    stagehand::register_component_getter<Rect2>("Rect2");
-    stagehand::register_component_setter<Rect2>("Rect2");
+    stagehand::register_component<Rect2>("Rect2");
     register_rect2i_members(world.component<Rect2i>()); // 16 bytes
-    stagehand::register_component_getter<Rect2i>("Rect2i");
-    stagehand::register_component_setter<Rect2i>("Rect2i");
+    stagehand::register_component<Rect2i>("Rect2i");
     register_plane_members(world.component<Plane>()); // 16 bytes
-    stagehand::register_component_getter<Plane>("Plane");
-    stagehand::register_component_setter<Plane>("Plane");
+    stagehand::register_component<Plane>("Plane");
     register_quaternion_members(world.component<Quaternion>()); // 16 bytes
-    stagehand::register_component_getter<Quaternion>("Quaternion");
-    stagehand::register_component_setter<Quaternion>("Quaternion");
+    stagehand::register_component<Quaternion>("Quaternion");
     register_basis_members(world.component<Basis>()); // 36 bytes - acceptable
-    stagehand::register_component_getter<Basis>("Basis");
-    stagehand::register_component_setter<Basis>("Basis");
+    stagehand::register_component<Basis>("Basis");
     register_transform2d_members(world.component<Transform2D>()); // 24 bytes
-    stagehand::register_component_getter<Transform2D>("Transform2D");
-    stagehand::register_component_setter<Transform2D>("Transform2D");
+    stagehand::register_component<Transform2D>("Transform2D");
     register_transform3d_members(world.component<Transform3D>()); // 48 bytes - borderline large, but acceptable for transform components
-    stagehand::register_component_getter<Transform3D>("Transform3D");
-    stagehand::register_component_setter<Transform3D>("Transform3D");
+    stagehand::register_component<Transform3D>("Transform3D");
     register_aabb_members(world.component<AABB>()); // 24 bytes
-    stagehand::register_component_getter<AABB>("AABB");
-    stagehand::register_component_setter<AABB>("AABB");
+    stagehand::register_component<AABB>("AABB");
     register_projection_members(world.component<Projection>()); // 64 bytes - large, use sparingly
-    stagehand::register_component_getter<Projection>("Projection");
-    stagehand::register_component_setter<Projection>("Projection");
+    stagehand::register_component<Projection>("Projection");
 
     // Class types
     world.component<Array>();
-    stagehand::register_component_getter<Array>("Array");
-    stagehand::register_component_setter<Array>("Array");
+    stagehand::register_component<Array>("Array");
     world.component<Dictionary>();
-    stagehand::register_component_getter<Dictionary>("Dictionary");
-    stagehand::register_component_setter<Dictionary>("Dictionary");
+    stagehand::register_component<Dictionary>("Dictionary");
     world.component<String>();
-    stagehand::register_component_getter<String>("String");
-    stagehand::register_component_setter<String>("String");
+    stagehand::register_component<String>("String");
     world.component<StringName>();
-    stagehand::register_component_getter<StringName>("StringName");
-    stagehand::register_component_setter<StringName>("StringName");
+    stagehand::register_component<StringName>("StringName");
     world.component<NodePath>();
-    stagehand::register_component_getter<NodePath>("NodePath");
-    stagehand::register_component_setter<NodePath>("NodePath");
+    stagehand::register_component<NodePath>("NodePath");
     world.component<PackedByteArray>();
-    stagehand::register_component_getter<PackedByteArray>("PackedByteArray");
-    stagehand::register_component_setter<PackedByteArray>("PackedByteArray");
+    stagehand::register_component<PackedByteArray>("PackedByteArray");
     world.component<PackedColorArray>();
-    stagehand::register_component_getter<PackedColorArray>("PackedColorArray");
-    stagehand::register_component_setter<PackedColorArray>("PackedColorArray");
+    stagehand::register_component<PackedColorArray>("PackedColorArray");
     world.component<PackedFloat32Array>();
-    stagehand::register_component_getter<PackedFloat32Array>("PackedFloat32Array");
-    stagehand::register_component_setter<PackedFloat32Array>("PackedFloat32Array");
+    stagehand::register_component<PackedFloat32Array>("PackedFloat32Array");
     world.component<PackedFloat64Array>();
-    stagehand::register_component_getter<PackedFloat64Array>("PackedFloat64Array");
-    stagehand::register_component_setter<PackedFloat64Array>("PackedFloat64Array");
+    stagehand::register_component<PackedFloat64Array>("PackedFloat64Array");
     world.component<PackedInt32Array>();
-    stagehand::register_component_getter<PackedInt32Array>("PackedInt32Array");
-    stagehand::register_component_setter<PackedInt32Array>("PackedInt32Array");
+    stagehand::register_component<PackedInt32Array>("PackedInt32Array");
     world.component<PackedInt64Array>();
-    stagehand::register_component_getter<PackedInt64Array>("PackedInt64Array");
-    stagehand::register_component_setter<PackedInt64Array>("PackedInt64Array");
+    stagehand::register_component<PackedInt64Array>("PackedInt64Array");
     world.component<PackedStringArray>();
-    stagehand::register_component_getter<PackedStringArray>("PackedStringArray");
-    stagehand::register_component_setter<PackedStringArray>("PackedStringArray");
+    stagehand::register_component<PackedStringArray>("PackedStringArray");
     world.component<PackedVector2Array>();
-    stagehand::register_component_getter<PackedVector2Array>("PackedVector2Array");
-    stagehand::register_component_setter<PackedVector2Array>("PackedVector2Array");
+    stagehand::register_component<PackedVector2Array>("PackedVector2Array");
     world.component<PackedVector3Array>();
-    stagehand::register_component_getter<PackedVector3Array>("PackedVector3Array");
-    stagehand::register_component_setter<PackedVector3Array>("PackedVector3Array");
+    stagehand::register_component<PackedVector3Array>("PackedVector3Array");
     world.component<PackedVector4Array>();
-    stagehand::register_component_getter<PackedVector4Array>("PackedVector4Array");
-    stagehand::register_component_setter<PackedVector4Array>("PackedVector4Array");
+    stagehand::register_component<PackedVector4Array>("PackedVector4Array");
     world.component<Callable>();
-    stagehand::register_component_getter<Callable>("Callable");
-    stagehand::register_component_setter<Callable>("Callable");
+    stagehand::register_component<Callable>("Callable");
     world.component<RID>();
-    stagehand::register_component_getter<RID>("RID");
-    stagehand::register_component_setter<RID>("RID");
+    stagehand::register_component<RID>("RID");
     world.component<Signal>();
-    stagehand::register_component_getter<Signal>("Signal");
-    stagehand::register_component_setter<Signal>("Signal");
+    stagehand::register_component<Signal>("Signal");
 });

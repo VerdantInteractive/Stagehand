@@ -7,12 +7,13 @@
 ///   4. The Registry struct constructor registers callbacks.
 ///   5. Callbacks can register components and create entities.
 
+#include <flecs.h>
 #include <gtest/gtest.h>
 #include <memory>
 #include <vector>
-#include <flecs.h>
-#include "stagehand/registry.h"
+
 #include "stagehand/ecs/components/macros.h"
+#include "stagehand/registry.h"
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Test components defined via macros (registered at static init time)
@@ -21,7 +22,7 @@
 namespace test_registry {
     INT32(RegistryProbe);
     TAG(RegistryTag);
-}
+} // namespace test_registry
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Fixture: creates a fresh world and runs all registrations
@@ -31,11 +32,9 @@ namespace {
     struct RegistryFixture : ::testing::Test {
         flecs::world world;
 
-        void SetUp() override {
-            stagehand::register_components_and_systems_with_world(world);
-        }
+        void SetUp() override { stagehand::register_components_and_systems_with_world(world); }
     };
-}
+} // namespace
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Tests: Registration pipeline
@@ -55,9 +54,7 @@ TEST_F(RegistryFixture, CallbacksRegisterTags) {
 TEST_F(RegistryFixture, CallbackIsInvokedOnWorldInit) {
     // Register a new callback and verify it runs on a fresh world.
     auto was_called = std::make_shared<bool>(false);
-    stagehand::register_callback([was_called](flecs::world&) {
-        *was_called = true;
-    });
+    stagehand::register_callback([was_called](flecs::world &) { *was_called = true; });
 
     flecs::world w2;
     stagehand::register_components_and_systems_with_world(w2);
@@ -66,9 +63,9 @@ TEST_F(RegistryFixture, CallbackIsInvokedOnWorldInit) {
 
 TEST_F(RegistryFixture, MultipleCallbacksPreserveRelativeOrder) {
     auto order = std::make_shared<std::vector<int>>();
-    stagehand::register_callback([order](flecs::world&) { order->push_back(1); });
-    stagehand::register_callback([order](flecs::world&) { order->push_back(2); });
-    stagehand::register_callback([order](flecs::world&) { order->push_back(3); });
+    stagehand::register_callback([order](flecs::world &) { order->push_back(1); });
+    stagehand::register_callback([order](flecs::world &) { order->push_back(2); });
+    stagehand::register_callback([order](flecs::world &) { order->push_back(3); });
 
     flecs::world w2;
     stagehand::register_components_and_systems_with_world(w2);
@@ -85,9 +82,7 @@ TEST_F(RegistryFixture, MultipleCallbacksPreserveRelativeOrder) {
 
 TEST_F(RegistryFixture, StructConstructorRegistersCallback) {
     auto was_called = std::make_shared<bool>(false);
-    stagehand::Registry reg([was_called](flecs::world&) {
-        *was_called = true;
-    });
+    stagehand::Registry reg([was_called](flecs::world &) { *was_called = true; });
 
     flecs::world w2;
     stagehand::register_components_and_systems_with_world(w2);
@@ -102,10 +97,8 @@ TEST_F(RegistryFixture, NullCallbacksAreSafelyIgnored) {
 }
 
 TEST_F(RegistryFixture, CallbacksRunWithCorrectWorld) {
-    auto captured = std::make_shared<flecs::world*>(nullptr);
-    stagehand::register_callback([captured](flecs::world& w) {
-        *captured = &w;
-    });
+    auto captured = std::make_shared<flecs::world *>(nullptr);
+    stagehand::register_callback([captured](flecs::world &w) { *captured = &w; });
 
     flecs::world w2;
     stagehand::register_components_and_systems_with_world(w2);
@@ -128,28 +121,28 @@ TEST_F(RegistryFixture, RegistrationIsIdempotentAcrossWorlds) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 TEST_F(RegistryFixture, GetterMapReturnsSameInstance) {
-    auto& a = stagehand::get_component_getters();
-    auto& b = stagehand::get_component_getters();
+    auto &a = stagehand::get_component_registry();
+    auto &b = stagehand::get_component_registry();
     ASSERT_EQ(&a, &b);
 }
 
 TEST_F(RegistryFixture, SetterMapReturnsSameInstance) {
-    auto& a = stagehand::get_component_setters();
-    auto& b = stagehand::get_component_setters();
+    auto &a = stagehand::get_component_registry();
+    auto &b = stagehand::get_component_registry();
     ASSERT_EQ(&a, &b);
 }
 
 TEST_F(RegistryFixture, GetterMapIsPopulatedAfterRegistration) {
-    auto& getters = stagehand::get_component_getters();
+    auto &registry = stagehand::get_component_registry();
     // At least the macro-defined RegistryProbe should be registered.
-    ASSERT_GE(getters.size(), 1u);
-    ASSERT_EQ(getters.count("RegistryProbe"), 1u);
+    ASSERT_GE(registry.size(), 1u);
+    ASSERT_EQ(registry.count("RegistryProbe"), 1u);
 }
 
 TEST_F(RegistryFixture, SetterMapIsPopulatedAfterRegistration) {
-    auto& setters = stagehand::get_component_setters();
-    ASSERT_GE(setters.size(), 1u);
-    ASSERT_EQ(setters.count("RegistryProbe"), 1u);
+    auto &registry = stagehand::get_component_registry();
+    ASSERT_GE(registry.size(), 1u);
+    ASSERT_EQ(registry.count("RegistryProbe"), 1u);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -160,12 +153,10 @@ namespace {
     struct AdHocComponent {
         int value = 0;
     };
-}
+} // namespace
 
 TEST_F(RegistryFixture, CallbackCanRegisterComponent) {
-    stagehand::register_callback([](flecs::world& w) {
-        w.component<AdHocComponent>().member<int>("value");
-    });
+    stagehand::register_callback([](flecs::world &w) { w.component<AdHocComponent>().member<int>("value"); });
 
     flecs::world w2;
     stagehand::register_components_and_systems_with_world(w2);
@@ -175,9 +166,9 @@ TEST_F(RegistryFixture, CallbackCanRegisterComponent) {
 }
 
 TEST_F(RegistryFixture, CallbackCanCreateEntityWithComponent) {
-    stagehand::register_callback([](flecs::world& w) {
+    stagehand::register_callback([](flecs::world &w) {
         w.component<AdHocComponent>().member<int>("value");
-        w.entity("adhoc_entity").set<AdHocComponent>({ 42 });
+        w.entity("adhoc_entity").set<AdHocComponent>({42});
     });
 
     flecs::world w2;
@@ -186,7 +177,7 @@ TEST_F(RegistryFixture, CallbackCanCreateEntityWithComponent) {
     auto e = w2.lookup("adhoc_entity");
     ASSERT_TRUE(e.is_valid());
     ASSERT_TRUE(e.has<AdHocComponent>());
-    const auto* data = e.try_get<AdHocComponent>();
+    const auto *data = e.try_get<AdHocComponent>();
     ASSERT_NE(data, nullptr);
     ASSERT_EQ(data->value, 42);
 }

@@ -74,24 +74,9 @@ namespace stagehand {
         return false;
     }
 
-    std::unordered_map<std::string, ComponentGetter> &get_component_getters() {
-        static std::unordered_map<std::string, ComponentGetter> getters;
-        return getters;
-    }
-
-    std::unordered_map<std::string, ComponentSetter> &get_component_setters() {
-        static std::unordered_map<std::string, ComponentSetter> setters;
-        return setters;
-    }
-
-    std::unordered_map<std::string, ComponentDefaulter> &get_component_defaulters() {
-        static std::unordered_map<std::string, ComponentDefaulter> defaulters;
-        return defaulters;
-    }
-
-    std::unordered_map<std::string, ComponentInspector> &get_component_inspectors() {
-        static std::unordered_map<std::string, ComponentInspector> inspectors;
-        return inspectors;
+    std::unordered_map<std::string, ComponentFunctions> &get_component_registry() {
+        static std::unordered_map<std::string, ComponentFunctions> registry;
+        return registry;
     }
 
 } // namespace stagehand

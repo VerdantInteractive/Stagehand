@@ -48,16 +48,19 @@ namespace stagehand {
         unsigned int num_threads = ::utilities::Platform::get_thread_count();
         world.set_threads(static_cast<int>(num_threads));
 
+        // Register the components and systems, then populate the getter/setter maps.
         register_components_and_systems_with_world(world);
-
-        for (const auto &[component_name, global_setter] : get_component_setters()) {
-            component_setters[component_name] = [this, global_setter](flecs::entity_t entity_id, const godot::Variant &data) {
-                global_setter(this->world, entity_id, data);
-            };
-        }
-
-        for (const auto &[component_name, global_getter] : get_component_getters()) {
-            component_getters[component_name] = [this, global_getter](flecs::entity_t entity_id) { return global_getter(this->world, entity_id); };
+        for (const auto &[component_name, funcs] : get_component_registry()) {
+            if (funcs.setter) {
+                component_setters[component_name] = [this, global_setter = funcs.setter](flecs::entity_t entity_id, const godot::Variant &data) {
+                    global_setter(this->world, entity_id, data);
+                };
+            }
+            if (funcs.getter) {
+                component_getters[component_name] = [this, global_getter = funcs.getter](flecs::entity_t entity_id) {
+                    return global_getter(this->world, entity_id);
+                };
+            }
         }
 
         is_initialised = true;

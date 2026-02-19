@@ -13,7 +13,7 @@ namespace stagehand {
     REGISTER([](flecs::world &world) {
         world.component<WorldConfiguration>().add(flecs::Singleton);
 
-        stagehand::get_component_getters()["WorldConfiguration"] = [](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
+        stagehand::get_component_registry()["WorldConfiguration"].getter = [](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
             if (entity_id != 0) {
                 godot::UtilityFunctions::push_warning("WorldConfiguration is a singleton component and can only be accessed with entity_id 0. Got entity_id: " +
                                                       godot::String::num_uint64(entity_id));
@@ -28,7 +28,7 @@ namespace stagehand {
             return godot::Variant(godot::TypedDictionary<godot::String, godot::Variant>());
         };
 
-        stagehand::get_component_setters()["WorldConfiguration"] = [](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
+        stagehand::get_component_registry()["WorldConfiguration"].setter = [](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
             if (entity_id != 0) {
                 godot::UtilityFunctions::push_warning("WorldConfiguration is a singleton component and can only be set with entity_id 0. Got entity_id: " +
                                                       godot::String::num_uint64(entity_id));

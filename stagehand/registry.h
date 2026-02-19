@@ -3,6 +3,7 @@
 #include <array>
 #include <functional>
 #include <string>
+#include <type_traits>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -97,145 +98,73 @@ namespace stagehand {
 
     using ComponentInspector = std::function<void(flecs::world &, ComponentInfo &)>;
 
-    /// Returns the global map of component getters, keyed by component name.
-    std::unordered_map<std::string, ComponentGetter> &get_component_getters();
+    struct ComponentFunctions {
+        ComponentGetter getter;
+        ComponentSetter setter;
+        ComponentDefaulter defaulter;
+        ComponentInspector inspector;
+    };
 
-    /// Returns the global map of component setters, keyed by component name.
-    std::unordered_map<std::string, ComponentSetter> &get_component_setters();
+    /// Returns the global map of component functions, keyed by component name.
+    std::unordered_map<std::string, ComponentFunctions> &get_component_registry();
 
-    /// Returns the global map of component defaulters, keyed by component name.
-    std::unordered_map<std::string, ComponentDefaulter> &get_component_defaulters();
+    namespace internal {
+        template <typename T> struct is_vector : std::false_type {};
+        template <typename T, typename A> struct is_vector<std::vector<T, A>> : std::true_type {};
 
-    /// Returns the global map of component inspectors, keyed by component name.
-    std::unordered_map<std::string, ComponentInspector> &get_component_inspectors();
+        template <typename T> struct is_array : std::false_type {};
+        template <typename T, std::size_t N> struct is_array<std::array<T, N>> : std::true_type {};
+    } // namespace internal
 
-    /// Registers a getter function for a specific component type.
-    template <typename T, typename StorageType = T> void register_component_getter(const char *name) {
-        get_component_getters()[name] = [name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
-            const T *data = nullptr;
-            if (entity_id == 0) {
-                data = world.try_get<T>();
-            } else {
-                if (!world.is_alive(entity_id)) {
-                    godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) + " is not alive.");
-                    return godot::Variant();
-                }
-                flecs::entity e(world, entity_id);
-                data = e.try_get<T>();
-            }
+    template <typename T>
+    concept StdVector = internal::is_vector<std::remove_cvref_t<T>>::value;
+    template <typename T>
+    concept StdArray = internal::is_array<std::remove_cvref_t<T>>::value;
 
-            if (data) {
-                return godot::Variant(static_cast<StorageType>(*data));
-            }
-            godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) +
-                                                  " returned empty component data for " + name + ". Returning empty Variant.");
-            return godot::Variant();
-        };
-    }
+    // Concepts to detect if a component struct wraps a container in a 'value' member
+    template <typename T>
+    concept HasVectorValue = requires(T t) {
+        { t.value } -> StdVector;
+    };
 
-    /// Registers a setter function for a specific component type.
-    template <typename T, typename StorageType = T> void register_component_setter(const char *name) {
-        get_component_setters()[name] = [name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
-            const auto expected_type = static_cast<godot::Variant::Type>(godot::GetTypeInfo<StorageType>::VARIANT_TYPE);
-            if (godot::Variant::can_convert(v.get_type(), expected_type)) {
-                if (entity_id == 0) {
-                    world.set<T>(T(static_cast<StorageType>(v)));
-                } else {
-                    if (!world.is_alive(entity_id)) {
-                        godot::UtilityFunctions::push_warning(godot::String("Set Component: Entity ") + godot::String::num_uint64(entity_id) +
-                                                              " is not alive.");
-                        return;
-                    }
-                    flecs::entity e(world, entity_id);
-                    e.set<T>(T(static_cast<StorageType>(v)));
-                }
-            } else {
-                godot::String warning_message = "Failed to set component '{0}'. Cannot convert provided data from type '{1}' to the expected type '{2}'.";
-                godot::UtilityFunctions::push_warning(warning_message.format(
-                    godot::Array::make(name, godot::Variant::get_type_name(v.get_type()), godot::Variant::get_type_name(expected_type))));
-            }
-        };
-    }
-
-    /// Registers a defaulter function for a specific component type.
-    template <typename T, typename StorageType = T> void register_component_defaulter(const char *name) {
-        get_component_defaulters()[name] = []() -> godot::Variant { return godot::Variant(static_cast<StorageType>(T())); };
-    }
-
-    /// Registers a getter function for a std::vector component type.
-    template <typename T, typename ElementType> void register_vector_component_getter(const char *name) {
-        get_component_getters()[name] = [name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
-            const T *data = nullptr;
-            if (entity_id == 0) {
-                data = world.try_get<T>();
-            } else {
-                if (!world.is_alive(entity_id)) {
-                    godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) + " is not alive.");
-                    return godot::Variant();
-                }
-                flecs::entity e(world, entity_id);
-                data = e.try_get<T>();
-            }
-
-            if (data) {
-                godot::Array arr;
-                for (std::size_t i = 0; i < data->value.size(); ++i) {
-                    arr.push_back(godot::Variant(data->value[i]));
-                }
-                return godot::Variant(arr);
-            }
-            godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) +
-                                                  " returned empty component data for " + name + ". Returning empty Variant.");
-            return godot::Variant();
-        };
-    }
+    template <typename T>
+    concept HasArrayValue = requires(T t) {
+        { t.value } -> StdArray;
+    };
 
     /// Registers an inspector function for a specific component type.
     template <typename T> void register_component_inspector(const char *name) {
-        get_component_inspectors()[name] = [](flecs::world &world, ComponentInfo &info) {
+        get_component_registry()[name].inspector = [](flecs::world &world, ComponentInfo &info) {
             auto comp = world.component<T>();
             info.is_singleton = comp.has(flecs::Singleton);
             info.name = comp.name().c_str();
         };
     }
 
-    /// Registers a setter function for a std::vector component type.
-    template <typename T, typename ElementType> void register_vector_component_setter(const char *name) {
-        get_component_setters()[name] = [name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
-            if (v.get_type() != godot::Variant::ARRAY) {
-                godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected Array, got " +
-                                                      godot::Variant::get_type_name(v.get_type()));
-                return;
-            }
+    /// Unified component registration for scalars, vectors, and arrays.
+    /// Wires up inspector, defaulter, getter, and setter based on the type traits of T.
+    template <typename T, typename StorageType = T> void register_component(const char *name) {
+        auto &registry = get_component_registry()[name];
 
-            godot::Array arr = v;
-            std::vector<ElementType> vec;
-            vec.reserve(arr.size());
-            for (int i = 0; i < arr.size(); ++i) {
-                vec.push_back(static_cast<ElementType>(arr[i]));
-            }
+        // 1. Register Inspector
+        register_component_inspector<T>(name);
 
-            if (entity_id == 0) {
-                world.set<T>(T(std::move(vec)));
+        // 2. Register Defaulter
+        registry.defaulter = []() -> godot::Variant {
+            if constexpr (HasVectorValue<T>) {
+                return godot::Variant(godot::Array());
+            } else if constexpr (HasArrayValue<T>) {
+                using ArrayType = decltype(T::value);
+                godot::Array arr;
+                arr.resize(static_cast<int>(std::tuple_size<ArrayType>::value));
+                return godot::Variant(arr);
             } else {
-                if (!world.is_alive(entity_id)) {
-                    godot::UtilityFunctions::push_warning(godot::String("Set Component: Entity ") + godot::String::num_uint64(entity_id) + " is not alive.");
-                    return;
-                }
-                flecs::entity e(world, entity_id);
-                e.set<T>(T(std::move(vec)));
+                return godot::Variant(static_cast<StorageType>(T()));
             }
         };
-    }
 
-    /// Registers a defaulter function for a std::vector component type.
-    template <typename T, typename ElementType> void register_vector_component_defaulter(const char *name) {
-        get_component_defaulters()[name] = []() -> godot::Variant { return godot::Variant(godot::Array()); };
-    }
-
-    /// Registers a getter function for a std::array component type.
-    template <typename T, typename ElementType, std::size_t N> void register_array_component_getter(const char *name) {
-        get_component_getters()[name] = [name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
+        // 3. Register Getter
+        registry.getter = [name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
             const T *data = nullptr;
             if (entity_id == 0) {
                 data = world.try_get<T>();
@@ -249,59 +178,98 @@ namespace stagehand {
             }
 
             if (data) {
-                godot::Array arr;
-                for (std::size_t i = 0; i < data->value.size(); ++i) {
-                    arr.push_back(godot::Variant(data->value[i]));
+                if constexpr (HasVectorValue<T> || HasArrayValue<T>) {
+                    godot::Array arr;
+                    for (const auto &elem : data->value) {
+                        arr.push_back(godot::Variant(elem));
+                    }
+                    return godot::Variant(arr);
+                } else {
+                    return godot::Variant(static_cast<StorageType>(*data));
                 }
-                return godot::Variant(arr);
             }
             godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) +
                                                   " returned empty component data for " + name + ". Returning empty Variant.");
             return godot::Variant();
         };
-    }
 
-    /// Registers a setter function for a std::array component type.
-    template <typename T, typename ElementType, std::size_t N> void register_array_component_setter(const char *name) {
-        get_component_setters()[name] = [name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
-            if (v.get_type() != godot::Variant::ARRAY) {
-                godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected Array, got " +
-                                                      godot::Variant::get_type_name(v.get_type()));
-                return;
-            }
-
-            godot::Array arr = v;
-            if (arr.size() != static_cast<int>(N)) {
-                godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected array size " +
-                                                      godot::String::num_int64(N) + ", got " + godot::String::num_int64(arr.size()));
-                return;
-            }
-
-            std::array<ElementType, N> array;
-            for (std::size_t i = 0; i < N; ++i) {
-                array[i] = static_cast<ElementType>(arr[static_cast<int>(i)]);
-            }
-
-            if (entity_id == 0) {
-                world.set<T>(T(std::move(array)));
-            } else {
-                if (!world.is_alive(entity_id)) {
-                    godot::UtilityFunctions::push_warning(godot::String("Set Component: Entity ") + godot::String::num_uint64(entity_id) + " is not alive.");
+        // 4. Register Setter
+        registry.setter = [name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
+            if constexpr (HasVectorValue<T>) {
+                if (v.get_type() != godot::Variant::ARRAY) {
+                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected Array, got " +
+                                                          godot::Variant::get_type_name(v.get_type()));
                     return;
                 }
-                flecs::entity e(world, entity_id);
-                e.set<T>(T(std::move(array)));
-            }
-        };
-    }
+                godot::Array arr = v;
+                using VecType = decltype(T::value);
+                using ElemType = typename VecType::value_type;
+                VecType vec;
+                vec.reserve(arr.size());
+                for (int i = 0; i < arr.size(); ++i) {
+                    vec.push_back(static_cast<ElemType>(arr[i]));
+                }
 
-    /// Registers a defaulter function for a std::array component type.
-    template <typename T, typename ElementType, std::size_t N> void register_array_component_defaulter(const char *name) {
-        get_component_defaulters()[name] = []() -> godot::Variant {
-            godot::Array arr;
-            arr.resize(static_cast<int>(N));
-            // Elements are default constructed (null/0)
-            return godot::Variant(arr);
+                if (entity_id == 0)
+                    world.set<T>(T(std::move(vec)));
+                else {
+                    if (!world.is_alive(entity_id)) {
+                        godot::UtilityFunctions::push_warning(godot::String("Set Component: Entity ") + godot::String::num_uint64(entity_id) +
+                                                              " is not alive.");
+                        return;
+                    }
+                    flecs::entity(world, entity_id).set<T>(T(std::move(vec)));
+                }
+            } else if constexpr (HasArrayValue<T>) {
+                if (v.get_type() != godot::Variant::ARRAY) {
+                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected Array, got " +
+                                                          godot::Variant::get_type_name(v.get_type()));
+                    return;
+                }
+                godot::Array arr = v;
+                using ArrType = decltype(T::value);
+                constexpr size_t N = std::tuple_size<ArrType>::value;
+                if (arr.size() != static_cast<int>(N)) {
+                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected array size " +
+                                                          godot::String::num_int64(N) + ", got " + godot::String::num_int64(arr.size()));
+                    return;
+                }
+                using ElemType = typename ArrType::value_type;
+                ArrType array;
+                for (size_t i = 0; i < N; ++i) {
+                    array[i] = static_cast<ElemType>(arr[static_cast<int>(i)]);
+                }
+
+                if (entity_id == 0)
+                    world.set<T>(T(std::move(array)));
+                else {
+                    if (!world.is_alive(entity_id)) {
+                        godot::UtilityFunctions::push_warning(godot::String("Set Component: Entity ") + godot::String::num_uint64(entity_id) +
+                                                              " is not alive.");
+                        return;
+                    }
+                    flecs::entity(world, entity_id).set<T>(T(std::move(array)));
+                }
+            } else {
+                const auto expected_type = static_cast<godot::Variant::Type>(godot::GetTypeInfo<StorageType>::VARIANT_TYPE);
+                if (godot::Variant::can_convert(v.get_type(), expected_type)) {
+                    if (entity_id == 0) {
+                        world.set<T>(T(static_cast<StorageType>(v)));
+                    } else {
+                        if (!world.is_alive(entity_id)) {
+                            godot::UtilityFunctions::push_warning(godot::String("Set Component: Entity ") + godot::String::num_uint64(entity_id) +
+                                                                  " is not alive.");
+                            return;
+                        }
+                        flecs::entity e(world, entity_id);
+                        e.set<T>(T(static_cast<StorageType>(v)));
+                    }
+                } else {
+                    godot::String warning_message = "Failed to set component '{0}'. Cannot convert provided data from type '{1}' to the expected type '{2}'.";
+                    godot::UtilityFunctions::push_warning(warning_message.format(
+                        godot::Array::make(name, godot::Variant::get_type_name(v.get_type()), godot::Variant::get_type_name(expected_type))));
+                }
+            }
         };
     }
 } // namespace stagehand

@@ -295,6 +295,9 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
 
     # Clone the project environment to inherit all compiler settings, flags, and defines
     test_env = project_env.Clone()
+    # Ensure tests are compiled with the same C++ standard as the main project
+    if cxx_flags:
+        test_env.Append(CXXFLAGS=cxx_flags)
     
     # Add test-specific include paths (prepend so they take priority)
     test_env.Prepend(CPPPATH=[
