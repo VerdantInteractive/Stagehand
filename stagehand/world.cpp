@@ -22,7 +22,7 @@
 
 namespace stagehand {
     FlecsWorld::FlecsWorld() {
-        if (is_initialised) {
+        if (unlikely(is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld's constructor was called when it was already initialised"));
             return;
         }
@@ -58,13 +58,13 @@ namespace stagehand {
     }
 
     void FlecsWorld::set_component(const godot::String &component_name, const godot::Variant &data, uint64_t entity_id) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_component was called before world was initialised"));
             return;
         }
 
         std::string name = component_name.utf8().get_data();
-        if (component_setters.contains(name)) {
+        if (likely(component_setters.contains(name))) {
             component_setters[name](static_cast<ecs_entity_t>(entity_id), data);
         } else {
             godot::UtilityFunctions::push_warning(godot::String("No setter for component '") + component_name + "' found.");
@@ -72,13 +72,13 @@ namespace stagehand {
     }
 
     godot::Variant FlecsWorld::get_component(const godot::String &component_name, uint64_t entity_id) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_component was called before world was initialised"));
             return godot::Variant();
         }
 
         std::string name = component_name.utf8().get_data();
-        if (!component_getters.contains(name)) {
+        if (unlikely(!component_getters.contains(name))) {
             godot::UtilityFunctions::push_warning(godot::String("No getter for component '") + component_name + "' found.");
             return godot::Variant();
         }
@@ -87,13 +87,13 @@ namespace stagehand {
     }
 
     bool FlecsWorld::has_component(const godot::String &component_name, uint64_t entity_id) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::has_component called before world initialised");
             return false;
         }
         std::string name = component_name.utf8().get_data();
         flecs::entity comp = world.lookup(name.c_str());
-        if (!comp.is_valid()) {
+        if (unlikely(!comp.is_valid())) {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return false;
         }
@@ -101,13 +101,13 @@ namespace stagehand {
     }
 
     void FlecsWorld::add_component(const godot::String &component_name, uint64_t entity_id) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::add_component called before world initialised");
             return;
         }
         std::string name = component_name.utf8().get_data();
         flecs::entity comp = world.lookup(name.c_str());
-        if (!comp.is_valid()) {
+        if (unlikely(!comp.is_valid())) {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return;
         }
@@ -115,13 +115,13 @@ namespace stagehand {
     }
 
     void FlecsWorld::remove_component(const godot::String &component_name, uint64_t entity_id) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::remove_component called before world initialised");
             return;
         }
         std::string name = component_name.utf8().get_data();
         flecs::entity comp = world.lookup(name.c_str());
-        if (!comp.is_valid()) {
+        if (unlikely(!comp.is_valid())) {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return;
         }
@@ -130,7 +130,7 @@ namespace stagehand {
 
     bool FlecsWorld::enable_system(const godot::String &system_name, bool enabled) {
         flecs::system sys = get_system(system_name);
-        if (!sys.is_valid()) {
+        if (unlikely(!sys.is_valid())) {
             return false;
         }
 
@@ -140,7 +140,7 @@ namespace stagehand {
 
     bool FlecsWorld::run_system(const godot::String &system_name, const Dictionary &parameters) {
         flecs::system sys = get_system(system_name);
-        if (!sys.is_valid()) {
+        if (unlikely(!sys.is_valid())) {
             return false;
         }
 
@@ -149,7 +149,7 @@ namespace stagehand {
     }
 
     uint64_t FlecsWorld::create_entity(const godot::String &name) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::create_entity called before world initialised");
             return 0;
         }
@@ -160,38 +160,38 @@ namespace stagehand {
     }
 
     void FlecsWorld::destroy_entity(uint64_t entity_id) {
-        if (!is_initialised)
+        if (unlikely(!is_initialised))
             return;
         world.entity(static_cast<ecs_entity_t>(entity_id)).destruct();
     }
 
     bool FlecsWorld::is_alive(uint64_t entity_id) {
-        if (!is_initialised)
+        if (unlikely(!is_initialised))
             return false;
         return world.entity(static_cast<ecs_entity_t>(entity_id)).is_alive();
     }
 
     uint64_t FlecsWorld::lookup(const godot::String &name) {
-        if (!is_initialised)
+        if (unlikely(!is_initialised))
             return 0;
         return world.lookup(name.utf8().get_data()).id();
     }
 
     godot::String FlecsWorld::get_entity_name(uint64_t entity_id) {
-        if (!is_initialised)
+        if (unlikely(!is_initialised))
             return "";
         return godot::String(world.entity(static_cast<ecs_entity_t>(entity_id)).name().c_str());
     }
 
     uint64_t FlecsWorld::instantiate_prefab(const godot::String &prefab_name, const godot::Dictionary &components) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::instantiate_prefab called before world initialised");
             return 0;
         }
 
         std::string name = prefab_name.utf8().get_data();
         flecs::entity prefab = world.lookup(name.c_str());
-        if (!prefab.is_valid()) {
+        if (unlikely(!prefab.is_valid())) {
             godot::UtilityFunctions::push_warning(godot::String("Prefab '") + prefab_name + "' not found");
             return 0;
         }
@@ -248,13 +248,13 @@ namespace stagehand {
             world_configuration = p_configuration;
         }
 
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_world_configuration was called before world was initialised"));
             return;
         }
 
         const WorldConfiguration *existing_configuration = world.try_get<WorldConfiguration>();
-        if (existing_configuration != nullptr && p_configuration == previous_configuration && existing_configuration->value != world_configuration) {
+        if (unlikely(existing_configuration != nullptr && p_configuration == previous_configuration && existing_configuration->value != world_configuration)) {
             return;
         }
 
@@ -267,13 +267,13 @@ namespace stagehand {
             return world_configuration;
         }
 
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called before world was initialised"));
             return world_configuration;
         }
 
         const WorldConfiguration *configuration = world.try_get<WorldConfiguration>();
-        if (configuration != nullptr) {
+        if (likely(configuration != nullptr)) {
             return configuration->value;
         }
 
@@ -394,18 +394,18 @@ namespace stagehand {
     }
 
     flecs::system FlecsWorld::get_system(const godot::String &system_name) {
-        if (!is_initialised) {
+        if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_system was called before world was initialised"));
             return flecs::system();
         }
 
         std::string name = system_name.utf8().get_data();
         flecs::entity entity = world.lookup(name.c_str());
-        if (!entity.is_valid()) {
+        if (unlikely(!entity.is_valid())) {
             godot::UtilityFunctions::push_warning("System not found: " + system_name);
             return flecs::system();
         }
-        if (!entity.has(flecs::System)) {
+        if (unlikely(!entity.has(flecs::System))) {
             godot::UtilityFunctions::push_warning(system_name + godot::String(" is not a system"));
             return flecs::system();
         }
