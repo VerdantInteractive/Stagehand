@@ -17,5 +17,11 @@ func _ready():
 	var default_wc = schema.get_component_default("WorldConfiguration")
 	print("WorldConfiguration default:", default_wc)
 
+	# Free created objects to avoid ObjectDB leaks in headless/editor tests
+	if schema:
+		schema.free()
+	if world:
+		world.free()
+
 	print("All editor FlecsWorld tests passed!")
 	get_tree().quit(0)
