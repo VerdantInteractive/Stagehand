@@ -10,7 +10,7 @@
 #include "stagehand/editor/flecs_script_editor_export_plugin.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
-#include "stagehand/resources/flecs_script_resource.h"
+#include "stagehand/resources/flecs_script.h"
 #include "stagehand/resources/flecs_script_resource_format_loader.h"
 #include "stagehand/world.h"
 
@@ -32,7 +32,10 @@ void initialize_flecs_module(godot::ModuleInitializationLevel p_level) {
 
     GDREGISTER_CLASS(FlecsScript); // Resource subclass
     GDREGISTER_CLASS(FlecsScriptResourceFormatLoader);
-    GDREGISTER_CLASS(FlecsScriptEditorExportPlugin);
+
+    if (p_level == godot::MODULE_INITIALIZATION_LEVEL_EDITOR) {
+        GDREGISTER_CLASS(FlecsScriptEditorExportPlugin);
+    }
 
     flecs_script_loader.instantiate();
     godot::ResourceLoader::get_singleton()->add_resource_format_loader(flecs_script_loader);

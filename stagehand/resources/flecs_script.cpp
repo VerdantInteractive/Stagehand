@@ -1,4 +1,4 @@
-#include "flecs_script_resource.h"
+#include "flecs_script.h"
 
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/core/class_db.hpp>

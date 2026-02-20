@@ -13,7 +13,7 @@
 #include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/resources/flecs_script_resource.h"
+#include "stagehand/resources/flecs_script.h"
 
 using godot::UtilityFunctions;
 

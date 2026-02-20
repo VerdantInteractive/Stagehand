@@ -23,13 +23,9 @@
 namespace stagehand {
     FlecsWorld::FlecsWorld() {
         if (is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld's constructor was called when it was "
-                                                                "already initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld's constructor was called when it was already initialised"));
             return;
         }
-
-        // Set up process callbacks based on the configured progress tick mode
-        set_progress_tick(progress_tick);
 
         // Enable Flecs REST, statistics and extra logging verbosity in debug builds
 #if defined(DEBUG_ENABLED)
@@ -63,8 +59,7 @@ namespace stagehand {
 
     void FlecsWorld::set_component(const godot::String &component_name, const godot::Variant &data, uint64_t entity_id) {
         if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_component was called before world "
-                                                                "was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_component was called before world was initialised"));
             return;
         }
 
@@ -78,8 +73,7 @@ namespace stagehand {
 
     godot::Variant FlecsWorld::get_component(const godot::String &component_name, uint64_t entity_id) {
         if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_component was called before world "
-                                                                "was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_component was called before world was initialised"));
             return godot::Variant();
         }
 
@@ -226,6 +220,10 @@ namespace stagehand {
         set_process(false);
         set_physics_process(false);
 
+        if (godot::Engine::get_singleton()->is_editor_hint()) {
+            return; // Never enable automatic ticking in the editor
+        }
+
         if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
             set_process(true);
         } else if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
@@ -234,9 +232,8 @@ namespace stagehand {
     }
 
     void FlecsWorld::progress(double delta) {
-        if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world "
-                                                                "was initialised"));
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world was initialised"));
             return;
         }
 
@@ -252,8 +249,7 @@ namespace stagehand {
         }
 
         if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_world_configuration was called "
-                                                                "before world was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_world_configuration was called before world was initialised"));
             return;
         }
 
@@ -272,8 +268,7 @@ namespace stagehand {
         }
 
         if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called "
-                                                                "before world was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called before world was initialised"));
             return world_configuration;
         }
 
@@ -400,8 +395,7 @@ namespace stagehand {
 
     flecs::system FlecsWorld::get_system(const godot::String &system_name) {
         if (!is_initialised) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_system was called before world "
-                                                                "was initialised"));
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_system was called before world was initialised"));
             return flecs::system();
         }
 
@@ -428,6 +422,7 @@ namespace stagehand {
             register_signal_observer();
             import_configured_modules();
             script_loader.run_all(world, modules_to_import);
+            set_progress_tick(progress_tick);
             break;
         case NOTIFICATION_PROCESS:
             if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
