@@ -229,74 +229,114 @@ template <typename T> void register_godot_members(flecs::component<T> c, RID *) 
 template <typename T> void register_godot_members(flecs::component<T> c, Signal *) {}
 
 REGISTER([](flecs::world &world) {
+    /* Struct (Plain Old Data) Types
+     * These types are re-implemented entirely within the godot-cpp binding and are perfect for ECS components.
+     * They do not incur the overhead of function calls into the engine, and are cache-friendly and fast.
+     */
     register_color_members(world.component<Color>()); // 16 bytes
     stagehand::register_component<Color>("Color");
+
     register_vector2_members(world.component<Vector2>()); // 8 bytes
     stagehand::register_component<Vector2>("Vector2");
+
     register_vector2i_members(world.component<Vector2i>()); // 8 bytes
     stagehand::register_component<Vector2i>("Vector2i");
+
     register_vector3_members(world.component<Vector3>()); // 12 bytes
     stagehand::register_component<Vector3>("Vector3");
+
     register_vector3i_members(world.component<Vector3i>()); // 12 bytes
     stagehand::register_component<Vector3i>("Vector3i");
+
     register_vector4_members(world.component<Vector4>()); // 16 bytes
     stagehand::register_component<Vector4>("Vector4");
+
     register_vector4i_members(world.component<Vector4i>()); // 16 bytes
     stagehand::register_component<Vector4i>("Vector4i");
+
     register_rect2_members(world.component<Rect2>()); // 16 bytes
     stagehand::register_component<Rect2>("Rect2");
+
     register_rect2i_members(world.component<Rect2i>()); // 16 bytes
     stagehand::register_component<Rect2i>("Rect2i");
+
     register_plane_members(world.component<Plane>()); // 16 bytes
     stagehand::register_component<Plane>("Plane");
+
     register_quaternion_members(world.component<Quaternion>()); // 16 bytes
     stagehand::register_component<Quaternion>("Quaternion");
+
     register_basis_members(world.component<Basis>()); // 36 bytes - acceptable
     stagehand::register_component<Basis>("Basis");
+
     register_transform2d_members(world.component<Transform2D>()); // 24 bytes
     stagehand::register_component<Transform2D>("Transform2D");
+
     register_transform3d_members(world.component<Transform3D>()); // 48 bytes - borderline large, but acceptable for transform components
     stagehand::register_component<Transform3D>("Transform3D");
+
     register_aabb_members(world.component<AABB>()); // 24 bytes
     stagehand::register_component<AABB>("AABB");
+
     register_projection_members(world.component<Projection>()); // 64 bytes - large, use sparingly
     stagehand::register_component<Projection>("Projection");
 
-    // Class types
+    /* Class types
+     * These types are wrappers (handles) that point to data managed inside the Godot Engine. When you do e.g. array.size() or array[i], godot-cpp must make a C
+     * API call across the GDExtension boundary (e.g., godot_array_size) to ask the engine for the result. This incurs overhead (marshalling, function pointer
+     * jumps, etc.). Best used for storage, interop, or infrequent updates. Avoid iterating inside these containers every frame within a hot system if possible.
+     */
     world.component<Array>();
     stagehand::register_component<Array>("Array");
+
     world.component<Dictionary>();
     stagehand::register_component<Dictionary>("Dictionary");
+
     world.component<String>();
     stagehand::register_component<String>("String");
+
     world.component<StringName>();
     stagehand::register_component<StringName>("StringName");
+
     world.component<NodePath>();
     stagehand::register_component<NodePath>("NodePath");
+
     world.component<PackedByteArray>();
     stagehand::register_component<PackedByteArray>("PackedByteArray");
+
     world.component<PackedColorArray>();
     stagehand::register_component<PackedColorArray>("PackedColorArray");
+
     world.component<PackedFloat32Array>();
     stagehand::register_component<PackedFloat32Array>("PackedFloat32Array");
+
     world.component<PackedFloat64Array>();
     stagehand::register_component<PackedFloat64Array>("PackedFloat64Array");
+
     world.component<PackedInt32Array>();
     stagehand::register_component<PackedInt32Array>("PackedInt32Array");
+
     world.component<PackedInt64Array>();
     stagehand::register_component<PackedInt64Array>("PackedInt64Array");
+
     world.component<PackedStringArray>();
     stagehand::register_component<PackedStringArray>("PackedStringArray");
+
     world.component<PackedVector2Array>();
     stagehand::register_component<PackedVector2Array>("PackedVector2Array");
+
     world.component<PackedVector3Array>();
     stagehand::register_component<PackedVector3Array>("PackedVector3Array");
+
     world.component<PackedVector4Array>();
     stagehand::register_component<PackedVector4Array>("PackedVector4Array");
+
     world.component<Callable>();
     stagehand::register_component<Callable>("Callable");
+
     world.component<RID>();
     stagehand::register_component<RID>("RID");
+
     world.component<Signal>();
     stagehand::register_component<Signal>("Signal");
 });
