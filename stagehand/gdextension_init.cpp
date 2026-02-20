@@ -7,6 +7,7 @@
 #include <godot_cpp/godot.hpp>
 
 #include "stagehand/editor/component_schema.h"
+#include "stagehand/editor/flecs_script_editor_export_plugin.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/resources/flecs_script_resource.h"
@@ -29,8 +30,9 @@ void initialize_flecs_module(godot::ModuleInitializationLevel p_level) {
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer2D);
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer3D);
 
-    GDREGISTER_CLASS(FlecsScript);
+    GDREGISTER_CLASS(FlecsScript); // Resource subclass
     GDREGISTER_CLASS(FlecsScriptResourceFormatLoader);
+    GDREGISTER_CLASS(FlecsScriptEditorExportPlugin);
 
     flecs_script_loader.instantiate();
     godot::ResourceLoader::get_singleton()->add_resource_format_loader(flecs_script_loader);
