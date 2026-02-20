@@ -28,11 +28,6 @@ namespace stagehand {
             return;
         }
 
-        // Don't initialise if we're running in the editor
-        if (godot::Engine::get_singleton()->is_editor_hint()) {
-            return;
-        }
-
         // Set up process callbacks based on the configured progress tick mode
         set_progress_tick(progress_tick);
 

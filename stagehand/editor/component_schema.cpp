@@ -8,8 +8,8 @@ namespace stagehand {
 
     static void ensure_registry_populated() {
         if (get_component_registry().empty()) {
-            flecs::world tmp_world;
-            register_components_and_systems_with_world(tmp_world);
+            // Trigger editor-time global registration once by obtaining the editor world.
+            (void)get_editor_world();
         }
     }
 
@@ -25,9 +25,8 @@ namespace stagehand {
     godot::Dictionary ComponentSchema::get_registered_components() const {
         ensure_registry_populated();
 
-        // Create a temporary world to inspect component metadata
-        flecs::world tmp_world;
-        register_components_and_systems_with_world(tmp_world);
+        // Use the shared editor Flecs world (already registered) to inspect component metadata without re-running registrations.
+        flecs::world &tmp_world = get_editor_world();
 
         godot::Dictionary components_by_namespace;
         const auto &registry = get_component_registry();

@@ -2,23 +2,25 @@
 
 #include <gdextension_interface.h>
 
+#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/godot.hpp>
 
 #include "stagehand/editor/component_schema.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
 #include "stagehand/nodes/multi_mesh_renderer.h"
+#include "stagehand/resources/flecs_script_resource.h"
+#include "stagehand/resources/flecs_script_resource_format_loader.h"
 #include "stagehand/world.h"
 
-using godot::MODULE_INITIALIZATION_LEVEL_SCENE;
-using godot::ModuleInitializationLevel;
+static godot::Ref<FlecsScriptResourceFormatLoader> flecs_script_loader;
 
-void initialize_flecs_module(ModuleInitializationLevel p_level) {
-    if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+void initialize_flecs_module(godot::ModuleInitializationLevel p_level) {
+    if (p_level != godot::MODULE_INITIALIZATION_LEVEL_SCENE) {
         return;
     }
 
-    GDREGISTER_RUNTIME_CLASS(stagehand::FlecsWorld);
+    GDREGISTER_CLASS(stagehand::FlecsWorld);
     GDREGISTER_CLASS(stagehand::ComponentSchema);
 
     GDREGISTER_RUNTIME_CLASS(InstancedRenderer3D);
@@ -26,12 +28,21 @@ void initialize_flecs_module(ModuleInitializationLevel p_level) {
 
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer2D);
     GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer3D);
+
+    GDREGISTER_CLASS(FlecsScript);
+    GDREGISTER_CLASS(FlecsScriptResourceFormatLoader);
+
+    flecs_script_loader.instantiate();
+    godot::ResourceLoader::get_singleton()->add_resource_format_loader(flecs_script_loader);
 }
 
-void uninitialize_flecs_module(ModuleInitializationLevel p_level) {
-    if (p_level != MODULE_INITIALIZATION_LEVEL_SCENE) {
+void uninitialize_flecs_module(godot::ModuleInitializationLevel p_level) {
+    if (p_level != godot::MODULE_INITIALIZATION_LEVEL_SCENE) {
         return;
     }
+
+    godot::ResourceLoader::get_singleton()->remove_resource_format_loader(flecs_script_loader);
+    flecs_script_loader.unref();
 }
 
 extern "C" {
@@ -42,7 +53,7 @@ GDExtensionBool GDE_EXPORT stagehand_library_init(GDExtensionInterfaceGetProcAdd
 
     init_obj.register_initializer(initialize_flecs_module);
     init_obj.register_terminator(uninitialize_flecs_module);
-    init_obj.set_minimum_library_initialization_level(MODULE_INITIALIZATION_LEVEL_SCENE);
+    init_obj.set_minimum_library_initialization_level(godot::MODULE_INITIALIZATION_LEVEL_SCENE);
 
     return init_obj.init();
 }

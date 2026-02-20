@@ -9,7 +9,11 @@
 #include <godot_cpp/classes/dir_access.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/classes/project_settings.hpp>
+#include <godot_cpp/classes/resource.hpp>
+#include <godot_cpp/classes/resource_loader.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
+
+#include "stagehand/resources/flecs_script_resource.h"
 
 using godot::UtilityFunctions;
 
@@ -113,13 +117,20 @@ namespace stagehand {
         std::vector<std::string> loaded_scripts;
         for (const std::string &path_str : resource_paths) {
             godot::String godot_path(path_str.c_str());
-            godot::String file_contents = godot::FileAccess::get_file_as_string(godot_path);
-            std::string script_str = file_contents.utf8().get_data();
+
+            godot::Ref<godot::Resource> resource = godot::ResourceLoader::get_singleton()->load(godot_path);
+            godot::Ref<FlecsScript> flecs_script = resource;
+            if (flecs_script.is_null()) {
+                UtilityFunctions::push_error(godot::String("Failed to load Flecs script file: ") + godot_path);
+                continue;
+            }
+
+            std::string script_str = flecs_script->get_contents().utf8().get_data();
             // Normalize CRLF to LF to prevent parsing issues with flecs scripts.
             std::erase(script_str, '\r');
 
             if (script_str.empty()) {
-                UtilityFunctions::push_error(godot::String("Failed to read flecs script file: ") + godot_path);
+                // This can happen if the file is empty, which is valid.
                 continue;
             }
 
