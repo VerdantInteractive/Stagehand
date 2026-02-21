@@ -622,42 +622,15 @@ struct IntReferenceWrapper {
   const int* value;
 };
 
-// Compared the contained values
 bool operator==(const IntReferenceWrapper& a, const IntReferenceWrapper& b) {
-  return *a.value == *b.value;
+  return a.value == b.value;
 }
 
-TEST(MatcherCastTest, ValueIsCopied) {
-  {
-    // When an IntReferenceWrapper is passed.
-    int n = 42;
-    Matcher<IntReferenceWrapper> m =
-        MatcherCast<IntReferenceWrapper>(IntReferenceWrapper(n));
-    {
-      int value = 42;
-      EXPECT_TRUE(m.Matches(value));
-      value = 10;
-      EXPECT_FALSE(m.Matches(value));
-      // This changes the stored reference.
-      n = 10;
-      EXPECT_TRUE(m.Matches(value));
-    }
-  }
-
-  {
-    // When an int is passed.
-    int n = 42;
-    Matcher<IntReferenceWrapper> m = MatcherCast<IntReferenceWrapper>(n);
-    {
-      int value = 42;
-      EXPECT_TRUE(m.Matches(value));
-      value = 10;
-      EXPECT_FALSE(m.Matches(value));
-      // This does not change the stored int.
-      n = 10;
-      EXPECT_FALSE(m.Matches(value));
-    }
-  }
+TEST(MatcherCastTest, ValueIsNotCopied) {
+  int n = 42;
+  Matcher<IntReferenceWrapper> m = MatcherCast<IntReferenceWrapper>(n);
+  // Verify that the matcher holds a reference to n, not to its temporary copy.
+  EXPECT_TRUE(m.Matches(n));
 }
 
 class Base {
@@ -798,7 +771,6 @@ TEST(ExpectThat, TakesLiterals) {
   EXPECT_THAT(1, 1);
   EXPECT_THAT(1.0, 1.0);
   EXPECT_THAT(std::string(), "");
-  EXPECT_THAT(std::shared_ptr<int>(), nullptr);
 }
 
 TEST(ExpectThat, TakesFunctions) {
@@ -1125,16 +1097,6 @@ TEST(IsNullTest, CanDescribeSelf) {
   Matcher<int*> m = IsNull();
   EXPECT_EQ("is NULL", Describe(m));
   EXPECT_EQ("isn't NULL", DescribeNegation(m));
-}
-
-struct SmartPtrHelper {
-  MOCK_METHOD(void, Call, (std::shared_ptr<int>));
-};
-
-TEST(IsNullTest, WorksWithSmartPtr) {
-  SmartPtrHelper helper;
-  EXPECT_CALL(helper, Call(nullptr));
-  helper.Call(nullptr);
 }
 
 // Tests that NotNull() matches any non-NULL pointer of any type.
@@ -2400,19 +2362,22 @@ PolymorphicMatcher<DivisibleByImpl> DivisibleBy(int n) {
   return MakePolymorphicMatcher(DivisibleByImpl(n));
 }
 
-// Tests that when AllOf() fails, all failing matchers are asked to explain why.
+// Tests that when AllOf() fails, only the first failing matcher is
+// asked to explain why.
 TEST(ExplainMatchResultTest, AllOf_False_False) {
   const Matcher<int> m = AllOf(DivisibleBy(4), DivisibleBy(3));
-  EXPECT_EQ("which is 1 modulo 4, and which is 2 modulo 3", Explain(m, 5));
+  EXPECT_EQ("which is 1 modulo 4", Explain(m, 5));
 }
 
-// Tests that when AllOf() fails, all failing matchers are asked to explain why.
+// Tests that when AllOf() fails, only the first failing matcher is
+// asked to explain why.
 TEST(ExplainMatchResultTest, AllOf_False_True) {
   const Matcher<int> m = AllOf(DivisibleBy(4), DivisibleBy(3));
   EXPECT_EQ("which is 2 modulo 4", Explain(m, 6));
 }
 
-// Tests that when AllOf() fails, all failing matchers are asked to explain why.
+// Tests that when AllOf() fails, only the first failing matcher is
+// asked to explain why.
 TEST(ExplainMatchResultTest, AllOf_True_False) {
   const Matcher<int> m = AllOf(Ge(1), DivisibleBy(3));
   EXPECT_EQ("which is 2 modulo 3", Explain(m, 5));
