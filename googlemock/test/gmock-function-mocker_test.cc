@@ -35,13 +35,6 @@
 // Silence C4503 (decorated name length exceeded) for MSVC.
 GTEST_DISABLE_MSC_WARNINGS_PUSH_(4503)
 
-#ifdef __clang__
-#pragma clang diagnostic push
-// This file intentionally tests many ways of writing Mock classes, including
-// with and without the override keyword.
-#pragma clang diagnostic ignored "-Winconsistent-missing-override"
-#endif
-
 #ifdef GTEST_OS_WINDOWS
 // MSDN says the header file to be included for STDMETHOD is BaseTyps.h but
 // we are getting compiler errors if we use basetyps.h, hence including
@@ -98,7 +91,7 @@ class FooInterface {
 
   virtual bool TakesNonConstReference(int& n) = 0;  // NOLINT
   virtual std::string TakesConstReference(const int& n) = 0;
-  virtual bool TakesConst(int x) = 0;
+  virtual bool TakesConst(const int x) = 0;
 
   virtual int OverloadedOnArgumentNumber() = 0;
   virtual int OverloadedOnArgumentNumber(int n) = 0;

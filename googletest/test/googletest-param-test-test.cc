@@ -696,7 +696,7 @@ class TestGenerationEnvironment : public ::testing::Environment {
       msg << "TestsExpandedAndRun/" << i;
       if (UnitTestOptions::FilterMatchesTest(
               "TestExpansionModule/MultipleTestGenerationTest",
-              msg.GetString())) {
+              msg.GetString().c_str())) {
         perform_check = true;
       }
     }
@@ -1174,7 +1174,7 @@ TEST_P(ParameterizedDerivedTest, SeesSequence) {
 class ParameterizedDeathTest : public ::testing::TestWithParam<int> {};
 
 TEST_F(ParameterizedDeathTest, GetParamDiesFromTestF) {
-  EXPECT_DEATH_IF_SUPPORTED((void)GetParam(), ".* value-parameterized test .*");
+  EXPECT_DEATH_IF_SUPPORTED(GetParam(), ".* value-parameterized test .*");
 }
 
 INSTANTIATE_TEST_SUITE_P(RangeZeroToFive, ParameterizedDerivedTest,

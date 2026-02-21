@@ -195,7 +195,7 @@ class TestEventListenersAccessor {
 
 class UnitTestRecordPropertyTestHelper : public Test {
  protected:
-  UnitTestRecordPropertyTestHelper() = default;
+  UnitTestRecordPropertyTestHelper() {}
 
   // Forwards to UnitTest::RecordProperty() to bypass access controls.
   void UnitTestRecordProperty(const char* key, const std::string& value) {
@@ -375,7 +375,7 @@ TEST(CanonicalizeForStdLibVersioning, LeavesUnversionedNamesUnchanged) {
   EXPECT_EQ("std::bind", CanonicalizeForStdLibVersioning("std::bind"));
   EXPECT_EQ("std::_", CanonicalizeForStdLibVersioning("std::_"));
   EXPECT_EQ("std::__foo", CanonicalizeForStdLibVersioning("std::__foo"));
-  EXPECT_EQ("absl::__1::x", CanonicalizeForStdLibVersioning("absl::__1::x"));
+  EXPECT_EQ("gtl::__1::x", CanonicalizeForStdLibVersioning("gtl::__1::x"));
   EXPECT_EQ("__1::x", CanonicalizeForStdLibVersioning("__1::x"));
   EXPECT_EQ("::__1::x", CanonicalizeForStdLibVersioning("::__1::x"));
 }
@@ -2649,8 +2649,8 @@ TEST(IsSubstringTest, GeneratesCorrectMessageForCString) {
 // Tests that IsSubstring returns the correct result when the input
 // argument type is ::std::string.
 TEST(IsSubstringTest, ReturnsCorrectResultsForStdString) {
-  EXPECT_TRUE(IsSubstring("", "", "hello", "ahellob"));
-  EXPECT_FALSE(IsSubstring("", "", "hello", "world"));
+  EXPECT_TRUE(IsSubstring("", "", std::string("hello"), "ahellob"));
+  EXPECT_FALSE(IsSubstring("", "", "hello", std::string("world")));
 }
 
 #if GTEST_HAS_STD_WSTRING
@@ -2707,8 +2707,8 @@ TEST(IsNotSubstringTest, GeneratesCorrectMessageForWideCString) {
 // Tests that IsNotSubstring returns the correct result when the input
 // argument type is ::std::string.
 TEST(IsNotSubstringTest, ReturnsCorrectResultsForStdString) {
-  EXPECT_FALSE(IsNotSubstring("", "", "hello", "ahellob"));
-  EXPECT_TRUE(IsNotSubstring("", "", "hello", "world"));
+  EXPECT_FALSE(IsNotSubstring("", "", std::string("hello"), "ahellob"));
+  EXPECT_TRUE(IsNotSubstring("", "", "hello", std::string("world")));
 }
 
 // Tests that IsNotSubstring() generates the correct message when the input
@@ -2719,7 +2719,8 @@ TEST(IsNotSubstringTest, GeneratesCorrectMessageForStdString) {
       "  Actual: \"needle\"\n"
       "Expected: not a substring of haystack_expr\n"
       "Which is: \"two needles\"",
-      IsNotSubstring("needle_expr", "haystack_expr", "needle", "two needles")
+      IsNotSubstring("needle_expr", "haystack_expr", ::std::string("needle"),
+                     "two needles")
           .failure_message());
 }
 
@@ -3578,13 +3579,13 @@ TEST(EditDistance, TestSuites) {
       {__LINE__, "A", "A", " ", ""},
       {__LINE__, "ABCDE", "ABCDE", "     ", ""},
       // Simple adds.
-      {__LINE__, "X", "XA", " +", "@@ -1 +1,2 @@\n X\n+A\n"},
-      {__LINE__, "X", "XABCD", " ++++", "@@ -1 +1,5 @@\n X\n+A\n+B\n+C\n+D\n"},
+      {__LINE__, "X", "XA", " +", "@@ +1,2 @@\n X\n+A\n"},
+      {__LINE__, "X", "XABCD", " ++++", "@@ +1,5 @@\n X\n+A\n+B\n+C\n+D\n"},
       // Simple removes.
-      {__LINE__, "XA", "X", " -", "@@ -1,2 +1 @@\n X\n-A\n"},
-      {__LINE__, "XABCD", "X", " ----", "@@ -1,5 +1 @@\n X\n-A\n-B\n-C\n-D\n"},
+      {__LINE__, "XA", "X", " -", "@@ -1,2 @@\n X\n-A\n"},
+      {__LINE__, "XABCD", "X", " ----", "@@ -1,5 @@\n X\n-A\n-B\n-C\n-D\n"},
       // Simple replaces.
-      {__LINE__, "A", "a", "/", "@@ -1 +1 @@\n-A\n+a\n"},
+      {__LINE__, "A", "a", "/", "@@ -1,1 +1,1 @@\n-A\n+a\n"},
       {__LINE__, "ABCD", "abcd", "////",
        "@@ -1,4 +1,4 @@\n-A\n-B\n-C\n-D\n+a\n+b\n+c\n+d\n"},
       // Path finding.
@@ -3654,7 +3655,8 @@ TEST(AssertionTest, EqFailure) {
       msg4.c_str());
 
   const std::string msg5(
-      EqFailure("foo", "bar", "\"x\"", "\"y\"", true).failure_message());
+      EqFailure("foo", "bar", std::string("\"x\""), std::string("\"y\""), true)
+          .failure_message());
   EXPECT_STREQ(
       "Expected equality of these values:\n"
       "  foo\n"
@@ -6713,9 +6715,6 @@ TEST(ColoredOutputTest, UsesColorsWhenTermSupportsColors) {
   EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
 
   SetEnv("TERM", "xterm-color");      // TERM supports colors.
-  EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
-
-  SetEnv("TERM", "xterm-ghostty");    // TERM supports colors.
   EXPECT_TRUE(ShouldUseColor(true));  // Stdout is a TTY.
 
   SetEnv("TERM", "xterm-kitty");      // TERM supports colors.
