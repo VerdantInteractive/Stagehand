@@ -406,15 +406,12 @@ namespace stagehand {
     void FlecsWorld::_notification(const int p_what) {
         switch (p_what) {
             // case NOTIFICATION_POSTINITIALIZE: // Seems to be running twice - before and after the class constructor
-            //     godot::UtilityFunctions::print("NOTIFICATION_POSTINITIALIZE");
             //     break;
 
             // case NOTIFICATION_SCENE_INSTANTIATED: //  Sent only to the *root node* of a newly instantiated scene when PackedScene.instantiate() completes
-            //     godot::UtilityFunctions::print("NOTIFICATION_SCENE_INSTANTIATED");
             //     break;
 
         case NOTIFICATION_ENTER_TREE: // Fires on the parent node *before* its children are added to the scene tree
-            godot::UtilityFunctions::print("NOTIFICATION_ENTER_TREE");
             register_signal_observer();
             import_configured_modules();
             script_loader.run_all(world, modules_to_import);
@@ -423,14 +420,12 @@ namespace stagehand {
             break;
 
         case NOTIFICATION_POST_ENTER_TREE: // Fires on children first, then the parent (bottom-up order, opposite order from NOTIFICATION_ENTER_TREE)
-            godot::UtilityFunctions::print("NOTIFICATION_POST_ENTER_TREE");
             populate_scene_children_singleton();
             setup_entity_renderers_instanced();
             setup_entity_renderers_multimesh();
             break;
 
             // case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
-            //     godot::UtilityFunctions::print("NOTIFICATION_READY");
             //     break;
 
         case NOTIFICATION_PROCESS:
@@ -446,7 +441,6 @@ namespace stagehand {
             break;
 
         case NOTIFICATION_EXIT_TREE:
-            godot::UtilityFunctions::print("NOTIFICATION_EXIT_TREE");
             if (is_initialised) {
                 cleanup_instanced_renderer_rids();
                 is_initialised = false;
