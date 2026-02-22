@@ -50,14 +50,14 @@ namespace stagehand {
         /// Removes a component (or tag) from an entity.
         void remove_component(const godot::String &component_name, uint64_t entity_id);
 
-        /// Enables or disables a system by name.
-        bool enable_system(const godot::String &system_name, bool enabled = true);
+        /// Enables or disables an entity by ID.
+        bool enable_entity(uint64_t entity_id, bool enabled = true);
         /// Runs a specific system manually, optionally with parameters.
-        /// @param system_name The name of the system to run.
+        /// @param system_id The ID of the system to run.
         /// @param parameters A dictionary of parameters to pass to the system.
         /// @note Useful for triggering on-demand (kind: 0) Flecs systems from
         /// GDScript.
-        bool run_system(const godot::String &system_name, const godot::Dictionary &parameters);
+        bool run_system(uint64_t entity_id, const godot::Dictionary &parameters);
 
         /// Creates a new entity, optionally with a name.
         uint64_t create_entity(const godot::String &name = "");
@@ -101,9 +101,6 @@ namespace stagehand {
         godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
         godot::TypedArray<godot::String> modules_to_import;
         ScriptLoader script_loader;
-
-        /// Helper to look up a system entity by name.
-        flecs::system get_system(const godot::String &system_name);
 
         std::unordered_map<std::string, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
         std::unordered_map<std::string, std::function<godot::Variant(flecs::entity_t)>> component_getters;

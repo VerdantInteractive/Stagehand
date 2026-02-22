@@ -13,6 +13,7 @@
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
+#include "stagehand/ecs/pipeline_phases.h"
 #include "stagehand/ecs/systems/rendering_instanced.h"
 #include "stagehand/ecs/systems/rendering_multimesh.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
@@ -29,7 +30,7 @@ namespace stagehand {
 
         // Enable Flecs REST, statistics and extra logging verbosity in debug builds
 #if defined(DEBUG_ENABLED)
-        godot::UtilityFunctions::print(godot::String("Debug build. Enabling Flecs Explorer and verbose logging ..."));
+        godot::UtilityFunctions::print(godot::String("Debug build. Enabling extra logging and Flecs Explorer: https://www.flecs.dev/explorer/?host=localhost"));
         world.set<flecs::Rest>({});
         world.import <flecs::stats>();
         // flecs::log::set_level(1);
@@ -128,23 +129,36 @@ namespace stagehand {
         world.entity(static_cast<ecs_entity_t>(entity_id)).remove(comp);
     }
 
-    bool FlecsWorld::enable_system(const godot::String &system_name, bool enabled) {
-        flecs::system sys = get_system(system_name);
-        if (unlikely(!sys.is_valid())) {
+    bool FlecsWorld::enable_entity(uint64_t entity_id, bool enabled) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::enable_entity called before world initialised");
             return false;
         }
 
-        enabled ? sys.enable() : sys.disable();
+        flecs::entity entity = world.entity(static_cast<ecs_entity_t>(entity_id));
+        if (unlikely(!entity.is_valid())) {
+            godot::UtilityFunctions::push_warning("Entity not found: " + godot::String::num_int64(entity_id));
+            return false;
+        }
+
+        enabled ? entity.enable() : entity.disable();
         return true;
     }
 
-    bool FlecsWorld::run_system(const godot::String &system_name, const Dictionary &parameters) {
-        flecs::system sys = get_system(system_name);
-        if (unlikely(!sys.is_valid())) {
+    bool FlecsWorld::run_system(uint64_t entity_id, const Dictionary &parameters) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::run_system called before world initialised");
             return false;
         }
 
-        parameters.is_empty() ? sys.run() : sys.run(0.0f, (void *)&parameters);
+        flecs::entity entity = world.entity(static_cast<ecs_entity_t>(entity_id));
+        if (unlikely(!entity.is_valid()) || unlikely(!entity.has(flecs::System))) {
+            godot::UtilityFunctions::push_warning("System not found or invalid: " + godot::String::num_int64(entity_id));
+            return false;
+        }
+
+        flecs::system system = world.system(entity);
+        parameters.is_empty() ? system.run() : system.run(0.0f, (void *)&parameters);
         return true;
     }
 
@@ -219,10 +233,6 @@ namespace stagehand {
 
         set_process(false);
         set_physics_process(false);
-
-        if (godot::Engine::get_singleton()->is_editor_hint()) {
-            return; // Never enable automatic ticking in the editor
-        }
 
         if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
             set_process(true);
@@ -373,7 +383,7 @@ namespace stagehand {
             .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
             .each([this](flecs::iter &it, size_t index) {
                 const GodotSignal *signal = it.param<GodotSignal>();
-                if (signal) {
+                if (likely(signal)) {
                     this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
                 }
             });
@@ -393,48 +403,50 @@ namespace stagehand {
         }
     }
 
-    flecs::system FlecsWorld::get_system(const godot::String &system_name) {
-        if (unlikely(!is_initialised)) {
-            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_system was called before world was initialised"));
-            return flecs::system();
-        }
-
-        std::string name = system_name.utf8().get_data();
-        flecs::entity entity = world.lookup(name.c_str());
-        if (unlikely(!entity.is_valid())) {
-            godot::UtilityFunctions::push_warning("System not found: " + system_name);
-            return flecs::system();
-        }
-        if (unlikely(!entity.has(flecs::System))) {
-            godot::UtilityFunctions::push_warning(system_name + godot::String(" is not a system"));
-            return flecs::system();
-        }
-        return world.system(entity);
-    }
-
     void FlecsWorld::_notification(const int p_what) {
         switch (p_what) {
-        case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
-            set_world_configuration(world_configuration);
-            populate_scene_children_singleton();
-            setup_entity_renderers_instanced();
-            setup_entity_renderers_multimesh();
+            // case NOTIFICATION_POSTINITIALIZE: // Seems to be running twice - before and after the class constructor
+            //     godot::UtilityFunctions::print("NOTIFICATION_POSTINITIALIZE");
+            //     break;
+
+            // case NOTIFICATION_SCENE_INSTANTIATED: //  Sent only to the *root node* of a newly instantiated scene when PackedScene.instantiate() completes
+            //     godot::UtilityFunctions::print("NOTIFICATION_SCENE_INSTANTIATED");
+            //     break;
+
+        case NOTIFICATION_ENTER_TREE: // Fires on the parent node *before* its children are added to the scene tree
+            godot::UtilityFunctions::print("NOTIFICATION_ENTER_TREE");
             register_signal_observer();
             import_configured_modules();
             script_loader.run_all(world, modules_to_import);
+            set_world_configuration(world_configuration);
             set_progress_tick(progress_tick);
             break;
+
+        case NOTIFICATION_POST_ENTER_TREE: // Fires on children first, then the parent (bottom-up order, opposite order from NOTIFICATION_ENTER_TREE)
+            godot::UtilityFunctions::print("NOTIFICATION_POST_ENTER_TREE");
+            populate_scene_children_singleton();
+            setup_entity_renderers_instanced();
+            setup_entity_renderers_multimesh();
+            break;
+
+            // case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
+            //     godot::UtilityFunctions::print("NOTIFICATION_READY");
+            //     break;
+
         case NOTIFICATION_PROCESS:
             if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
                 progress(get_process_delta_time());
             }
             break;
+
         case NOTIFICATION_PHYSICS_PROCESS:
             if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
                 progress(get_physics_process_delta_time());
             }
             break;
+
         case NOTIFICATION_EXIT_TREE:
+            godot::UtilityFunctions::print("NOTIFICATION_EXIT_TREE");
             if (is_initialised) {
                 cleanup_instanced_renderer_rids();
                 is_initialised = false;
@@ -450,8 +462,8 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("add_component", "component_name", "entity_id"), &FlecsWorld::add_component);
         godot::ClassDB::bind_method(godot::D_METHOD("remove_component", "component_name", "entity_id"), &FlecsWorld::remove_component);
 
-        godot::ClassDB::bind_method(godot::D_METHOD("enable_system", "system_name", "enabled"), &FlecsWorld::enable_system, DEFVAL(true));
-        godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_name", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
+        godot::ClassDB::bind_method(godot::D_METHOD("enable_entity", "entity_id", "enabled"), &FlecsWorld::enable_entity, DEFVAL(true));
+        godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_id", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
 
         godot::ClassDB::bind_method(godot::D_METHOD("create_entity", "name"), &FlecsWorld::create_entity, DEFVAL(""));
         godot::ClassDB::bind_method(godot::D_METHOD("destroy_entity", "entity_id"), &FlecsWorld::destroy_entity);
