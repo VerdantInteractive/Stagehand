@@ -1,0 +1,3 @@
+// grand_parent.flecs is at the top of the hierarchy and g comes before p in the alphabet,
+// so it will get loaded first, before Parent and any children defined in subdirectories.
+GrandParent {}

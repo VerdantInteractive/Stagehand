@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/world_error_paths/world_error_paths.gd" id="1"]
+
+[node name="WorldErrorPaths" type="FlecsWorld"]
+script = ExtResource("1")

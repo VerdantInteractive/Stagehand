@@ -1,0 +1,5 @@
+// parent.flecs is at the top of the hierarchy but p comes after g in the alphabet,
+// so it will get loaded after grand_parent.flecs, but before any children defined in subdirectories.
+Parent {
+    ChildOf, GrandParent
+}

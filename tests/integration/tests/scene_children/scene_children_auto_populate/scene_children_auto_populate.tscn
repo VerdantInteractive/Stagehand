@@ -1,0 +1,12 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/scene_children/scene_children_auto_populate/scene_children_auto_populate.gd" id="1"]
+
+[node name="SceneChildrenAutoPopulate" type="FlecsWorld"]
+script = ExtResource("1")
+
+[node name="AutoChildA" type="Node2D" parent="."]
+
+[node name="AutoChildB" type="Node3D" parent="."]
+
+[node name="AutoChildC" type="Timer" parent="."]

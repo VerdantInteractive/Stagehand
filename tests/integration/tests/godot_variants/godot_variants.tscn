@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/godot_variants/godot_variants.gd" id="1"]
+
+[node name="GodotVariants" type="FlecsWorld"]
+script = ExtResource("1")

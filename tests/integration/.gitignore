@@ -1,0 +1,5 @@
+.godot/*
+/android/
+
+# Enables the Stagehand GDExtension. Needed for the integration tests to run.
+!.godot/extension_list.cfg

@@ -1,52 +1,61 @@
-.sconsign.dblite
-src/*.os
-demo/bin/*.exp
+stagehand.gdextension.uid
 
-# IDE-genreated files
+# Build artifacts
+bin/
+build/obj/
+tests/unit/build/
+
+# Caches
+__pycache__/
+.sconsign.dblite
+
+# Misc
+compile_commands.json
+*.tmp
+
+# IDE-generated files
 **/.idea/
 **/.vs/
-**/.vscode/
 
-# Following are the default Github C++ gitignore entries
+# OS-specific metadata files
+.DS_Store
 
+
+### C++ build artifacts. The entries that follow are copied from the Stagehand .gitignore file into the one in the cpp/ subdirectory of the project.
+.cache/clangd
+bin/
 # Prerequisites
 *.d
-
 # Compiled Object files
 *.slo
 *.lo
 *.o
 *.obj
-
+*.os
+*.spv
 # Precompiled Headers
 *.gch
 *.pch
-
 # Linker files
 *.ilk
-
 # Debugger Files
 *.pdb
-
 # Compiled Dynamic libraries
 *.so
 *.dylib
 *.dll
-
 # Fortran module files
 *.mod
 *.smod
-
 # Compiled Static libraries
 *.lai
 *.la
 *.a
 *.lib
-
 # Executables
 *.exe
 *.out
 *.app
-
 # debug information files
 *.dwo
+### End of C++ build artifacts section

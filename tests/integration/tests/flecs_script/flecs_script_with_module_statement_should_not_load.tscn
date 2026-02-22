@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/flecs_script/flecs_script_with_module_statement_should_not_load.gd" id="1"]
+
+[node name="FlecsScriptWithModuleStatementShouldNotLoad" type="FlecsWorld"]
+script = ExtResource("1")

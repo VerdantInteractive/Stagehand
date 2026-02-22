@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://cx8uv7qwnqr8v"]
+
+[ext_resource type="Script" path="res://tests/world_configuration/edge_cases_and_warnings/edge_cases_and_warnings.gd" id="1_edge_cases"]
+
+[node name="EdgeCasesAndWarnings" type="FlecsWorld"]
+script = ExtResource("1_edge_cases")

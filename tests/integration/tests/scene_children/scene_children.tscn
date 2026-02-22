@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/scene_children/scene_children.gd" id="1"]
+
+[node name="SceneChildren" type="FlecsWorld"]
+script = ExtResource("1")
+
+[node name="ChildA" type="Node2D" parent="."]
+
+[node name="ChildB" type="Node3D" parent="."]
