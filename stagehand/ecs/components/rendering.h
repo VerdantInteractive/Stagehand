@@ -35,11 +35,11 @@ namespace stagehand::rendering {
     /// Configuration for a single LOD level within an InstancedRendererConfig.
     struct InstancedRendererLODConfig {
         godot::RID mesh_rid;
-        float fade_min = 0.0f;
-        float fade_max = 0.0f;
-        float fade_min_margin = 0.0f;
-        float fade_max_margin = 0.0f;
-        godot::RenderingServer::VisibilityRangeFadeMode visibility_fade_mode = godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF;
+        float visibility_range_begin = 0.0f;
+        float visibility_range_end = 0.0f;
+        float visibility_range_begin_margin = 0.0f;
+        float visibility_range_end_margin = 0.0f;
+        godot::RenderingServer::VisibilityRangeFadeMode visibility_range_fade_mode = godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF;
     };
 
     /// Configuration for one InstancedRenderer3D node.

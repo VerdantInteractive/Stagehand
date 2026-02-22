@@ -91,9 +91,10 @@ REGISTER([](flecs::world &world) {
                                     instance_rid = rendering_server->instance_create2(lod_config.mesh_rid, renderer.scenario_rid);
 
                                     // Set visibility range for this LOD level
-                                    rendering_server->instance_geometry_set_visibility_range(instance_rid, lod_config.fade_min, lod_config.fade_max,
-                                                                                             lod_config.fade_min_margin, lod_config.fade_max_margin,
-                                                                                             lod_config.visibility_fade_mode);
+                                    rendering_server->instance_geometry_set_visibility_range(
+                                        instance_rid, lod_config.visibility_range_begin, lod_config.visibility_range_end,
+                                        lod_config.visibility_range_begin_margin, lod_config.visibility_range_end_margin,
+                                        lod_config.visibility_range_fade_mode);
                                 }
 
                                 // Ensure visible if it was previously hidden or just created
