@@ -15,7 +15,6 @@
 #include "flecs.h"
 
 namespace stagehand {
-
     /// Callback function type for registering components and systems with the Flecs world.
     using RegistrationCallback = std::function<void(flecs::world &)>;
 
@@ -95,10 +94,6 @@ namespace stagehand {
 
     /// Returns the global map of component functions, keyed by component name.
     std::unordered_map<std::string, ComponentFunctions> &get_component_registry();
-
-    /// Returns a Flecs world instance intended for editor-time usage. The returned world will have all components and systems registered so that
-    /// editor-only validation can be performed without running the simulation.
-    flecs::world &get_editor_world();
 
     namespace internal {
         template <typename T> struct is_vector : std::false_type {};
