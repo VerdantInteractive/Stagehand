@@ -53,11 +53,11 @@ namespace stagehand {
         /// Enables or disables an entity by ID.
         bool enable_entity(uint64_t entity_id, bool enabled = true);
         /// Runs a specific system manually, optionally with parameters.
-        /// @param system_id The ID of the system to run.
+        /// @param system The ID (int) or name (String) of the system to run.
         /// @param parameters A dictionary of parameters to pass to the system.
         /// @note Useful for triggering on-demand (kind: 0) Flecs systems from
         /// GDScript.
-        bool run_system(uint64_t entity_id, const godot::Dictionary &parameters);
+        bool run_system(const godot::Variant &system, const godot::Dictionary &parameters);
 
         /// Creates a new entity, optionally with a name.
         uint64_t create_entity(const godot::String &name = "");

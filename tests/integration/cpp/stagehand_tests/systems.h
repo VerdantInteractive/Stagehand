@@ -323,11 +323,11 @@ namespace stagehand_tests {
                     for (const stagehand::rendering::InstancedRendererLODConfig &lod : renderer.lod_configs) {
                         godot::Dictionary lod_info;
                         lod_info["mesh_rid_valid"] = lod.mesh_rid.is_valid();
-                        lod_info["fade_min"] = lod.visibility_range_begin;
-                        lod_info["fade_max"] = lod.visibility_range_end;
-                        lod_info["fade_min_margin"] = lod.visibility_range_begin_margin;
-                        lod_info["fade_max_margin"] = lod.visibility_range_end_margin;
-                        lod_info["visibility_fade_mode"] = static_cast<int>(lod.visibility_range_fade_mode);
+                        lod_info["visibility_range_begin"] = lod.visibility_range_begin;
+                        lod_info["visibility_range_end"] = lod.visibility_range_end;
+                        lod_info["visibility_range_begin_margin"] = lod.visibility_range_begin_margin;
+                        lod_info["visibility_range_end_margin"] = lod.visibility_range_end_margin;
+                        lod_info["visibility_range_fade_mode"] = static_cast<int>(lod.visibility_range_fade_mode);
                         lod_details.push_back(lod_info);
                     }
                     renderer_info["lod_details"] = lod_details;

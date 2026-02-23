@@ -13,7 +13,6 @@
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
-#include "stagehand/ecs/pipeline_phases.h"
 #include "stagehand/ecs/systems/rendering_instanced.h"
 #include "stagehand/ecs/systems/rendering_multimesh.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
@@ -145,9 +144,19 @@ namespace stagehand {
         return true;
     }
 
-    bool FlecsWorld::run_system(uint64_t entity_id, const Dictionary &parameters) {
+    bool FlecsWorld::run_system(const godot::Variant &system, const Dictionary &parameters) {
         if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::run_system called before world initialised");
+            return false;
+        }
+
+        uint64_t entity_id;
+        if (system.get_type() == godot::Variant::INT) {
+            entity_id = static_cast<uint64_t>(system);
+        } else if (system.get_type() == godot::Variant::STRING || system.get_type() == godot::Variant::STRING_NAME) {
+            entity_id = lookup(system);
+        } else {
+            godot::UtilityFunctions::push_warning("FlecsWorld::run_system expects an integer ID or a string name.");
             return false;
         }
 
@@ -157,8 +166,8 @@ namespace stagehand {
             return false;
         }
 
-        flecs::system system = world.system(entity);
-        parameters.is_empty() ? system.run() : system.run(0.0f, (void *)&parameters);
+        flecs::system sys = world.system(entity);
+        parameters.is_empty() ? sys.run() : sys.run(0.0f, (void *)&parameters);
         return true;
     }
 
@@ -457,7 +466,7 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("remove_component", "component_name", "entity_id"), &FlecsWorld::remove_component);
 
         godot::ClassDB::bind_method(godot::D_METHOD("enable_entity", "entity_id", "enabled"), &FlecsWorld::enable_entity, DEFVAL(true));
-        godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system_id", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
+        godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
 
         godot::ClassDB::bind_method(godot::D_METHOD("create_entity", "name"), &FlecsWorld::create_entity, DEFVAL(""));
         godot::ClassDB::bind_method(godot::D_METHOD("destroy_entity", "entity_id"), &FlecsWorld::destroy_entity);
