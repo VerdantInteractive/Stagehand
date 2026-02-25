@@ -18,8 +18,9 @@ func _ready() -> void:
 	assert_eq(ticks, 3, "TickCount after 3 progress() calls")
 
 	# ── Test 2: Disable Tick Counter system ──────────────────────────────────
-	var ok = enable_system("stagehand_tests::Tick Counter", false)
-	assert_true(ok, "enable_system(false) returned true")
+	var system_id = lookup("stagehand_tests::Tick Counter")
+	var ok = enable_entity(system_id, false)
+	assert_true(ok, "enable_entity(false) returned true")
 
 	progress(0.016)
 	progress(0.016)
@@ -27,16 +28,18 @@ func _ready() -> void:
 	assert_eq(ticks, 3, "TickCount unchanged after disable + 2 progress()")
 
 	# ── Test 3: Re-enable Tick Counter system ────────────────────────────────
-	ok = enable_system("stagehand_tests::Tick Counter", true)
-	assert_true(ok, "enable_system(true) returned true")
+	system_id = lookup("stagehand_tests::Tick Counter")
+	ok = enable_entity(system_id, true)
+	assert_true(ok, "enable_entity(true) returned true")
 
 	progress(0.016)
 	ticks = get_component("TickCount")
 	assert_eq(ticks, 4, "TickCount incremented after re-enable")
 
 	# ── Test 4: Disable/enable a non-existent system (should return false) ───
-	ok = enable_system("NonExistentSystem", false)
-	assert_true(not ok, "enable_system on non-existent system returns false")
+	var bad_id = lookup("NonExistentSystem")
+	ok = enable_entity(bad_id, false)
+	assert_true(not ok, "enable_entity on non-existent system returns false")
 
 	# ── Test 5: Accumulator on-demand system with parameters ─────────────────
 	# Reset accumulator

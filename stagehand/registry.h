@@ -15,7 +15,6 @@
 #include "flecs.h"
 
 namespace stagehand {
-
     /// Callback function type for registering components and systems with the Flecs world.
     using RegistrationCallback = std::function<void(flecs::world &)>;
 
@@ -88,29 +87,13 @@ namespace stagehand {
     /// Function type for setting a component value from a Godot Variant.
     using ComponentSetter = std::function<void(flecs::world &, flecs::entity_t, const godot::Variant &)>;
 
-    /// Function type for creating a default Godot Variant for a component.
-    using ComponentDefaulter = std::function<godot::Variant()>;
-
-    struct ComponentInfo {
-        bool is_singleton = false;
-        godot::String name; // Full name from Flecs (e.g. "namespace::Component")
-    };
-
-    using ComponentInspector = std::function<void(flecs::world &, ComponentInfo &)>;
-
     struct ComponentFunctions {
         ComponentGetter getter;
         ComponentSetter setter;
-        ComponentDefaulter defaulter;
-        ComponentInspector inspector;
     };
 
     /// Returns the global map of component functions, keyed by component name.
     std::unordered_map<std::string, ComponentFunctions> &get_component_registry();
-
-    /// Returns a Flecs world instance intended for editor-time usage. The returned world will have all components and systems registered so that
-    /// editor-only validation can be performed without running the simulation.
-    flecs::world &get_editor_world();
 
     namespace internal {
         template <typename T> struct is_vector : std::false_type {};
@@ -136,38 +119,11 @@ namespace stagehand {
         { t.value } -> StdArray;
     };
 
-    /// Registers an inspector function for a specific component type.
-    template <typename T> void register_component_inspector(const char *name) {
-        get_component_registry()[name].inspector = [](flecs::world &world, ComponentInfo &info) {
-            auto comp = world.component<T>();
-            info.is_singleton = comp.has(flecs::Singleton);
-            info.name = comp.name().c_str();
-        };
-    }
-
     /// Unified component registration for scalars, vectors, and arrays.
-    /// Wires up inspector, defaulter, getter, and setter based on the type traits of T.
     template <typename T, typename StorageType = T> void register_component(const char *name) {
         auto &registry = get_component_registry()[name];
 
-        // 1. Register Inspector
-        register_component_inspector<T>(name);
-
-        // 2. Register Defaulter
-        registry.defaulter = []() -> godot::Variant {
-            if constexpr (HasVectorValue<T>) {
-                return godot::Variant(godot::Array());
-            } else if constexpr (HasArrayValue<T>) {
-                using ArrayType = decltype(T::value);
-                godot::Array arr;
-                arr.resize(static_cast<int>(std::tuple_size<ArrayType>::value));
-                return godot::Variant(arr);
-            } else {
-                return godot::Variant(static_cast<StorageType>(T()));
-            }
-        };
-
-        // 3. Register Getter
+        // Register Getter
         registry.getter = [name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
             const T *data = nullptr;
             if (entity_id == 0) {
@@ -197,7 +153,7 @@ namespace stagehand {
             return godot::Variant();
         };
 
-        // 4. Register Setter
+        // Register Setter
         registry.setter = [name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
             if constexpr (HasVectorValue<T>) {
                 if (v.get_type() != godot::Variant::ARRAY) {

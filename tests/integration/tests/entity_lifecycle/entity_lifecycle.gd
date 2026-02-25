@@ -1,6 +1,6 @@
 extends FlecsWorld
 
-## Tests entity lifecycle: prefab instantiation via run_system, setting
+## Tests entity lifecycle: prefab instantiation via instantiate_prefab, setting
 ## components on entities, reading them back, and querying entity values
 ## through on-demand systems.
 
@@ -10,37 +10,28 @@ func _ready() -> void:
 	# Ensure the world is ticking so deferred operations flush
 	set_progress_tick(PROGRESS_TICK_MANUAL)
 
-	# ── Test 1: Instantiate a 2D entity via the Prefab Instantiation system ──
-	var result = run_system("stagehand::Prefab Instantiation", {
-		"prefab": "stagehand_tests::TestEntity2D",
-		"components": {
-			"EntityValue": 10.0,
-			"Position2D": Vector2(100, 200)
-		}
+	# ── Test 1: Instantiate a 2D entity via instantiate_prefab ──
+	var entity_id = instantiate_prefab("stagehand_tests::TestEntity2D", {
+		"EntityValue": 10.0,
+		"Position2D": Vector2(100, 200)
 	})
-	assert_true(result, "run_system for prefab instantiation returned true")
+	assert_true(entity_id != 0, "instantiate_prefab returned valid entity ID")
 	progress(0.016)
 
 	# ── Test 2: Instantiate a second 2D entity with different values ─────────
-	result = run_system("stagehand::Prefab Instantiation", {
-		"prefab": "stagehand_tests::TestEntity2D",
-		"components": {
-			"EntityValue": 20.0,
-			"Position2D": Vector2(300, 400)
-		}
+	entity_id = instantiate_prefab("stagehand_tests::TestEntity2D", {
+		"EntityValue": 20.0,
+		"Position2D": Vector2(300, 400)
 	})
-	assert_true(result, "Second prefab instantiation returned true")
+	assert_true(entity_id != 0, "Second prefab instantiation returned valid entity ID")
 	progress(0.016)
 
 	# ── Test 3: Instantiate a 3D entity ──────────────────────────────────────
-	result = run_system("stagehand::Prefab Instantiation", {
-		"prefab": "stagehand_tests::TestEntity3D",
-		"components": {
-			"EntityValue": 30.0,
-			"Position3D": Vector3(5, 10, 15)
-		}
+	entity_id = instantiate_prefab("stagehand_tests::TestEntity3D", {
+		"EntityValue": 30.0,
+		"Position3D": Vector3(5, 10, 15)
 	})
-	assert_true(result, "3D prefab instantiation returned true")
+	assert_true(entity_id != 0, "3D prefab instantiation returned valid entity ID")
 	progress(0.016)
 
 	# ── Test 4: Use the Sum Query system to verify entity values ─────────────
@@ -52,27 +43,15 @@ func _ready() -> void:
 	assert_eq(total, 60, "Sum of EntityValue across all entities (10+20+30)")
 
 	# ── Test 5: Instantiate with missing prefab (should warn, not crash) ─────
-	result = run_system("stagehand::Prefab Instantiation", {
-		"prefab": "NonExistentPrefab"
-	})
+	entity_id = instantiate_prefab("NonExistentPrefab")
 	# The system should handle the missing prefab gracefully
+	assert_eq(entity_id, 0, "Missing prefab returns 0")
 	progress(0.016)
 	print("  PASS: Missing prefab handled gracefully")
 
-	# ── Test 6: Prefab Instantiation without 'prefab' key (should warn) ──────
-	result = run_system("stagehand::Prefab Instantiation", {
-		"components": {"EntityValue": 1.0}
-	})
-	assert_true(result, "System runs even without 'prefab' key")
-	progress(0.016)
-	print("  PASS: Missing 'prefab' key handled gracefully")
-
 	# ── Test 7: Instantiate another entity and re-sum ────────────────────────
-	run_system("stagehand::Prefab Instantiation", {
-		"prefab": "stagehand_tests::TestEntity2D",
-		"components": {
-			"EntityValue": 40.0
-		}
+	instantiate_prefab("stagehand_tests::TestEntity2D", {
+		"EntityValue": 40.0
 	})
 	progress(0.016)
 

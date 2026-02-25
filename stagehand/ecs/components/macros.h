@@ -167,10 +167,7 @@ using std::uint8_t;
 /// Macro that defines a tag component (empty struct).
 #define TAG(Name)                                                                                                                                              \
     struct Name {};                                                                                                                                            \
-    inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                          \
-        world.component<Name>();                                                                                                                               \
-        stagehand::register_component_inspector<Name>(#Name);                                                                                                  \
-    })
+    inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) { world.component<Name>(); })
 
 /// Macro that defines an enum component wrapper.
 /// Usage: ENUM(Name) or ENUM(Name, UnderlyingType). Default UnderlyingType is uint8_t.

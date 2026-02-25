@@ -3,7 +3,6 @@
 #include <mutex>
 
 namespace stagehand {
-
     namespace {
         /// Returns the static vector of registration callbacks.
         std::vector<RegistrationCallback> &get_callbacks() {
@@ -78,12 +77,4 @@ namespace stagehand {
         static std::unordered_map<std::string, ComponentFunctions> registry;
         return registry;
     }
-
-    flecs::world &get_editor_world() {
-        static flecs::world editor_world;
-        static std::once_flag init_flag;
-        std::call_once(init_flag, [&]() { register_components_and_systems_with_world(editor_world); });
-        return editor_world;
-    }
-
 } // namespace stagehand

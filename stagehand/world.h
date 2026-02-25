@@ -1,7 +1,6 @@
 #pragma once
 
 #include <functional>
-#include <string>
 #include <unordered_map>
 
 #include <godot_cpp/classes/control.hpp>
@@ -9,12 +8,14 @@
 #include <godot_cpp/classes/mesh_instance2d.hpp>
 #include <godot_cpp/classes/node.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
+#include <godot_cpp/variant/string_name.hpp>
 #include <godot_cpp/variant/typed_array.hpp>
 #include <godot_cpp/variant/typed_dictionary.hpp>
 
 #include "flecs.h"
 
 #include "stagehand/script_loader.h"
+#include "stagehand/utilities/godot_hashes.h"
 
 namespace stagehand {
     /// The main FlecsWorld node that integrates Flecs with Godot.
@@ -40,24 +41,24 @@ namespace stagehand {
 
         // GDScript-visible methods that we bind
         /// Sets a component value for an entity.
-        void set_component(const godot::String &component_name, const godot::Variant &data, uint64_t entity_id = 0);
+        void set_component(const godot::StringName &component_name, const godot::Variant &data, uint64_t entity_id = 0);
         /// Gets a component value from an entity.
-        [[nodiscard]] godot::Variant get_component(const godot::String &component_name, uint64_t entity_id = 0);
+        [[nodiscard]] godot::Variant get_component(const godot::StringName &component_name, uint64_t entity_id = 0);
         /// Checks if an entity has a component.
-        [[nodiscard]] bool has_component(const godot::String &component_name, uint64_t entity_id);
+        [[nodiscard]] bool has_component(const godot::StringName &component_name, uint64_t entity_id);
         /// Adds a component (or tag) to an entity.
-        void add_component(const godot::String &component_name, uint64_t entity_id);
+        void add_component(const godot::StringName &component_name, uint64_t entity_id);
         /// Removes a component (or tag) from an entity.
-        void remove_component(const godot::String &component_name, uint64_t entity_id);
+        void remove_component(const godot::StringName &component_name, uint64_t entity_id);
 
         /// Enables or disables an entity by ID.
         bool enable_entity(uint64_t entity_id, bool enabled = true);
         /// Runs a specific system manually, optionally with parameters.
-        /// @param system_id The ID of the system to run.
+        /// @param system The ID (int) or name (String) of the system to run.
         /// @param parameters A dictionary of parameters to pass to the system.
         /// @note Useful for triggering on-demand (kind: 0) Flecs systems from
         /// GDScript.
-        bool run_system(uint64_t entity_id, const godot::Dictionary &parameters);
+        bool run_system(const godot::Variant &system, const godot::Dictionary &parameters);
 
         /// Creates a new entity, optionally with a name.
         uint64_t create_entity(const godot::String &name = "");
@@ -73,7 +74,7 @@ namespace stagehand {
         /// @param prefab_name The name of the prefab to instantiate.
         /// @param components A dictionary of component names to values to set on the instance.
         /// @return The entity ID of the new instance, or 0 if failed.
-        uint64_t instantiate_prefab(const godot::String &prefab_name, const godot::Dictionary &components = {});
+        uint64_t instantiate_prefab(const godot::StringName &prefab_name, const godot::Dictionary &components = {});
 
         void set_progress_tick(ProgressTick p_progress_tick);
         ProgressTick get_progress_tick() const { return progress_tick; }
@@ -102,8 +103,9 @@ namespace stagehand {
         godot::TypedArray<godot::String> modules_to_import;
         ScriptLoader script_loader;
 
-        std::unordered_map<std::string, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
-        std::unordered_map<std::string, std::function<godot::Variant(flecs::entity_t)>> component_getters;
+        std::unordered_map<godot::StringName, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
+        std::unordered_map<godot::StringName, std::function<godot::Variant(flecs::entity_t)>> component_getters;
+        std::unordered_map<godot::StringName, flecs::entity_t> component_ids;
 
         void populate_scene_children_singleton();
         void setup_entity_renderers_instanced();
