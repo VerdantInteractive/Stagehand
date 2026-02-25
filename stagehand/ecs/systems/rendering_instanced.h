@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -46,7 +48,7 @@ REGISTER([](flecs::world &world) {
                     entity_count = static_cast<size_t>(renderer.query.count());
                 }
 
-                // Use a growth strategy (next power of 2) to avoid frequent reallocations when the instance count fluctuates.
+                // Use a growth strategy (next power of 2) to maintain a pool of RIDs and avoid frequent RenderingServer instance creation/destruction.
                 size_t current_capacity = renderer.instance_rids.size() / lod_count;
                 size_t target_capacity = 16;
                 while (target_capacity < entity_count) {
@@ -65,6 +67,7 @@ REGISTER([](flecs::world &world) {
                         }
                     }
                     renderer.instance_rids.resize(new_size);
+                    renderer.instance_transforms.resize(target_capacity);
                 }
 
                 // Create new instances where needed and update transforms
@@ -79,6 +82,15 @@ REGISTER([](flecs::world &world) {
                             }
 
                             const Transform3D &transform = transform_field[i];
+
+                            bool transform_changed = true;
+                            if (entity_index < renderer.instance_transforms.size()) {
+                                if (renderer.instance_transforms[entity_index] == transform) {
+                                    transform_changed = false;
+                                } else {
+                                    renderer.instance_transforms[entity_index] = transform;
+                                }
+                            }
 
                             for (size_t lod = 0; lod < lod_count; ++lod) {
                                 size_t rid_index = entity_index * lod_count + lod;
@@ -103,7 +115,9 @@ REGISTER([](flecs::world &world) {
                                 }
 
                                 // Update the instance's transform
-                                rendering_server->instance_set_transform(instance_rid, transform);
+                                if (is_new || transform_changed) {
+                                    rendering_server->instance_set_transform(instance_rid, transform);
+                                }
                             }
 
                             entity_index++;
@@ -114,7 +128,7 @@ REGISTER([](flecs::world &world) {
                 // Hide instances that are no longer needed (but keep them allocated for reuse)
                 if (entity_count < renderer.previous_entity_count) {
                     size_t start_index = entity_count * lod_count;
-                    size_t end_index = std::min(renderer.previous_entity_count * lod_count, renderer.instance_rids.size());
+                    size_t end_index = std::min(renderer.previous_entity_count * lod_count, static_cast<size_t>(renderer.instance_rids.size()));
 
                     for (size_t i = start_index; i < end_index; ++i) {
                         if (renderer.instance_rids[i].is_valid()) {

@@ -5,7 +5,9 @@
 
 #include <godot_cpp/classes/multi_mesh.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
+#include <godot_cpp/templates/local_vector.hpp>
 #include <godot_cpp/variant/rid.hpp>
+#include <godot_cpp/variant/transform3d.hpp>
 
 #include "stagehand/ecs/components/godot_variants.h"
 #include "stagehand/registry.h"
@@ -49,9 +51,11 @@ namespace stagehand::rendering {
         std::vector<InstancedRendererLODConfig> lod_configs;
         flecs::query<> query;
 
-        /// Per-entity instance RIDs, indexed as [entity_index * lod_count + lod_index].
-        /// Managed by the instanced rendering system.
-        std::vector<godot::RID> instance_rids;
+        /// Per-entity instance RIDs, indexed as [entity_index * lod_count + lod_index]. Managed by the instanced rendering system.
+        godot::LocalVector<godot::RID> instance_rids;
+
+        /// Cache of transforms to avoid redundant RenderingServer updates. Indexed by [entity_index].
+        godot::LocalVector<godot::Transform3D> instance_transforms;
 
         /// Number of entities tracked in the previous frame.
         size_t previous_entity_count = 0;

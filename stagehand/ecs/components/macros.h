@@ -2,6 +2,8 @@
 
 #include <cstdint>
 
+#include <godot_cpp/templates/local_vector.hpp>
+
 using std::int16_t;
 using std::int32_t;
 using std::int8_t;
@@ -214,8 +216,8 @@ using std::uint8_t;
 /// Example: VECTOR(MyVectorComponent, float, {1.0f, 2.0f, 3.0f})
 #define VECTOR(Name, ElementType, ...)                                                                                                                         \
     struct Name {                                                                                                                                              \
-        std::vector<ElementType> value{__VA_ARGS__};                                                                                                           \
-        CONTAINER_COMPONENT_BODY(Name, ElementType, std::vector<ElementType>)                                                                                  \
+        godot::LocalVector<ElementType> value{__VA_ARGS__};                                                                                                    \
+        CONTAINER_COMPONENT_BODY(Name, ElementType, godot::LocalVector<ElementType>)                                                                           \
         std::size_t size() const { return value.size(); }                                                                                                      \
     };                                                                                                                                                         \
     inline auto register_##Name##_vector = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
