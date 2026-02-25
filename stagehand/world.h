@@ -74,7 +74,7 @@ namespace stagehand {
         /// @param prefab_name The name of the prefab to instantiate.
         /// @param components A dictionary of component names to values to set on the instance.
         /// @return The entity ID of the new instance, or 0 if failed.
-        uint64_t instantiate_prefab(const godot::String &prefab_name, const godot::Dictionary &components = {});
+        uint64_t instantiate_prefab(const godot::StringName &prefab_name, const godot::Dictionary &components = {});
 
         void set_progress_tick(ProgressTick p_progress_tick);
         ProgressTick get_progress_tick() const { return progress_tick; }
@@ -103,9 +103,9 @@ namespace stagehand {
         godot::TypedArray<godot::String> modules_to_import;
         ScriptLoader script_loader;
 
-        std::unordered_map<godot::StringName, std::function<void(flecs::entity_t, const godot::Variant &)>, StringNameHasher> component_setters;
-        std::unordered_map<godot::StringName, std::function<godot::Variant(flecs::entity_t)>, StringNameHasher> component_getters;
-        std::unordered_map<godot::StringName, flecs::entity_t, StringNameHasher> component_ids;
+        std::unordered_map<godot::StringName, std::function<void(flecs::entity_t, const godot::Variant &)>> component_setters;
+        std::unordered_map<godot::StringName, std::function<godot::Variant(flecs::entity_t)>> component_getters;
+        std::unordered_map<godot::StringName, flecs::entity_t> component_ids;
 
         void populate_scene_children_singleton();
         void setup_entity_renderers_instanced();

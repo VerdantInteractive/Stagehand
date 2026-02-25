@@ -203,14 +203,13 @@ namespace stagehand {
         return godot::String(world.entity(static_cast<ecs_entity_t>(entity_id)).name().c_str());
     }
 
-    uint64_t FlecsWorld::instantiate_prefab(const godot::String &prefab_name, const godot::Dictionary &components) {
+    uint64_t FlecsWorld::instantiate_prefab(const godot::StringName &prefab_name, const godot::Dictionary &components) {
         if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::instantiate_prefab called before world initialised");
             return 0;
         }
 
-        std::string name = prefab_name.utf8().get_data();
-        flecs::entity prefab = world.lookup(name.c_str());
+        flecs::entity prefab = world.lookup(godot::String(prefab_name).utf8().get_data());
         if (unlikely(!prefab.is_valid())) {
             godot::UtilityFunctions::push_warning(godot::String("Prefab '") + prefab_name + "' not found");
             return 0;
