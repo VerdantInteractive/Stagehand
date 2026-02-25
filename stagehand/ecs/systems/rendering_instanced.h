@@ -4,6 +4,7 @@
 #include <godot_cpp/variant/utility_functions.hpp>
 
 #include "stagehand/ecs/components/rendering.h"
+#include "stagehand/ecs/components/transform.h"
 #include "stagehand/ecs/pipeline_phases.h"
 #include "stagehand/names.h"
 #include "stagehand/registry.h"
@@ -71,14 +72,14 @@ REGISTER([](flecs::world &world) {
                 size_t entity_index = 0;
                 renderer.query.run([&](flecs::iter &query_it) {
                     while (query_it.next()) {
-                        auto transform_field = query_it.field<const Transform3D>(0);
+                        auto transform_field = query_it.field<const stagehand::transform::Transform3D>(0);
 
                         for (auto i : query_it) {
                             if (entity_index >= entity_count) {
                                 break;
                             }
 
-                            const Transform3D &transform = transform_field[i];
+                            const stagehand::transform::Transform3D &transform = transform_field[i];
 
                             for (size_t lod = 0; lod < lod_count; ++lod) {
                                 size_t rid_index = entity_index * lod_count + lod;

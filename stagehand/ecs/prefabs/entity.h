@@ -12,11 +12,11 @@ REGISTER([](flecs::world &world) {
         .add<stagehand::transform::Position2D>()
         .add<stagehand::transform::Rotation2D>()
         .add<stagehand::transform::Scale2D>()
-        .add<Transform2D>();
+        .add<stagehand::transform::Transform2D>();
 
     world.prefab(names::prefabs::ENTITY_3D)
         .add<stagehand::transform::Position3D>()
         .add<stagehand::transform::Rotation3D>()
         .add<stagehand::transform::Scale3D>()
-        .add<Transform3D>();
+        .add<stagehand::transform::Transform3D>();
 });

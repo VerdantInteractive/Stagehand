@@ -4,6 +4,8 @@
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include "stagehand/ecs/components/transform.h"
+
 void InstancedRenderer3DLODConfiguration::_bind_methods() {
     godot::ClassDB::bind_method(godot::D_METHOD("set_mesh", "mesh"), &InstancedRenderer3DLODConfiguration::set_mesh);
     godot::ClassDB::bind_method(godot::D_METHOD("get_mesh"), &InstancedRenderer3DLODConfiguration::get_mesh);
@@ -120,9 +122,9 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     const godot::PackedStringArray prefabs = renderer->get_prefabs_rendered();
     const godot::TypedArray<InstancedRenderer3DLODConfiguration> &lod_levels = renderer->get_lod_levels();
 
-    // Build a query for all prefabs with Transform3D
-    auto query_builder = world.query_builder();
-    query_builder.with<const Transform3D>();
+    // Build a query for all prefabs with Transform3D that changed in the current frame
+    auto query_builder = world.query_builder<const stagehand::transform::Transform3D>();
+    query_builder.with<const stagehand::transform::ChangedTransform3D>();
 
     int prefab_count = prefabs.size();
     for (int j = 0; j < prefab_count; ++j) {

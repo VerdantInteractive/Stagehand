@@ -15,7 +15,7 @@
 #include "flecs.h"
 
 #include "stagehand/script_loader.h"
-#include "stagehand/utilities/godot_hashes.h"
+#include "stagehand/utilities/godot_hashes.h" // IWYU pragma: keep
 
 namespace stagehand {
     /// The main FlecsWorld node that integrates Flecs with Godot.
