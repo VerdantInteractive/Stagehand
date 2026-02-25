@@ -42,13 +42,18 @@ namespace stagehand {
         // Register the components and systems, then populate the getter/setter maps.
         register_components_and_systems_with_world(world);
         for (const auto &[component_name, funcs] : get_component_registry()) {
+            godot::StringName name(component_name.c_str());
+            
+            // Cache the component entity ID for fast lookups in has/add/remove
+            component_ids[name] = world.lookup(component_name.c_str()).id();
+
             if (funcs.setter) {
-                component_setters[component_name] = [this, global_setter = funcs.setter](flecs::entity_t entity_id, const godot::Variant &data) {
+                component_setters[name] = [this, global_setter = funcs.setter](flecs::entity_t entity_id, const godot::Variant &data) {
                     global_setter(this->world, entity_id, data);
                 };
             }
             if (funcs.getter) {
-                component_getters[component_name] = [this, global_getter = funcs.getter](flecs::entity_t entity_id) {
+                component_getters[name] = [this, global_getter = funcs.getter](flecs::entity_t entity_id) {
                     return global_getter(this->world, entity_id);
                 };
             }
@@ -57,75 +62,67 @@ namespace stagehand {
         is_initialised = true;
     }
 
-    void FlecsWorld::set_component(const godot::String &component_name, const godot::Variant &data, uint64_t entity_id) {
+    void FlecsWorld::set_component(const godot::StringName &component_name, const godot::Variant &data, uint64_t entity_id) {
         if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_component was called before world was initialised"));
             return;
         }
 
-        std::string name = component_name.utf8().get_data();
-        if (likely(component_setters.contains(name))) {
-            component_setters[name](static_cast<ecs_entity_t>(entity_id), data);
+        if (likely(component_setters.contains(component_name))) {
+            component_setters[component_name](static_cast<ecs_entity_t>(entity_id), data);
         } else {
             godot::UtilityFunctions::push_warning(godot::String("No setter for component '") + component_name + "' found.");
         }
     }
 
-    godot::Variant FlecsWorld::get_component(const godot::String &component_name, uint64_t entity_id) {
+    godot::Variant FlecsWorld::get_component(const godot::StringName &component_name, uint64_t entity_id) {
         if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_component was called before world was initialised"));
             return godot::Variant();
         }
 
-        std::string name = component_name.utf8().get_data();
-        if (unlikely(!component_getters.contains(name))) {
+        if (unlikely(!component_getters.contains(component_name))) {
             godot::UtilityFunctions::push_warning(godot::String("No getter for component '") + component_name + "' found.");
             return godot::Variant();
         }
 
-        return component_getters[name](static_cast<ecs_entity_t>(entity_id));
+        return component_getters[component_name](static_cast<ecs_entity_t>(entity_id));
     }
 
-    bool FlecsWorld::has_component(const godot::String &component_name, uint64_t entity_id) {
+    bool FlecsWorld::has_component(const godot::StringName &component_name, uint64_t entity_id) {
         if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::has_component called before world initialised");
             return false;
         }
-        std::string name = component_name.utf8().get_data();
-        flecs::entity comp = world.lookup(name.c_str());
-        if (unlikely(!comp.is_valid())) {
+        if (unlikely(!component_ids.contains(component_name))) {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return false;
         }
-        return world.entity(static_cast<ecs_entity_t>(entity_id)).has(comp);
+        return world.entity(static_cast<ecs_entity_t>(entity_id)).has(component_ids[component_name]);
     }
 
-    void FlecsWorld::add_component(const godot::String &component_name, uint64_t entity_id) {
+    void FlecsWorld::add_component(const godot::StringName &component_name, uint64_t entity_id) {
         if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::add_component called before world initialised");
             return;
         }
-        std::string name = component_name.utf8().get_data();
-        flecs::entity comp = world.lookup(name.c_str());
-        if (unlikely(!comp.is_valid())) {
+        if (unlikely(!component_ids.contains(component_name))) {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return;
         }
-        world.entity(static_cast<ecs_entity_t>(entity_id)).add(comp);
+        world.entity(static_cast<ecs_entity_t>(entity_id)).add(component_ids[component_name]);
     }
 
-    void FlecsWorld::remove_component(const godot::String &component_name, uint64_t entity_id) {
+    void FlecsWorld::remove_component(const godot::StringName &component_name, uint64_t entity_id) {
         if (unlikely(!is_initialised)) {
             godot::UtilityFunctions::push_warning("FlecsWorld::remove_component called before world initialised");
             return;
         }
-        std::string name = component_name.utf8().get_data();
-        flecs::entity comp = world.lookup(name.c_str());
-        if (unlikely(!comp.is_valid())) {
+        if (unlikely(!component_ids.contains(component_name))) {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return;
         }
-        world.entity(static_cast<ecs_entity_t>(entity_id)).remove(comp);
+        world.entity(static_cast<ecs_entity_t>(entity_id)).remove(component_ids[component_name]);
     }
 
     bool FlecsWorld::enable_entity(uint64_t entity_id, bool enabled) {
@@ -224,10 +221,9 @@ namespace stagehand {
         if (!components.is_empty()) {
             godot::Array keys = components.keys();
             for (int i = 0; i < keys.size(); ++i) {
-                godot::String key = keys[i];
-                std::string key_std = key.utf8().get_data();
-                if (component_setters.count(key_std)) {
-                    component_setters[key_std](instance.id(), components[key]);
+                godot::StringName key = keys[i];
+                if (component_setters.count(key)) {
+                    component_setters[key](instance.id(), components[key]);
                 } else {
                     godot::UtilityFunctions::push_warning(godot::String("No setter found for component '") + key + "'");
                 }
