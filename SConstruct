@@ -8,11 +8,11 @@ from SCons.Script import ARGUMENTS, SConscript, Alias, Default, COMMAND_LINE_TAR
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 
 # Check that the Godot project file structure is set up correctly and get the project directory path
-is_downstream = (
+is_downstream_project = (
     os.path.basename(os.getcwd()) == "stagehand"
     and os.path.basename(os.path.dirname(os.getcwd())) == "addons"
 )
-if is_downstream:
+if is_downstream_project:
     project_path = "../.."  # Running in a downstream project where stagehand is in addons/stagehand
     from godot_project import check_and_setup_project_file_structure
     PROJECT_DIRECTORY = check_and_setup_project_file_structure(project_path)
@@ -22,9 +22,6 @@ else:
     if "unit_tests" in COMMAND_LINE_TARGETS:
         project_path = None
         PROJECT_DIRECTORY = None
-    elif any(str(t) == "demos" for t in COMMAND_LINE_TARGETS):
-        project_path = "demos"
-        PROJECT_DIRECTORY = os.path.abspath(project_path)
     elif any(str(t) == "integration_tests" for t in COMMAND_LINE_TARGETS):
         # Only include the integration test project when explicitly requested.
         project_path = "tests/integration"
@@ -34,9 +31,6 @@ else:
         # integration test sources are not compiled unless requested.
         project_path = None
         PROJECT_DIRECTORY = None
-
-# Exclude repository integration test cpp sources when building inside a downstream project (addons) or when building demos inside the repo.
-EXCLUDE_INTEGRATION_CPP = bool(is_downstream or project_path == "demos")
 
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
@@ -84,23 +78,22 @@ def find_source_files(base_dir):
 
 # Source code paths
 stagehand_cpp_sources = find_source_files("stagehand")
+# Also include demo translation units in the main library so demo REGISTER_IN_MODULE
+# callbacks are linked into the extension and available at runtime.
+if os.path.isdir("demos"):
+    stagehand_cpp_sources.extend(find_source_files("demos"))
 project_cpp_sources = []
 if PROJECT_DIRECTORY:
     project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}")
     # Exclude repository integration test cpp sources when requested. Use forward-slash
     # normalized paths for comparison since find_source_files returns forward-slash paths.
-    if EXCLUDE_INTEGRATION_CPP:
+    if bool(is_downstream_project):
         integration_cpp_dir = os.path.join(PROJECT_DIRECTORY, "tests", "integration", "cpp").replace("\\", "/")
         if integration_cpp_dir.endswith("/"):
             integration_prefix = integration_cpp_dir
         else:
             integration_prefix = integration_cpp_dir + "/"
         project_cpp_sources = [s for s in project_cpp_sources if not (s == integration_cpp_dir or s.startswith(integration_prefix))]
-
-    # When building the `demos` target inside the repository, the demos sources are compiled separately by the `build_demos` helper.
-    # Avoid including them in the library's source list to prevent duplicate compilation of the same translation units.
-    if project_path == "demos":
-        project_cpp_sources = []
 
 # Configure include paths; only add the additional project include root if set.
 cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "."]
@@ -417,27 +410,3 @@ Alias("unit_tests", test_program)
 
 # Integration tests target
 Alias("integration_tests", library)
-
-
-# Demos target
-def build_demos(project_env, build_dir, cxx_flags, library, demos_root="demos"):
-    demo_cpp_sources = find_source_files(demos_root)
-    demo_env = project_env.Clone()
-    demo_env["OBJPREFIX"] = ""
-    demo_objs = []
-    for src in demo_cpp_sources:
-        rel_path = os.path.relpath(src, demos_root)
-        obj_target = os.path.join(build_dir, "demos", os.path.splitext(rel_path)[0])
-        demo_objs.append(demo_env.SharedObject(
-            target=obj_target,
-            source=src,
-            CXXFLAGS=demo_env["CXXFLAGS"] + cxx_flags,
-        ))
-    Alias("demos", demo_objs + [library])
-    return demo_objs
-
-Alias("demos")
-if any(str(t) == "demos" for t in COMMAND_LINE_TARGETS):
-    demo_objs = build_demos(project_env, BUILD_DIR, cxx_flags, library)
-else:
-    demo_objs = []

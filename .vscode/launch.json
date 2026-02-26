@@ -13,7 +13,7 @@
             "program": "${userHome}\\Applications\\Godot\\Godot.exe",
             "args": [
                 "--path",
-                "Game"
+                "demos"
             ],
         },
         {
@@ -27,7 +27,7 @@
             "console": "newExternalWindow",
             "program": "${userHome}\\Applications\\Godot\\Godot_console.exe",
             "args": [
-                "Game\\project.godot"
+                "demos\\project.godot"
             ],
         },
         {
@@ -39,7 +39,7 @@
             "program": "/Applications/Godot.app/Contents/MacOS/Godot",
             "args": [
                 "--path",
-                "Game"
+                "demos"
             ],
         },
         {
@@ -50,7 +50,7 @@
             "cwd": "${workspaceRoot}",
             "program": "/Applications/Godot.app/Contents/MacOS/Godot",
             "args": [
-                "Game/project.godot"
+                "demos/project.godot"
             ],
         },
         {
@@ -62,7 +62,7 @@
             "program": "${userHome}/Applications/Godot/godot",
             "args": [
                 "--path",
-                "Game"
+                "demos"
             ],
         },
         {
@@ -73,7 +73,7 @@
             "cwd": "${workspaceRoot}",
             "program": "${userHome}/Applications/Godot/godot",
             "args": [
-                "Game/project.godot"
+                "demos/project.godot"
             ],
         }
     ]
