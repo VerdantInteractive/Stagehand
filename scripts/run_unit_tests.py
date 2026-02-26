@@ -25,7 +25,7 @@ def main():
     os.chdir(project_root)
 
     # Construct SCons command
-    cmd = ["scons", "--quiet", "unit_tests"]
+    cmd = ["scons", "unit_tests"]
     
     target = os.environ.get("TARGET")
     if not target:

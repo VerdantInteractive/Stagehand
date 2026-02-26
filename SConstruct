@@ -3,18 +3,37 @@
 CPP_STANDARD = "c++20"
 
 import os, sys
-from SCons.Script import ARGUMENTS, SConscript, Alias, Default
+from SCons.Script import ARGUMENTS, SConscript, Alias, Default, COMMAND_LINE_TARGETS
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 
 # Check that the Godot project file structure is set up correctly and get the project directory path
-if os.path.basename(os.getcwd()) == "stagehand" and os.path.basename(os.path.dirname(os.getcwd())) == "addons":
-    project_path = "../.." # Running in a downstream project where stagehand is in addons/stagehand
+is_downstream = (
+    os.path.basename(os.getcwd()) == "stagehand"
+    and os.path.basename(os.path.dirname(os.getcwd())) == "addons"
+)
+if is_downstream:
+    project_path = "../.."  # Running in a downstream project where stagehand is in addons/stagehand
     from godot_project import check_and_setup_project_file_structure
     PROJECT_DIRECTORY = check_and_setup_project_file_structure(project_path)
 else:
-    project_path = "tests/integration" # Running in the stagehand repo itself, use the test integration project.
-    PROJECT_DIRECTORY = os.path.abspath(project_path)
+    # Running in the stagehand repo itself. By default use the test integration
+    # project as an additional project directory. However, if the user requested
+    # only the `unit_tests` alias we should not set a separate project
+    # directory so only the stagehand base library files are compiled.
+    if "unit_tests" in COMMAND_LINE_TARGETS:
+        project_path = None
+        PROJECT_DIRECTORY = None
+    elif any(str(t) == "demos" for t in COMMAND_LINE_TARGETS):
+        project_path = "demos"
+        PROJECT_DIRECTORY = os.path.abspath(project_path)
+    else:
+        project_path = "tests/integration"  # use the test integration project
+        PROJECT_DIRECTORY = os.path.abspath(project_path)
+
+# Exclude repository integration test cpp sources when building inside a
+# downstream project (addons) or when building demos inside the repo.
+EXCLUDE_INTEGRATION_CPP = bool(is_downstream or project_path == "demos")
 
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
@@ -57,9 +76,25 @@ def find_source_files(base_dir):
 
 # Source code paths
 stagehand_cpp_sources = find_source_files("stagehand")
-project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}")
+project_cpp_sources = []
+if PROJECT_DIRECTORY:
+    project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}")
+    # Exclude repository integration test cpp sources when requested. Use
+    # forward-slash normalized paths for comparison since find_source_files
+    # returns forward-slash paths.
+    if EXCLUDE_INTEGRATION_CPP:
+        integration_cpp_dir = os.path.join(PROJECT_DIRECTORY, "tests", "integration", "cpp").replace("\\", "/")
+        if integration_cpp_dir.endswith("/"):
+            integration_prefix = integration_cpp_dir
+        else:
+            integration_prefix = integration_cpp_dir + "/"
+        project_cpp_sources = [s for s in project_cpp_sources if not (s == integration_cpp_dir or s.startswith(integration_prefix))]
 
-env.Append(CPPPATH=["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", ".", f"{PROJECT_DIRECTORY}/cpp"])
+# Configure include paths; only add the additional project include root if set.
+cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "."]
+if PROJECT_DIRECTORY:
+    cpplist.append(f"{PROJECT_DIRECTORY}")
+env.Append(CPPPATH=cpplist)
 
 flecs_c_source = "dependencies/flecs/distr/flecs.c"
 
@@ -167,8 +202,8 @@ for src in stagehand_cpp_sources:
 
 project_cpp_objs = []
 for src in project_cpp_sources:
-    rel_path = os.path.relpath(src, f"{PROJECT_DIRECTORY}/cpp")
-    obj_target = os.path.join(BUILD_DIR, "project", os.path.splitext(rel_path)[0])
+    rel_path = os.path.relpath(src, PROJECT_DIRECTORY)
+    obj_target = os.path.join(BUILD_DIR, os.path.splitext(rel_path)[0])
     project_cpp_objs.extend(project_env.SharedObject(
         target=obj_target,
         source=src,
@@ -350,6 +385,7 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
 
 Default(library)
 
+
 # Unit tests target
 test_program = SConscript(
     "tests/unit/SConstruct",
@@ -366,3 +402,27 @@ test_program = SConscript(
     },
 )
 Alias("unit_tests", test_program)
+
+
+# Demos target
+def build_demos(project_env, build_dir, cxx_flags, library, demos_root="demos"):
+    demo_cpp_sources = find_source_files(demos_root)
+    demo_env = project_env.Clone()
+    demo_env["OBJPREFIX"] = ""
+    demo_objs = []
+    for src in demo_cpp_sources:
+        rel_path = os.path.relpath(src, demos_root)
+        obj_target = os.path.join(build_dir, "demos", os.path.splitext(rel_path)[0])
+        demo_objs.append(demo_env.SharedObject(
+            target=obj_target,
+            source=src,
+            CXXFLAGS=demo_env["CXXFLAGS"] + cxx_flags,
+        ))
+    Alias("demos", demo_objs + [library])
+    return demo_objs
+
+Alias("demos")
+if any(str(t) == "demos" for t in COMMAND_LINE_TARGETS):
+    demo_objs = build_demos(project_env, BUILD_DIR, cxx_flags, library)
+else:
+    demo_objs = []
