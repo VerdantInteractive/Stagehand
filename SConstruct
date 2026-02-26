@@ -17,22 +17,25 @@ if is_downstream:
     from godot_project import check_and_setup_project_file_structure
     PROJECT_DIRECTORY = check_and_setup_project_file_structure(project_path)
 else:
-    # Running in the stagehand repo itself. By default use the test integration
-    # project as an additional project directory. However, if the user requested
-    # only the `unit_tests` alias we should not set a separate project
-    # directory so only the stagehand base library files are compiled.
+    # Running in the stagehand repo itself. By default use the test integration project as an additional project directory. However, if the user requested
+    # only the `unit_tests` alias we should not set a separate project directory so only the stagehand base library files are compiled.
     if "unit_tests" in COMMAND_LINE_TARGETS:
         project_path = None
         PROJECT_DIRECTORY = None
     elif any(str(t) == "demos" for t in COMMAND_LINE_TARGETS):
         project_path = "demos"
         PROJECT_DIRECTORY = os.path.abspath(project_path)
-    else:
-        project_path = "tests/integration"  # use the test integration project
+    elif any(str(t) == "integration_tests" for t in COMMAND_LINE_TARGETS):
+        # Only include the integration test project when explicitly requested.
+        project_path = "tests/integration"
         PROJECT_DIRECTORY = os.path.abspath(project_path)
+    else:
+        # Default to no extra project directory for a normal build so that
+        # integration test sources are not compiled unless requested.
+        project_path = None
+        PROJECT_DIRECTORY = None
 
-# Exclude repository integration test cpp sources when building inside a
-# downstream project (addons) or when building demos inside the repo.
+# Exclude repository integration test cpp sources when building inside a downstream project (addons) or when building demos inside the repo.
 EXCLUDE_INTEGRATION_CPP = bool(is_downstream or project_path == "demos")
 
 # - CCFLAGS are compilation flags shared between C and C++
@@ -42,6 +45,11 @@ EXCLUDE_INTEGRATION_CPP = bool(is_downstream or project_path == "demos")
 # - CPPPATH are to tell the pre-processor where to look for header files
 # - CPPDEFINES are for pre-processor defines
 # - LINKFLAGS are for linking flags
+
+# Default to the debug configuration when no explicit build options are provided.
+# This ensures running `scons` matches `scripts/build_debug.sh` (debug_symbols=yes optimize=debug)
+if "debug_symbols" not in ARGUMENTS: ARGUMENTS["debug_symbols"] = "yes"
+if "optimize" not in ARGUMENTS: ARGUMENTS["optimize"] = "debug"
 
 # Default to the LLVM/Clang toolchain
 if "use_llvm" not in ARGUMENTS: ARGUMENTS["use_llvm"] = "yes"
@@ -79,9 +87,8 @@ stagehand_cpp_sources = find_source_files("stagehand")
 project_cpp_sources = []
 if PROJECT_DIRECTORY:
     project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}")
-    # Exclude repository integration test cpp sources when requested. Use
-    # forward-slash normalized paths for comparison since find_source_files
-    # returns forward-slash paths.
+    # Exclude repository integration test cpp sources when requested. Use forward-slash
+    # normalized paths for comparison since find_source_files returns forward-slash paths.
     if EXCLUDE_INTEGRATION_CPP:
         integration_cpp_dir = os.path.join(PROJECT_DIRECTORY, "tests", "integration", "cpp").replace("\\", "/")
         if integration_cpp_dir.endswith("/"):
@@ -89,6 +96,11 @@ if PROJECT_DIRECTORY:
         else:
             integration_prefix = integration_cpp_dir + "/"
         project_cpp_sources = [s for s in project_cpp_sources if not (s == integration_cpp_dir or s.startswith(integration_prefix))]
+
+    # When building the `demos` target inside the repository, the demos sources are compiled separately by the `build_demos` helper.
+    # Avoid including them in the library's source list to prevent duplicate compilation of the same translation units.
+    if project_path == "demos":
+        project_cpp_sources = []
 
 # Configure include paths; only add the additional project include root if set.
 cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "."]
@@ -128,8 +140,7 @@ FLECS_WINDOWS_OPTS = [f"/D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)] + ["/T
 FLECS_UNIX_OPTS =    [f"-D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)] + ["-std=gnu99"]
 
 # Ensure all translation units (C and C++) see the same Flecs defines (e.g. ecs_ftime_t=double)
-# Convert any "name=value" strings into (name, value) tuples so SCons emits the
-# proper -D / /D forms and handles quoting correctly across platforms.
+# Convert any "name=value" strings into (name, value) tuples so SCons emits the proper -D / /D forms and handles quoting correctly across platforms.
 cppdefines_list = []
 for opt in (FLECS_OPTS + FLECS_COMMON_OPTS):
     if "=" in opt:
@@ -161,8 +172,7 @@ project_env["CPPDEFINES"] = filter_cppdefines(
     {"NDEBUG"},
 )
 
-# Re-add NDEBUG only for non-debug templates so standard asserts are disabled in
-# production builds, without conflicting with Flecs' FLECS_DEBUG in template_debug.
+# Re-add NDEBUG only for non-debug templates so standard asserts are disabled in production builds, without conflicting with Flecs' FLECS_DEBUG in template_debug.
 if env["target"] != "template_debug":
     project_env.Append(CPPDEFINES=["NDEBUG"])
 
@@ -235,6 +245,7 @@ else:
         "bin/libstagehand{}{}".format(env["suffix"], env["SHLIBSUFFIX"]),
         source=project_objs,
     )
+
 
 def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=None, build_dir=None, flecs_c_obj=None, stagehand_objs=None, project_env=None):
     """Build and return the unit test program."""
@@ -402,6 +413,10 @@ test_program = SConscript(
     },
 )
 Alias("unit_tests", test_program)
+
+
+# Integration tests target
+Alias("integration_tests", library)
 
 
 # Demos target

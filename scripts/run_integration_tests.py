@@ -94,6 +94,14 @@ def main():
     print("  Running Stagehand integration tests...")
     print("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━")
 
+    # Ensure C++ integration sources are built before running the Godot integration scenes.
+    # This invokes the SCons `integration_tests` alias, which will include the `tests/integration` project sources.
+    try:
+        subprocess.run(["scons", "integration_tests"], cwd=repo_root, check=True)
+    except subprocess.CalledProcessError as e:
+        print("Error: building integration C++ sources failed", file=sys.stderr)
+        sys.exit(e.returncode)
+
     # Find all integration test scenes
     all_scenes = []
     for root, _, files in os.walk(tests_dir):
