@@ -2,7 +2,7 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Game (Windows, cppvsdbg)",
+            "name": "Play (Windows, cppvsdbg)",
             "type": "cppvsdbg",
             "request": "launch",
             "preLaunchTask": "Build (Debug)",
@@ -31,7 +31,7 @@
             ],
         },
         {
-            "name": "Game (Mac, lldb)",
+            "name": "Play (Mac, lldb)",
             "type": "lldb",
             "request": "launch",
             "preLaunchTask": "Build (Debug)",
@@ -54,7 +54,7 @@
             ],
         },
         {
-            "name": "Game (Linux, lldb)",
+            "name": "Play (Linux, lldb)",
             "type": "lldb",
             "request": "launch",
             "preLaunchTask": "Build (Debug)",

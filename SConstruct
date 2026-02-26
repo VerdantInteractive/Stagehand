@@ -12,25 +12,20 @@ is_downstream_project = (
     os.path.basename(os.getcwd()) == "stagehand"
     and os.path.basename(os.path.dirname(os.getcwd())) == "addons"
 )
+
+# Default to no extra project directory
+project_path = None
+PROJECT_DIRECTORY = None
+
+# If building as a downstream project (addons/stagehand) use the downstream project directory.
+# Otherwise, only include the integration test project when explicitly requested via the `integration_tests` target.
 if is_downstream_project:
     project_path = "../.."  # Running in a downstream project where stagehand is in addons/stagehand
     from godot_project import check_and_setup_project_file_structure
     PROJECT_DIRECTORY = check_and_setup_project_file_structure(project_path)
-else:
-    # Running in the stagehand repo itself. By default use the test integration project as an additional project directory. However, if the user requested
-    # only the `unit_tests` alias we should not set a separate project directory so only the stagehand base library files are compiled.
-    if "unit_tests" in COMMAND_LINE_TARGETS:
-        project_path = None
-        PROJECT_DIRECTORY = None
-    elif any(str(t) == "integration_tests" for t in COMMAND_LINE_TARGETS):
-        # Only include the integration test project when explicitly requested.
-        project_path = "tests/integration"
-        PROJECT_DIRECTORY = os.path.abspath(project_path)
-    else:
-        # Default to no extra project directory for a normal build so that
-        # integration test sources are not compiled unless requested.
-        project_path = None
-        PROJECT_DIRECTORY = None
+elif any(str(t) == "integration_tests" for t in COMMAND_LINE_TARGETS):
+    project_path = "tests/integration"
+    PROJECT_DIRECTORY = os.path.abspath(project_path)
 
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
@@ -94,6 +89,12 @@ if PROJECT_DIRECTORY:
         else:
             integration_prefix = integration_cpp_dir + "/"
         project_cpp_sources = [s for s in project_cpp_sources if not (s == integration_cpp_dir or s.startswith(integration_prefix))]
+
+    # If building inside a downstream project (addons/stagehand) include the project's translation units directly into the main library so any
+    # `REGISTER_IN_MODULE` callbacks in the downstream project are linked into the extension and available at runtime.
+    if bool(is_downstream_project):
+        stagehand_cpp_sources.extend(project_cpp_sources)
+        project_cpp_sources = []
 
 # Configure include paths; only add the additional project include root if set.
 cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "."]
