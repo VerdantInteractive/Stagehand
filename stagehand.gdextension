@@ -34,3 +34,10 @@ ios.debug = {
 ios.release = {
     "res://addons/stagehand/bin/libgodot-cpp.ios.template_release.xcframework": ""
 }
+
+[icons]
+FlecsWorld = "res://addons/stagehand/assets/node_icons/FlecsWorld.svg"
+ComputeRenderer = "res://addons/stagehand/assets/node_icons/ComputeRenderer.svg"
+InstancedRenderer3D = "res://addons/stagehand/assets/node_icons/InstancedRenderer3D.svg"
+MultiMeshRenderer2D = "res://addons/stagehand/assets/node_icons/MultiMeshRenderer2D.svg"
+MultiMeshRenderer3D = "res://addons/stagehand/assets/node_icons/MultiMeshRenderer3D.svg"

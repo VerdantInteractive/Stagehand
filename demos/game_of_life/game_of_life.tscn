@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bueq266njnou7"]
 
-[ext_resource type="Shader" uid="uid://c36aed2gi2sjl" path="res://demos/game_of_life/grid_view.gdshader" id="2_h24yv"]
+[ext_resource type="Shader" uid="uid://c36aed2gi2sjl" path="res://game_of_life/grid_view.gdshader" id="2_h24yv"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_7cuuj"]
 shader = ExtResource("2_h24yv")
