@@ -73,9 +73,9 @@ def find_source_files(base_dir):
 
 # Source code paths
 stagehand_cpp_sources = find_source_files("stagehand")
-# Also include demo translation units in the main library so demo REGISTER_IN_MODULE
-# callbacks are linked into the extension and available at runtime.
-if os.path.isdir("demos"):
+# Also include demo translation units in the main library so demo REGISTER_IN_MODULE callbacks are linked
+# into the extension and available at runtime unless when building as a downstream project (addons/stagehand).
+if os.path.isdir("demos") and not is_downstream_project:
     stagehand_cpp_sources.extend(find_source_files("demos"))
 project_cpp_sources = []
 if PROJECT_DIRECTORY:
