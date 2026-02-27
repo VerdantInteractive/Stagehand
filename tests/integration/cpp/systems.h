@@ -2,11 +2,9 @@
 
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/godot_signal.h"
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
-#include "stagehand/ecs/components/world_configuration.h"
-#include "stagehand/ecs/pipeline_phases.h"
+#include "stagehand/ecs/components/signal.h"
 
 #include "components.h"
 #include "names.h"
@@ -48,7 +46,7 @@ namespace stagehand_tests {
                 // Create a temporary entity to emit the signal from
                 flecs::world world = it.world();
                 flecs::entity signal_source = world.entity("stagehand_tests::SignalSource");
-                emit_godot_signal(world, signal_source, signal_name, signal_data);
+                stagehand::emit_signal(world, signal_source, signal_name, signal_data);
             });
 
         // ── Read Scene Children (on-demand) ──────────────────────────────────

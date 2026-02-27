@@ -9,9 +9,9 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/godot_signal.h"
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
+#include "stagehand/ecs/components/signal.h"
 #include "stagehand/ecs/components/world_configuration.h"
 #include "stagehand/ecs/systems/rendering_instanced.h"
 #include "stagehand/ecs/systems/rendering_multimesh.h"
@@ -381,10 +381,10 @@ namespace stagehand {
 
     void FlecsWorld::register_signal_observer() {
         world.observer("stagehand::SignalObserver")
-            .event<GodotSignal>()
+            .event<Signal>()
             .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
             .each([this](flecs::iter &it, size_t index) {
-                const GodotSignal *signal = it.param<GodotSignal>();
+                const Signal *signal = it.param<Signal>();
                 if (likely(signal)) {
                     this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
                 }
