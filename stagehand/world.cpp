@@ -13,7 +13,6 @@
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/world_configuration.h"
-#include "stagehand/ecs/pipeline_phases.h"
 #include "stagehand/ecs/systems/rendering_instanced.h"
 #include "stagehand/ecs/systems/rendering_multimesh.h"
 #include "stagehand/nodes/instanced_renderer_3d.h"
@@ -490,7 +489,10 @@ namespace stagehand {
                                          godot::PROPERTY_USAGE_DEFAULT),
                      "set_world_configuration", "get_world_configuration");
 
-        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "modules_to_import"), "set_modules_to_import", "get_modules_to_import");
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "modules_to_import", godot::PROPERTY_HINT_TYPE_STRING,
+                                         godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
+                                         godot::PROPERTY_USAGE_DEFAULT),
+                     "set_modules_to_import", "get_modules_to_import");
 
         ADD_SIGNAL(godot::MethodInfo("stagehand_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
                                      godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
