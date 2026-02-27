@@ -1,5 +1,6 @@
-#include "stagehand/ecs/prefabs/entity.h"              // IWYU pragma: keep
-#include "stagehand/ecs/systems/rendering_instanced.h" // IWYU pragma: keep
-#include "stagehand/ecs/systems/rendering_multimesh.h" // IWYU pragma: keep
-#include "stagehand/ecs/systems/tag_reset.h"         // IWYU pragma: keep
-#include "stagehand/ecs/systems/transform_update.h"    // IWYU pragma: keep
+// IWYU pragma: begin_keep
+#include "stagehand/ecs/prefabs/entity.h"
+#include "stagehand/ecs/systems/rendering_instanced.h"
+#include "stagehand/ecs/systems/rendering_multimesh.h"
+#include "stagehand/ecs/systems/transform.h"
+// IWYU pragma: end_keep

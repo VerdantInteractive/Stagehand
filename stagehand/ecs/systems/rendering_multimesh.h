@@ -9,12 +9,6 @@
 #include "stagehand/nodes/multi_mesh_renderer.h"
 #include "stagehand/registry.h"
 
-using namespace stagehand::rendering;
-
-namespace stagehand::rendering {
-    inline flecs::system EntityRenderingMultiMesh;
-}
-
 // Buffer format: https://docs.godotengine.org/en/stable/classes/class_renderingserver.html#class-renderingserver-method-multimesh-set-buffer
 // The per - instance data size and expected data order is :
 // 2D :
@@ -36,133 +30,137 @@ namespace stagehand::rendering {
 // Collect instances for a single prefab and update the corresponding multimesh buffer.
 // This helper builds a query specialized for the transform type (2D or 3D) and
 // conditionally includes vertex colors and custom data as query terms when the renderer expects them.
-template <typename TransformType> void update_renderer_for_prefab(godot::RenderingServer *rendering_server, const MultiMeshRendererConfig &renderer) {
-    size_t floats_per_instance = 0;
-    if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D) {
-        floats_per_instance = 8;
-    } else { // TRANSFORM_3D
-        floats_per_instance = 12;
-    }
 
-    floats_per_instance += (renderer.use_colors ? 4 : 0) + (renderer.use_custom_data ? 4 : 0);
+namespace stagehand::rendering {
+    inline flecs::system EntityRenderingMultiMesh;
 
-    size_t total_matches = 0;
-    for (const auto &q : renderer.queries) {
-        total_matches += static_cast<size_t>(q.count());
-    }
-
-    if (total_matches == 0 && renderer.instance_count == 0) {
-        rendering_server->multimesh_set_visible_instances(renderer.rid, 0);
-        return;
-    }
-
-    size_t instance_capacity_required = std::max(renderer.instance_count, total_matches);
-
-    // Use a growth strategy (next power of 2) to avoid frequent reallocations when the instance count fluctuates.
-    size_t instance_capacity = 16;
-    while (instance_capacity < instance_capacity_required) {
-        instance_capacity *= 2;
-    }
-
-    godot::PackedFloat32Array &buffer = g_multimesh_buffer_cache[renderer.rid];
-
-    size_t required_size = instance_capacity * floats_per_instance;
-
-    if (buffer.size() < required_size || buffer.size() > (required_size * 2)) {
-        godot::RenderingServer::MultimeshTransformFormat transform_format = renderer.transform_format == godot::MultiMesh::TRANSFORM_2D
-                                                                                ? godot::RenderingServer::MULTIMESH_TRANSFORM_2D
-                                                                                : godot::RenderingServer::MULTIMESH_TRANSFORM_3D;
-
-        rendering_server->multimesh_allocate_data(renderer.rid, static_cast<int32_t>(instance_capacity), transform_format, renderer.use_colors,
-                                                  renderer.use_custom_data, false);
-        if (buffer.size() > 0) {
-            godot::UtilityFunctions::push_warning(godot::String(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH) + ": Resizing buffer for RID " +
-                                                  godot::String::num_uint64(renderer.rid.get_id()) + " from " + godot::String::num_int64(buffer.size()) +
-                                                  " to " + godot::String::num_int64(required_size));
+    template <typename TransformType> void update_renderer_for_prefab(godot::RenderingServer *rendering_server, const MultiMeshRendererConfig &renderer) {
+        size_t floats_per_instance = 0;
+        if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D) {
+            floats_per_instance = 8;
+        } else { // TRANSFORM_3D
+            floats_per_instance = 12;
         }
-        buffer.resize(required_size);
-    }
 
-    float *buffer_ptr = buffer.ptrw();
-    size_t instance_count = 0;
+        floats_per_instance += (renderer.use_colors ? 4 : 0) + (renderer.use_custom_data ? 4 : 0);
 
-    for (const auto &q : renderer.queries) {
-        q.run([&](flecs::iter &it) {
-            while (it.next()) {
-                auto transform_field = it.field<const TransformType>(0);
+        size_t total_matches = 0;
+        for (const auto &q : renderer.queries) {
+            total_matches += static_cast<size_t>(q.count());
+        }
 
-                for (auto i : it) {
-                    if (instance_count >= instance_capacity) {
-                        break;
-                    }
+        if (total_matches == 0 && renderer.instance_count == 0) {
+            rendering_server->multimesh_set_visible_instances(renderer.rid, 0);
+            return;
+        }
 
-                    size_t buffer_cursor = instance_count * floats_per_instance;
-                    const TransformType &transform = transform_field[i];
+        size_t instance_capacity_required = std::max(renderer.instance_count, total_matches);
 
-                    if constexpr (std::is_same_v<TransformType, Transform2D>) {
-                        buffer_ptr[buffer_cursor++] = transform.columns[0].x;
-                        buffer_ptr[buffer_cursor++] = transform.columns[1].x;
-                        buffer_ptr[buffer_cursor++] = 0.0f;
-                        buffer_ptr[buffer_cursor++] = transform.columns[2].x;
-                        buffer_ptr[buffer_cursor++] = transform.columns[0].y;
-                        buffer_ptr[buffer_cursor++] = transform.columns[1].y;
-                        buffer_ptr[buffer_cursor++] = 0.0f;
-                        buffer_ptr[buffer_cursor++] = transform.columns[2].y;
-                    } else if constexpr (std::is_same_v<TransformType, Transform3D>) {
-                        // RenderingServer expects Transform3D data in a specific order (rows of the 3x4 matrix):
-                        const Vector3 &row0 = transform.basis.rows[0];
-                        const Vector3 &row1 = transform.basis.rows[1];
-                        const Vector3 &row2 = transform.basis.rows[2];
+        // Use a growth strategy (next power of 2) to avoid frequent reallocations when the instance count fluctuates.
+        size_t instance_capacity = 16;
+        while (instance_capacity < instance_capacity_required) {
+            instance_capacity *= 2;
+        }
 
-                        buffer_ptr[buffer_cursor++] = row0.x;
-                        buffer_ptr[buffer_cursor++] = row1.x;
-                        buffer_ptr[buffer_cursor++] = row2.x;
-                        buffer_ptr[buffer_cursor++] = transform.origin.x;
+        godot::PackedFloat32Array &buffer = g_multimesh_buffer_cache[renderer.rid];
 
-                        buffer_ptr[buffer_cursor++] = row0.y;
-                        buffer_ptr[buffer_cursor++] = row1.y;
-                        buffer_ptr[buffer_cursor++] = row2.y;
-                        buffer_ptr[buffer_cursor++] = transform.origin.y;
+        size_t required_size = instance_capacity * floats_per_instance;
 
-                        buffer_ptr[buffer_cursor++] = row0.z;
-                        buffer_ptr[buffer_cursor++] = row1.z;
-                        buffer_ptr[buffer_cursor++] = row2.z;
-                        buffer_ptr[buffer_cursor++] = transform.origin.z;
-                    }
+        if (buffer.size() < required_size || buffer.size() > (required_size * 2)) {
+            godot::RenderingServer::MultimeshTransformFormat transform_format = renderer.transform_format == godot::MultiMesh::TRANSFORM_2D
+                                                                                    ? godot::RenderingServer::MULTIMESH_TRANSFORM_2D
+                                                                                    : godot::RenderingServer::MULTIMESH_TRANSFORM_3D;
 
-                    int next_field_idx = 1;
-                    if (renderer.use_colors) {
-                        const Color &color = it.field<const Color>(next_field_idx++)[i];
-                        buffer_ptr[buffer_cursor++] = color.r;
-                        buffer_ptr[buffer_cursor++] = color.g;
-                        buffer_ptr[buffer_cursor++] = color.b;
-                        buffer_ptr[buffer_cursor++] = color.a;
-                    }
-                    if (renderer.use_custom_data) {
-                        const CustomData &custom_data = it.field<const CustomData>(next_field_idx++)[i];
-                        buffer_ptr[buffer_cursor++] = custom_data.x;
-                        buffer_ptr[buffer_cursor++] = custom_data.y;
-                        buffer_ptr[buffer_cursor++] = custom_data.z;
-                        buffer_ptr[buffer_cursor++] = custom_data.w;
-                    }
-                    instance_count++;
-                }
+            rendering_server->multimesh_allocate_data(renderer.rid, static_cast<int32_t>(instance_capacity), transform_format, renderer.use_colors,
+                                                      renderer.use_custom_data, false);
+            if (buffer.size() > 0) {
+                godot::UtilityFunctions::push_warning(godot::String(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH) + ": Resizing buffer for RID " +
+                                                      godot::String::num_uint64(renderer.rid.get_id()) + " from " + godot::String::num_int64(buffer.size()) +
+                                                      " to " + godot::String::num_int64(required_size));
             }
-        });
-        if (instance_count >= instance_capacity) {
-            break;
+            buffer.resize(required_size);
         }
+
+        float *buffer_ptr = buffer.ptrw();
+        size_t instance_count = 0;
+
+        for (const auto &q : renderer.queries) {
+            q.run([&](flecs::iter &it) {
+                while (it.next()) {
+                    auto transform_field = it.field<const TransformType>(0);
+
+                    for (auto i : it) {
+                        if (instance_count >= instance_capacity) {
+                            break;
+                        }
+
+                        size_t buffer_cursor = instance_count * floats_per_instance;
+                        const TransformType &transform = transform_field[i];
+
+                        if constexpr (std::is_same_v<TransformType, Transform2D>) {
+                            buffer_ptr[buffer_cursor++] = transform.columns[0].x;
+                            buffer_ptr[buffer_cursor++] = transform.columns[1].x;
+                            buffer_ptr[buffer_cursor++] = 0.0f;
+                            buffer_ptr[buffer_cursor++] = transform.columns[2].x;
+                            buffer_ptr[buffer_cursor++] = transform.columns[0].y;
+                            buffer_ptr[buffer_cursor++] = transform.columns[1].y;
+                            buffer_ptr[buffer_cursor++] = 0.0f;
+                            buffer_ptr[buffer_cursor++] = transform.columns[2].y;
+                        } else if constexpr (std::is_same_v<TransformType, Transform3D>) {
+                            // RenderingServer expects Transform3D data in a specific order (rows of the 3x4 matrix):
+                            const Vector3 &row0 = transform.basis.rows[0];
+                            const Vector3 &row1 = transform.basis.rows[1];
+                            const Vector3 &row2 = transform.basis.rows[2];
+
+                            buffer_ptr[buffer_cursor++] = row0.x;
+                            buffer_ptr[buffer_cursor++] = row1.x;
+                            buffer_ptr[buffer_cursor++] = row2.x;
+                            buffer_ptr[buffer_cursor++] = transform.origin.x;
+
+                            buffer_ptr[buffer_cursor++] = row0.y;
+                            buffer_ptr[buffer_cursor++] = row1.y;
+                            buffer_ptr[buffer_cursor++] = row2.y;
+                            buffer_ptr[buffer_cursor++] = transform.origin.y;
+
+                            buffer_ptr[buffer_cursor++] = row0.z;
+                            buffer_ptr[buffer_cursor++] = row1.z;
+                            buffer_ptr[buffer_cursor++] = row2.z;
+                            buffer_ptr[buffer_cursor++] = transform.origin.z;
+                        }
+
+                        int next_field_idx = 1;
+                        if (renderer.use_colors) {
+                            const Color &color = it.field<const Color>(next_field_idx++)[i];
+                            buffer_ptr[buffer_cursor++] = color.r;
+                            buffer_ptr[buffer_cursor++] = color.g;
+                            buffer_ptr[buffer_cursor++] = color.b;
+                            buffer_ptr[buffer_cursor++] = color.a;
+                        }
+                        if (renderer.use_custom_data) {
+                            const CustomData &custom_data = it.field<const CustomData>(next_field_idx++)[i];
+                            buffer_ptr[buffer_cursor++] = custom_data.x;
+                            buffer_ptr[buffer_cursor++] = custom_data.y;
+                            buffer_ptr[buffer_cursor++] = custom_data.z;
+                            buffer_ptr[buffer_cursor++] = custom_data.w;
+                        }
+                        instance_count++;
+                    }
+                }
+            });
+            if (instance_count >= instance_capacity) {
+                break;
+            }
+        }
+
+        rendering_server->multimesh_set_buffer(renderer.rid, buffer);
+        rendering_server->multimesh_set_visible_instances(renderer.rid, static_cast<int32_t>(instance_count));
     }
 
-    rendering_server->multimesh_set_buffer(renderer.rid, buffer);
-    rendering_server->multimesh_set_visible_instances(renderer.rid, static_cast<int32_t>(instance_count));
-}
-
-REGISTER([](flecs::world &world) {
-    // This system iterates over all MultiMesh renderers and updates their buffers.
-    // It's designed to be efficient by using pre-built queries stored in the MultiMeshRendererConfig component.
-    // clang-format off
-    stagehand::rendering::EntityRenderingMultiMesh = world.system(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH)
+    REGISTER([](flecs::world &world) {
+        // This system iterates over all MultiMesh renderers and updates their buffers.
+        // It's designed to be efficient by using pre-built queries stored in the MultiMeshRendererConfig component.
+        // clang-format off
+    EntityRenderingMultiMesh = world.system(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH)
         .kind(stagehand::OnRender)
         .run([](flecs::iter &it) {
             // clang-format on
@@ -193,4 +191,5 @@ REGISTER([](flecs::world &world) {
                 }
             }
         });
-});
+    });
+} // namespace stagehand::rendering
