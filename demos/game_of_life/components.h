@@ -3,7 +3,7 @@
 #include "stagehand/ecs/components/godot_variants.h"
 #include "stagehand/ecs/components/macros.h"
 
-namespace demos::game_of_life {
+namespace stagehand_demos::game_of_life {
     // Cell
 
     TAG(IsAlive);
@@ -19,4 +19,4 @@ namespace demos::game_of_life {
     ARRAY(GridNeighbours, ecs_entity_t, 8);
 
     UINT8(AliveNeighbourCount, 0);
-} // namespace demos::game_of_life
+} // namespace stagehand_demos::game_of_life

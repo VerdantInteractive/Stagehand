@@ -1,8 +1,8 @@
 #pragma once
 
-namespace demos::game_of_life::names {
+namespace stagehand_demos::game_of_life::names {
 
-#define NAMESPACE_STR "demos::game_of_life"
+#define NAMESPACE_STR "stagehand_demos::game_of_life"
 
     constexpr const char *NAMESPACE = NAMESPACE_STR;
 
@@ -11,4 +11,4 @@ namespace demos::game_of_life::names {
     }
 
 #undef NAMESPACE_STR
-} // namespace demos::game_of_life::names
+} // namespace stagehand_demos::game_of_life::names

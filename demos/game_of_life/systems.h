@@ -14,9 +14,9 @@
 #include "components.h"
 #include "prefabs.h"
 
-using namespace demos::game_of_life;
+using namespace stagehand_demos::game_of_life;
 
-REGISTER_IN_MODULE(demos::game_of_life::systems, [](flecs::world &world) {
+REGISTER_IN_MODULE(stagehand_demos::game_of_life::systems, [](flecs::world &world) {
     // This shares a common value between the initialisation and rendering systems and also avoids the overhead of recalculating the size
     // or looking up the configuration every frame in the rendering system, effectively treating it as a runtime constant once initialized.
     const auto grid_population = std::make_shared<godot::Vector2i>();

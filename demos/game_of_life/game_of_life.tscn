@@ -11,7 +11,7 @@ world_configuration = Dictionary[String, Variant]({
 "initial_alive_percentage": 0.2,
 "population_scale": 1.0
 })
-modules_to_import = Array[String](["demos::game_of_life::systems"])
+modules_to_import = Array[String](["stagehand_demos::game_of_life::systems"])
 
 [node name="GridView" type="TextureRect" parent="." unique_id=1200100814]
 material = SubResource("ShaderMaterial_7cuuj")
