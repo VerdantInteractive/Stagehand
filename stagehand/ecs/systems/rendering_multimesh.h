@@ -161,8 +161,11 @@ template <typename TransformType> void update_renderer_for_prefab(godot::Renderi
 REGISTER([](flecs::world &world) {
     // This system iterates over all MultiMesh renderers and updates their buffers.
     // It's designed to be efficient by using pre-built queries stored in the MultiMeshRendererConfig component.
-    stagehand::rendering::EntityRenderingMultiMesh =
-        world.system(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH).kind(stagehand::OnRender).run([](flecs::iter &it) {
+    // clang-format off
+    stagehand::rendering::EntityRenderingMultiMesh = world.system(stagehand::names::systems::ENTITY_RENDERING_MULTIMESH)
+        .kind(stagehand::OnRender)
+        .run([](flecs::iter &it) {
+            // clang-format on
             if (!it.world().has<Renderers>()) {
                 return; // No renderers component
             }

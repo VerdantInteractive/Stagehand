@@ -16,8 +16,11 @@ namespace stagehand::rendering {
 }
 
 REGISTER([](flecs::world &world) {
-    stagehand::rendering::EntityRenderingInstanced =
-        world.system(stagehand::names::systems::ENTITY_RENDERING_INSTANCED).kind(stagehand::OnRender).run([](flecs::iter &it) {
+    // clang-format off
+    stagehand::rendering::EntityRenderingInstanced = world.system(stagehand::names::systems::ENTITY_RENDERING_INSTANCED)
+        .kind(stagehand::OnRender)
+        .run([](flecs::iter &it) {
+            // clang-format on
             if (!it.world().has<Renderers>()) {
                 return;
             }
