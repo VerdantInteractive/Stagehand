@@ -1,0 +1,4 @@
+module instanced_renderer
+
+TestInstanceFromScript1 : TestInstance {}
+TestInstanceFromScript2 : TestInstance {}

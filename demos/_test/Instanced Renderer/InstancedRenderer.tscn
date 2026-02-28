@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://b7iax23iuf1rp"]
+
+[ext_resource type="Shader" uid="uid://ck6qs1jjnk5fe" path="res://_test/Instanced Renderer/InstancedRenderer.gdshader" id="1_fr6sk"]
+[ext_resource type="Script" uid="uid://dn2djrlcq0jjy" path="res://_test/Instanced Renderer/instanced_renderer.gd" id="1_y18d4"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_y18d4"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_4grr7"]
+sky_material = SubResource("ProceduralSkyMaterial_y18d4")
+
+[sub_resource type="Environment" id="Environment_lre1d"]
+background_mode = 2
+sky = SubResource("Sky_4grr7")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_y18d4"]
+
+[sub_resource type="InstancedRenderer3DLODConfiguration" id="InstancedRenderer3DLODConfiguration_4grr7"]
+mesh = SubResource("SphereMesh_y18d4")
+visibility_range_begin_margin = 0.5
+visibility_range_end = 5.0
+visibility_range_end_margin = 0.5
+
+[sub_resource type="BoxMesh" id="BoxMesh_lre1d"]
+
+[sub_resource type="InstancedRenderer3DLODConfiguration" id="InstancedRenderer3DLODConfiguration_bsq37"]
+mesh = SubResource("BoxMesh_lre1d")
+visibility_range_begin = 5.0
+visibility_range_begin_margin = 0.5
+visibility_range_end = 100.0
+visibility_range_end_margin = 0.5
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_2lm62"]
+render_priority = 0
+shader = ExtResource("1_fr6sk")
+
+[node name="InstancedRendererWorld" type="FlecsWorld" unique_id=1000396069]
+modules_to_import = Array[String](["instanced_renderer"])
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1719332688]
+environment = SubResource("Environment_lre1d")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1688224258]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=114538875]
+transform = Transform3D(-1, 0, -1.509958e-07, 0, 1, 0, 1.509958e-07, 0, -1, 0, 0, 0)
+
+[node name="InstancedRenderer3D" type="InstancedRenderer3D" parent="." unique_id=814259251]
+prefabs_rendered = PackedStringArray("instanced_renderer::TestInstance")
+lod_levels = Array[InstancedRenderer3DLODConfiguration]([SubResource("InstancedRenderer3DLODConfiguration_4grr7"), SubResource("InstancedRenderer3DLODConfiguration_bsq37")])
+material = SubResource("ShaderMaterial_2lm62")
+script = ExtResource("1_y18d4")
