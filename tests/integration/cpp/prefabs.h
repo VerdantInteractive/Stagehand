@@ -10,6 +10,10 @@
 
 namespace stagehand_tests {
 
+    struct UnitColor : public godot::Vector4 {
+        using godot::Vector4::Vector4;
+    };
+
     REGISTER([](flecs::world &world) {
         // A 2D test prefab that inherits from the built-in Entity2D prefab.
         // It carries all the transform components (Position2D, Rotation2D, Scale2D, Transform2D)
@@ -65,7 +69,15 @@ namespace stagehand_tests {
 
         // ── Instanced rendering test prefab ──────────────────────────────────
         // A 3D entity prefab used by InstancedRenderer3D integration tests.
-        world.prefab(stagehand_tests::names::prefabs::INSTANCED_ENTITY_3D).is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D)).add<EntityValue>();
+        
+        // Register UnitColor as an instance uniform for testing
+        world.component<UnitColor>("UnitColor");
+        register_vector4_members(world.component<UnitColor>());
+        world.component<UnitColor>().add<stagehand::rendering::InstanceUniform>();
+
+        world.prefab(stagehand_tests::names::prefabs::INSTANCED_ENTITY_3D).is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
+            .add<EntityValue>()
+            .add<UnitColor>();
     });
 
 } // namespace stagehand_tests

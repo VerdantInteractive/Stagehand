@@ -1,6 +1,7 @@
 #pragma once
 
 #include <godot_cpp/classes/mesh.hpp>
+#include <godot_cpp/classes/material.hpp>
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/classes/resource.hpp>
@@ -77,6 +78,12 @@ class InstancedRenderer3D : public godot::Node3D {
     void set_lod_levels(const godot::TypedArray<InstancedRenderer3DLODConfiguration> &p_lod_levels) { lod_levels = p_lod_levels; }
     [[nodiscard]] godot::TypedArray<InstancedRenderer3DLODConfiguration> get_lod_levels() const { return lod_levels; }
 
+    void set_material(const godot::Ref<godot::Material> &p_material) { material = p_material; }
+    [[nodiscard]] godot::Ref<godot::Material> get_material() const { return material; }
+
+    void set_discovered_instance_uniforms(const godot::PackedStringArray &p_uniforms) { discovered_instance_uniforms = p_uniforms; }
+    [[nodiscard]] godot::PackedStringArray get_discovered_instance_uniforms() const { return discovered_instance_uniforms; }
+
     /// Validates configuration and emits warnings for issues.
     /// Returns true if the configuration is valid enough to render.
     [[nodiscard]] bool validate_configuration() const;
@@ -87,6 +94,8 @@ class InstancedRenderer3D : public godot::Node3D {
   private:
     godot::PackedStringArray prefabs_rendered;
     godot::TypedArray<InstancedRenderer3DLODConfiguration> lod_levels;
+    godot::Ref<godot::Material> material;
+    godot::PackedStringArray discovered_instance_uniforms;
 };
 
 // Helper to register an InstancedRenderer3D node into the ECS world

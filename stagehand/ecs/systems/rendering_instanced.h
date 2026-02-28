@@ -13,6 +13,13 @@ namespace stagehand::rendering {
     inline flecs::system EntityRenderingInstanced;
 
     REGISTER([](flecs::world &world) {
+        struct InstanceUniformView {
+            flecs::field<const godot::Vector4> values;
+            bool is_changed;
+            bool is_shared;
+            godot::StringName parameter_name;
+        };
+
         // clang-format off
     stagehand::rendering::EntityRenderingInstanced = world.system(stagehand::names::systems::ENTITY_RENDERING_INSTANCED)
         .kind(stagehand::OnRender)
@@ -74,6 +81,20 @@ namespace stagehand::rendering {
                         while (query_it.next()) {
                             auto transform_field = query_it.field<const stagehand::transform::Transform3D>(0);
 
+                            std::vector<InstanceUniformView> instance_uniform_views;
+                            instance_uniform_views.reserve(renderer.uniforms.size());
+
+                            for (const auto &uniform_config : renderer.uniforms) {
+                                if (query_it.is_set(uniform_config.value_field_index)) {
+                                    auto values_field = query_it.field<const godot::Vector4>(uniform_config.value_field_index);
+                                    bool is_shared = !query_it.is_self(uniform_config.value_field_index);
+                                    instance_uniform_views.push_back(InstanceUniformView{
+                                        values_field,
+                                        query_it.is_set(uniform_config.changed_field_index), is_shared,
+                                        uniform_config.parameter_name});
+                                }
+                            }
+
                             for (auto i : query_it) {
                                 if (entity_index >= entity_count) {
                                     break;
@@ -96,6 +117,10 @@ namespace stagehand::rendering {
                                             instance_rid, lod_config.visibility_range_begin, lod_config.visibility_range_end,
                                             lod_config.visibility_range_begin_margin, lod_config.visibility_range_end_margin,
                                             lod_config.visibility_range_fade_mode);
+
+                                        if (renderer.material_rid.is_valid()) {
+                                            rendering_server->instance_geometry_set_material_override(instance_rid, renderer.material_rid);
+                                        }
                                     }
 
                                     // Ensure visible if it was previously hidden or just created
@@ -104,7 +129,17 @@ namespace stagehand::rendering {
                                     }
 
                                     // Update the instance's transform
-                                    rendering_server->instance_set_transform(instance_rid, transform);
+                                    if (is_new || query_it.is_set(1)) {
+                                        rendering_server->instance_set_transform(instance_rid, transform);
+                                    }
+
+                                    // Update instance uniforms
+                                    for (const auto &uniform_view : instance_uniform_views) {
+                                        if (is_new || uniform_view.is_changed) {
+                                            const godot::Vector4 &val = uniform_view.is_shared ? uniform_view.values[0] : uniform_view.values[i];
+                                            rendering_server->instance_geometry_set_shader_parameter(instance_rid, uniform_view.parameter_name, val);
+                                        }
+                                    }
                                 }
 
                                 entity_index++;

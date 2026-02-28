@@ -8,6 +8,7 @@ extends FlecsWorld
 ## - Instance creation and transform updates via RenderingServer
 ## - LOD visibility range configuration
 ## - Zero-entity edge case
+## - Instance uniform discovery and updates (UnitColor)
 ## - Large batch instantiation
 ## - Instance cleanup when entities are removed
 
@@ -30,6 +31,11 @@ func _ready() -> void:
 	# ── Test 3: Verify LOD levels ────────────────────────────────────────────
 	var lod_levels = renderer.get_lod_levels()
 	assert_eq(lod_levels.size(), 4, "4 LOD levels configured")
+
+	# ── Test 3b: Verify Material and Uniforms ────────────────────────────────
+	assert_true(renderer.get_material() is ShaderMaterial, "Material is ShaderMaterial")
+	var discovered_uniforms = renderer.get_discovered_instance_uniforms()
+	assert_true(discovered_uniforms.has("UnitColor"), "Discovered 'UnitColor' instance uniform")
 
 	# ── Test 4: Zero entities — progress should not crash ────────────────────
 	progress(0.016)
@@ -93,7 +99,8 @@ func _ready() -> void:
 				"EntityValue": float(i + 1),
 				"Position3D": Vector3(i * 10.0, 0.0, i * -5.0),
 				"Rotation3D": Quaternion.IDENTITY,
-				"Scale3D": Vector3(1.0, 1.0, 1.0)
+				"Scale3D": Vector3(1.0, 1.0, 1.0),
+				"UnitColor": Vector4(1.0, 0.0, 0.0, 1.0) # Red
 			}
 		})
 
@@ -138,7 +145,8 @@ func _ready() -> void:
 				"EntityValue": float(i + 100),
 				"Position3D": Vector3(i * 5.0 + 50.0, i * 2.0, i * -3.0),
 				"Rotation3D": Quaternion(Vector3.UP, deg_to_rad(i * 36.0)),
-				"Scale3D": Vector3(1.0 + i * 0.1, 1.0, 1.0 + i * 0.1)
+				"Scale3D": Vector3(1.0 + i * 0.1, 1.0, 1.0 + i * 0.1),
+				"UnitColor": Vector4(0.0, 1.0, 0.0, 1.0) # Green
 			}
 		})
 	progress(0.016)
@@ -163,7 +171,8 @@ func _ready() -> void:
 			"prefab": "stagehand_tests::InstancedEntity3D",
 			"components": {
 				"EntityValue": float(i),
-				"Position3D": Vector3(i * 2.0, 0.0, i * -1.0)
+				"Position3D": Vector3(i * 2.0, 0.0, i * -1.0),
+				"UnitColor": Vector4(0.0, 0.0, 1.0, 1.0) # Blue
 			}
 		})
 	progress(0.016)
