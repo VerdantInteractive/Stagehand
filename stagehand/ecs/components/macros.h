@@ -44,9 +44,12 @@ using std::uint8_t;
         Name(float v) : value(v) {}                                                                                                                            \
         NUMERIC_COMPONENT_OPERATORS(Name, float)                                                                                                               \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_float = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<float>("value");                                                                                                        \
         stagehand::register_component<Name, float>(#Name);                                                                                                     \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping a double-precision floating-point number.
@@ -57,9 +60,12 @@ using std::uint8_t;
         Name(double v) : value(v) {}                                                                                                                           \
         NUMERIC_COMPONENT_OPERATORS(Name, double)                                                                                                              \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_double = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<double>("value");                                                                                                       \
         stagehand::register_component<Name, double>(#Name);                                                                                                    \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping a signed 32-bit integer.
@@ -70,9 +76,12 @@ using std::uint8_t;
         Name(int32_t v) : value(v) {}                                                                                                                          \
         NUMERIC_COMPONENT_OPERATORS(Name, int32_t)                                                                                                             \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_int32 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<int32_t>("value");                                                                                                      \
         stagehand::register_component<Name, int32_t>(#Name);                                                                                                   \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping an unsigned 32-bit integer.
@@ -83,9 +92,12 @@ using std::uint8_t;
         Name(uint32_t v) : value(v) {}                                                                                                                         \
         NUMERIC_COMPONENT_OPERATORS(Name, uint32_t)                                                                                                            \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_uint32 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<uint32_t>("value");                                                                                                     \
         stagehand::register_component<Name, uint32_t>(#Name);                                                                                                  \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping a signed 16-bit integer (-32,768 to 32,767).
@@ -96,9 +108,12 @@ using std::uint8_t;
         Name(int16_t v) : value(v) {}                                                                                                                          \
         NUMERIC_COMPONENT_OPERATORS(Name, int16_t)                                                                                                             \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_int16 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<int16_t>("value");                                                                                                      \
         stagehand::register_component<Name, int16_t>(#Name);                                                                                                   \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping an unsigned 16-bit integer (0 to 65,535).
@@ -109,9 +124,12 @@ using std::uint8_t;
         Name(uint16_t v) : value(v) {}                                                                                                                         \
         NUMERIC_COMPONENT_OPERATORS(Name, uint16_t)                                                                                                            \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_uint16 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<uint16_t>("value");                                                                                                     \
         stagehand::register_component<Name, uint16_t>(#Name);                                                                                                  \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping a signed 8-bit integer (-128 to 127).
@@ -122,9 +140,12 @@ using std::uint8_t;
         Name(int8_t v) : value(v) {}                                                                                                                           \
         NUMERIC_COMPONENT_OPERATORS(Name, int8_t)                                                                                                              \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_int8 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
         world.component<Name>().member<int8_t>("value");                                                                                                       \
         stagehand::register_component<Name, int8_t>(#Name);                                                                                                    \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping an unsigned 8-bit integer (0 to 255).
@@ -135,9 +156,12 @@ using std::uint8_t;
         Name(uint8_t v) : value(v) {}                                                                                                                          \
         NUMERIC_COMPONENT_OPERATORS(Name, uint8_t)                                                                                                             \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_uint8 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<uint8_t>("value");                                                                                                      \
         stagehand::register_component<Name, uint8_t>(#Name);                                                                                                   \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping a pointer type.
@@ -159,9 +183,12 @@ using std::uint8_t;
         bool operator!=(const Name &other) const { return ptr != other.ptr; }                                                                                  \
         explicit operator bool() const { return ptr != nullptr; }                                                                                              \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_pointer = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                      \
         world.component<Name>().member<std::uintptr_t>("ptr");                                                                                                 \
         stagehand::register_component<Name, uint64_t>(#Name);                                                                                                  \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a tag component (empty struct).
@@ -172,9 +199,12 @@ using std::uint8_t;
 /// Macro that defines an enum component wrapper.
 /// Usage: ENUM(Name) or ENUM(Name, UnderlyingType). Default UnderlyingType is uint8_t.
 #define ENUM_IMPL(Name, Type)                                                                                                                                  \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_enum = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component<Name, Type>(#Name);                                                                                                      \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 #define ENUM_1(Name) ENUM_IMPL(Name, uint8_t)
@@ -218,9 +248,12 @@ using std::uint8_t;
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::vector<ElementType>)                                                                                  \
         std::size_t size() const { return value.size(); }                                                                                                      \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_vector = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component<Name>(#Name);                                                                                                            \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
 
 /// Macro that defines a component wrapping a std::array.
@@ -236,7 +269,10 @@ using std::uint8_t;
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::array<ElementType, Size>)                                                                             \
         constexpr std::size_t size() const { return Size; }                                                                                                    \
     };                                                                                                                                                         \
+    struct Changed##Name {};                                                                                                                                   \
     inline auto register_##Name##_array = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component<Name>(#Name);                                                                                                            \
+        world.component<Changed##Name>();                                                                                                                      \
+        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
     })
