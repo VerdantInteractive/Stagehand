@@ -5,15 +5,15 @@
 
 #include <godot_cpp/classes/multi_mesh.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
-#include <godot_cpp/variant/string_name.hpp>
 #include <godot_cpp/variant/rid.hpp>
+#include <godot_cpp/variant/string_name.hpp>
+
 #include "flecs.h"
 
 #include "stagehand/ecs/components/godot_variants.h"
+#include "stagehand/ecs/components/macros.h"
 #include "stagehand/registry.h"
 #include "stagehand/utilities/godot_hashes.h" // IWYU pragma: keep
-
-#include "stagehand/ecs/components/macros.h"
 
 namespace stagehand::rendering {
     GODOT_VARIANT(CustomData, Vector4); // Used as MultiMesh instance custom data in the Entity Rendering (MultiMesh) system
@@ -70,7 +70,7 @@ namespace stagehand::rendering {
     };
 
     /// A trait that can be added to components to indicate that they are used as instance uniform parameters in the InstancedRenderer3D
-    TAG(InstanceUniform).then([](auto c){ c.add(flecs::Trait); });
+    TAG(IsInstanceUniform).then([](auto c) { c.add(flecs::Trait); });
 
     struct Renderers {
         // Map from renderer type to a map of RIDs to renderer configs.

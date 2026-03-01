@@ -36,6 +36,7 @@
 #include <godot_cpp/variant/vector4.hpp>
 #include <godot_cpp/variant/vector4i.hpp>
 
+#include "stagehand/ecs/components/traits.h" // IWYU pragma: keep
 #include "stagehand/registry.h"
 
 using godot::AABB;
@@ -184,12 +185,12 @@ template <typename T> void register_projection_members(flecs::component<T> c) { 
             return *this;                                                                                                                                      \
         }                                                                                                                                                      \
     };                                                                                                                                                         \
-    struct Changed##Name {};                                                                                                                                   \
+    struct HasChanged##Name {};                                                                                                                                \
     inline auto register_##Name##_variant = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                      \
         register_godot_members(world.component<Name>(), static_cast<Base *>(nullptr));                                                                         \
         stagehand::register_component<Name, Base>(#Name);                                                                                                      \
-        world.component<Changed##Name>();                                                                                                                      \
-        world.component<Name>().add(flecs::With, world.component<Changed##Name>());                                                                            \
+        world.component<HasChanged##Name>().add<stagehand::IsChangeDetectionTag>().add(flecs::CanToggle);                                                      \
+        world.component<Name>().add(flecs::With, world.component<HasChanged##Name>());                                                                         \
     })
 
 // Dispatcher overloads to automatically select the correct registration function
