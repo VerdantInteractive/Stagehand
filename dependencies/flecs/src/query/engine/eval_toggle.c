@@ -299,7 +299,7 @@ bool flecs_query_toggle(
         op_ctx->prev_set_fields = it->set_fields;
     }
 
-    ecs_flags64_t and_fields = op->first.entity;
+    ecs_flags64_t and_fields = op->first.entity & op_ctx->prev_set_fields;
     ecs_flags64_t not_fields = op->second.entity & op_ctx->prev_set_fields;
 
     return flecs_query_toggle_cmp(
