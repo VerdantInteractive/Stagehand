@@ -8,7 +8,7 @@
 
 #include "stagehand/registry.h"
 
-#include "demos/_test/Instanced Renderer/components.h"
+#include "demos/_playground/Instanced Renderer/components.h"
 #include "prefabs.h" // IWYU pragma: keep
 
 REGISTER_IN_MODULE(instanced_renderer, [](flecs::world &world) {
