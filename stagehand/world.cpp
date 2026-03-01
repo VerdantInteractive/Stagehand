@@ -1,5 +1,7 @@
 #include "stagehand/world.h"
 
+#include <dlfcn.h>
+
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/multi_mesh.hpp>
 #include <godot_cpp/classes/multi_mesh_instance2d.hpp>
