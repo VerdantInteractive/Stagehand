@@ -18,6 +18,23 @@ void Error_multi_line_comment_after_newline_before_newline_scope_open(void) {
     ecs_fini(world);
 }
 
+void Error_unterminated_multi_line_comment_after_line_comment(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "Parent"
+    LINE "// Some comment"
+    LINE "/* unterminated multiline comment"
+    LINE "{"
+    LINE " Child{}"
+    LINE "}";
+
+    ecs_log_set_level(-4);
+    test_assert(ecs_script_run(world, NULL, expr, NULL) != 0);
+
+    ecs_fini(world);
+}
+
 void Error_missing_end_of_scope(void) {
     ecs_log_set_level(-4);
     ecs_world_t *world = ecs_init();
@@ -1919,6 +1936,130 @@ void Error_annotation_to_tag(void) {
 
     ecs_log_set_level(-4);
     test_assert(ecs_script_run(world, "foo", expr, NULL) != 0);
+
+    ecs_fini(world);
+}
+
+void Error_invalid_hex_number_prefix(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "const v: 0x";
+
+    ecs_log_set_level(-4);
+    test_assert(ecs_script_run(world, NULL, expr, NULL) != 0);
+
+    ecs_fini(world);
+}
+
+void Error_invalid_binary_number_prefix(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "const v: 0b";
+
+    ecs_log_set_level(-4);
+    test_assert(ecs_script_run(world, NULL, expr, NULL) != 0);
+
+    ecs_fini(world);
+}
+
+void Error_unterminated_multiline_string_capture_error(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "const v: `unterminated";
+
+    ecs_script_eval_result_t result = {0};
+    ecs_script_t *script = ecs_script_parse(world, "foo", expr, NULL, &result);
+
+    test_assert(script == NULL);
+    test_assert(result.error != NULL);
+    if (result.error) {
+        ecs_os_free(result.error);
+    }
+
+    ecs_fini(world);
+}
+
+void Error_invalid_char_literal_two_chars(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "const c: 'ab'";
+
+    ecs_log_set_level(-4);
+    test_assert(ecs_script_run(world, NULL, expr, NULL) != 0);
+
+    ecs_fini(world);
+}
+
+void Error_match_operator_without_equals_capture_error(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "B~";
+
+    ecs_script_eval_result_t result = {0};
+    ecs_script_t *script = ecs_script_parse(world, "foo", expr, NULL, &result);
+
+    test_assert(script == NULL);
+    test_assert(result.error != NULL);
+    if (result.error) {
+        ecs_os_free(result.error);
+    }
+
+    ecs_fini(world);
+}
+
+void Error_eval_root_var_component_capture_error(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "$x";
+
+    ecs_script_eval_result_t parse_result = {0};
+    ecs_script_t *script = ecs_script_parse(
+        world, "foo", expr, NULL, &parse_result);
+
+    test_assert(script != NULL);
+    test_assert(parse_result.error == NULL);
+
+    ecs_script_eval_result_t eval_result = {0};
+    int rc = ecs_script_eval(script, NULL, &eval_result);
+    test_assert(rc != 0);
+    test_assert(eval_result.error != NULL);
+
+    if (eval_result.error) {
+        ecs_os_free(eval_result.error);
+    }
+    ecs_script_free(script);
+
+    ecs_fini(world);
+}
+
+void Error_string_tag_with_gt_capture_error(void) {
+    ecs_world_t *world = ecs_init();
+
+    const char *expr =
+    HEAD "\">\"";
+
+    ecs_script_eval_result_t parse_result = {0};
+    ecs_script_t *script = ecs_script_parse(
+        world, "foo", expr, NULL, &parse_result);
+
+    test_assert(script != NULL);
+    test_assert(parse_result.error == NULL);
+
+    ecs_script_eval_result_t eval_result = {0};
+    int rc = ecs_script_eval(script, NULL, &eval_result);
+    test_assert(rc != 0);
+    test_assert(eval_result.error != NULL);
+
+    if (eval_result.error) {
+        ecs_os_free(eval_result.error);
+    }
+    ecs_script_free(script);
 
     ecs_fini(world);
 }

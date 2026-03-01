@@ -3985,6 +3985,73 @@ void flecs_default_ctor(
     int32_t count, 
     const ecs_type_info_t *type_info);
 
+/* Wrapper functions for invoking type hooks with fallback behavior. */
+FLECS_API
+bool flecs_type_info_ctor(
+    void *ptr,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+bool flecs_type_info_dtor(
+    void *ptr,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+void flecs_type_info_copy(
+    void *dst,
+    const void *src,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+void flecs_type_info_move(
+    void *dst,
+    void *src,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+void flecs_type_info_copy_ctor(
+    void *dst,
+    const void *src,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+void flecs_type_info_move_ctor(
+    void *dst,
+    void *src,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+void flecs_type_info_ctor_move_dtor(
+    void *dst,
+    void *src,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+void flecs_type_info_move_dtor(
+    void *dst,
+    void *src,
+    int32_t count,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+int flecs_type_info_cmp(
+    const void *a,
+    const void *b,
+    const ecs_type_info_t *type_info);
+
+FLECS_API
+bool flecs_type_info_equals(
+    const void *a,
+    const void *b,
+    const ecs_type_info_t *type_info);
+
 /** Create allocated string from format. 
  * 
  * @param fmt The format string.
@@ -31525,21 +31592,21 @@ struct iter_iterable final : iterable<Components...> {
 
     iter_iterable<Components...>& set_var(const char *name, flecs::entity_t value) {
         int var_id = ecs_query_find_var(it_.query, name);
-        ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, name);
+        ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, "%s", name);
         ecs_iter_set_var(&it_, var_id, value);
         return *this;
     }
 
     iter_iterable<Components...>& set_var(const char *name, flecs::table_t *value) {
         int var_id = ecs_query_find_var(it_.query, name);
-        ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, name);
+        ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, "%s", name);
         ecs_iter_set_var_as_table(&it_, var_id, value);
         return *this;
     }
 
     iter_iterable<Components...>& set_var(const char *name, ecs_table_range_t value) {
         int var_id = ecs_query_find_var(it_.query, name);
-        ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, name);
+        ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, "%s", name);
         ecs_iter_set_var_as_range(&it_, var_id, &value);
         return *this;
     }
@@ -33970,7 +34037,7 @@ ecs_entity_t do_import(world& world, const char *symbol) {
 
     // It should now be possible to lookup the module
     ecs_entity_t m = ecs_lookup_symbol(world, symbol, false, false);
-    ecs_assert(m != 0, ECS_MODULE_UNDEFINED, symbol);
+    ecs_assert(m != 0, ECS_MODULE_UNDEFINED, "%s", symbol);
     ecs_assert(m == c_, ECS_INTERNAL_ERROR, NULL);
 
     ecs_log_pop();
@@ -36047,7 +36114,7 @@ inline flecs::entity iter::get_var(const char *name) const {
     const flecs::query_t *q = iter_->query;
 
     int var_id = ecs_query_find_var(q, name);
-    ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, name);
+    ecs_assert(var_id != -1, ECS_INVALID_PARAMETER, "%s", name);
     return flecs::entity(iter_->world, ecs_iter_get_var(iter_, var_id));
 }
 

@@ -202,6 +202,15 @@ void flecs_on_replace_parent(ecs_iter_t *it) {
             continue;
         }
 
+    #ifdef FLECS_DEBUG
+        ecs_entity_t cur = new_parent;
+        while (cur) {
+            ecs_assert(cur != e, ECS_CYCLE_DETECTED,
+                "cycle detected in Parent hierarchy");
+            cur = ecs_get_parent(world, cur);
+        }
+    #endif
+
         flecs_journal_begin(world, EcsJournalSetParent, e, &(ecs_type_t){
             .count = 1, .array = &new_parent
         }, NULL);
@@ -432,4 +441,6 @@ void flecs_bootstrap_parent_component(
         .ctor = flecs_default_ctor,
         .on_replace = flecs_on_replace_parent
     });
+
+    ecs_add_pair(world, ecs_id(EcsParent), EcsOnInstantiate, EcsDontInherit);
 }

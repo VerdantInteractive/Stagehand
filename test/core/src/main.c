@@ -831,6 +831,7 @@ void NonFragmentingChildOf_prefab_variant_w_nested_children(void);
 void NonFragmentingChildOf_instantiate_tree_1_child(void);
 void NonFragmentingChildOf_instantiate_tree_2_children(void);
 void NonFragmentingChildOf_instantiate_tree_3_children(void);
+void NonFragmentingChildOf_instantiate_tree_w_on_set_up_childof_observer_crash(void);
 void NonFragmentingChildOf_instantiate_w_dont_inherit(void);
 void NonFragmentingChildOf_instantiate_w_inherit(void);
 void NonFragmentingChildOf_instantiate_w_auto_override(void);
@@ -934,6 +935,13 @@ void NonFragmentingChildOf_defer_reparent_to_deleted_parent(void);
 void NonFragmentingChildOf_delete_mixed_tree_1(void);
 void NonFragmentingChildOf_delete_mixed_tree_2(void);
 void NonFragmentingChildOf_delete_mixed_tree_3(void);
+void NonFragmentingChildOf_delete_mixed_tree_4(void);
+void NonFragmentingChildOf_delete_mixed_tree_5(void);
+void NonFragmentingChildOf_instantiate_parent_w_has_in_hook(void);
+void NonFragmentingChildOf_add_prefab_tag_after_hierarchy_creation(void);
+void NonFragmentingChildOf_defer_add_prefab_tag_after_hierarchy_creation(void);
+void NonFragmentingChildOf_add_prefab_tag_after_hierarchy_creation_2(void);
+void NonFragmentingChildOf_defer_add_prefab_tag_after_hierarchy_creation_2(void);
 
 // Testsuite 'Hierarchies'
 void Hierarchies_setup(void);
@@ -1620,6 +1628,10 @@ void ComponentLifecycle_copy_ctor_w_override_w_ensure(void);
 void ComponentLifecycle_shrink(void);
 void ComponentLifecycle_dtor_after_add_exclusive_component(void);
 void ComponentLifecycle_dtor_after_add_exclusive_component_last(void);
+void ComponentLifecycle_has_in_on_add_hook_new(void);
+void ComponentLifecycle_has_in_on_add_hook_move(void);
+void ComponentLifecycle_get_in_on_add_hook_new(void);
+void ComponentLifecycle_get_in_on_add_hook_move(void);
 
 // Testsuite 'Pairs'
 void Pairs_type_w_one_pair(void);
@@ -6418,6 +6430,10 @@ bake_test_case NonFragmentingChildOf_testcases[] = {
         NonFragmentingChildOf_instantiate_tree_3_children
     },
     {
+        "instantiate_tree_w_on_set_up_childof_observer_crash",
+        NonFragmentingChildOf_instantiate_tree_w_on_set_up_childof_observer_crash
+    },
+    {
         "instantiate_w_dont_inherit",
         NonFragmentingChildOf_instantiate_w_dont_inherit
     },
@@ -6828,6 +6844,34 @@ bake_test_case NonFragmentingChildOf_testcases[] = {
     {
         "delete_mixed_tree_3",
         NonFragmentingChildOf_delete_mixed_tree_3
+    },
+    {
+        "delete_mixed_tree_4",
+        NonFragmentingChildOf_delete_mixed_tree_4
+    },
+    {
+        "delete_mixed_tree_5",
+        NonFragmentingChildOf_delete_mixed_tree_5
+    },
+    {
+        "instantiate_parent_w_has_in_hook",
+        NonFragmentingChildOf_instantiate_parent_w_has_in_hook
+    },
+    {
+        "add_prefab_tag_after_hierarchy_creation",
+        NonFragmentingChildOf_add_prefab_tag_after_hierarchy_creation
+    },
+    {
+        "defer_add_prefab_tag_after_hierarchy_creation",
+        NonFragmentingChildOf_defer_add_prefab_tag_after_hierarchy_creation
+    },
+    {
+        "add_prefab_tag_after_hierarchy_creation_2",
+        NonFragmentingChildOf_add_prefab_tag_after_hierarchy_creation_2
+    },
+    {
+        "defer_add_prefab_tag_after_hierarchy_creation_2",
+        NonFragmentingChildOf_defer_add_prefab_tag_after_hierarchy_creation_2
     }
 };
 
@@ -9478,6 +9522,22 @@ bake_test_case ComponentLifecycle_testcases[] = {
     {
         "dtor_after_add_exclusive_component_last",
         ComponentLifecycle_dtor_after_add_exclusive_component_last
+    },
+    {
+        "has_in_on_add_hook_new",
+        ComponentLifecycle_has_in_on_add_hook_new
+    },
+    {
+        "has_in_on_add_hook_move",
+        ComponentLifecycle_has_in_on_add_hook_move
+    },
+    {
+        "get_in_on_add_hook_new",
+        ComponentLifecycle_get_in_on_add_hook_new
+    },
+    {
+        "get_in_on_add_hook_move",
+        ComponentLifecycle_get_in_on_add_hook_move
     }
 };
 
@@ -15740,7 +15800,7 @@ static bake_test_suite suites[] = {
         "NonFragmentingChildOf",
         NULL,
         NULL,
-        228,
+        236,
         NonFragmentingChildOf_testcases
     },
     {
@@ -15838,7 +15898,7 @@ static bake_test_suite suites[] = {
         "ComponentLifecycle",
         ComponentLifecycle_setup,
         NULL,
-        134,
+        138,
         ComponentLifecycle_testcases
     },
     {
