@@ -770,8 +770,9 @@ int flecs_query_insert_toggle(
                     continue;
                 }
 
+                ecs_flags64_t field_bit = 1llu << term->field_index;
+
                 /* Source matches, set flag */
-                uint64_t field_bit = 1ull << term->field_index;
                 if (term->oper == EcsNot) {
                     not_toggles |= field_bit;
                 } else if (term->oper == EcsOptional) {
@@ -810,9 +811,13 @@ int flecs_query_insert_toggle(
              * set, separate instructions let the query engine backtrack to get 
              * the right results. */
             if (optional_toggles) {
-                for (j = 0; j < q->field_count; j ++) {
-                    uint64_t field_bit = 1ull << j;
+                ecs_flags64_t optional_done = 0;
+                for (j = i; j < term_count; j ++) {
+                    uint64_t field_bit = 1ull << terms[j].field_index;
                     if (!(optional_toggles & field_bit)) {
+                        continue;
+                    }
+                    if (optional_done & field_bit) {
                         continue;
                     }
 
@@ -822,6 +827,8 @@ int flecs_query_insert_toggle(
                     op.first.entity = field_bit;
                     op.flags = cur.flags;
                     flecs_query_op_insert(&op, ctx);
+
+                    optional_done |= field_bit;
                 }
             }
         }
