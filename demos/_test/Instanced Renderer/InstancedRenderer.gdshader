@@ -1,13 +1,13 @@
 shader_type spatial;
 
-instance uniform vec4 Colour;
+instance uniform vec4 InstanceColour;
 
 void vertex() {
 	// Called for every vertex the material is visible on.
 }
 
 void fragment() {
-	// Called for every pixel the material is visible on.
+	ALBEDO = InstanceColour.rgb;
 }
 
 //void light() {

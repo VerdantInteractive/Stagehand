@@ -14,8 +14,10 @@ namespace stagehand::rendering {
 
     REGISTER([](flecs::world &world) {
         struct InstanceUniformView {
-            flecs::field<const godot::Vector4> values;
-            bool is_changed;
+            // untyped_field performs type erasure, allowing the system to hold a reference to the component data column regardless of its actual component type.
+            // One entity might use InstanceColor (a component wrapping Vector4) as a uniform. Another might use InstanceEmission (a different component, also wrapping Vector4).
+            flecs::untyped_field values;
+            bool has_changed;
             bool is_shared;
             godot::StringName parameter_name;
         };
@@ -86,12 +88,18 @@ namespace stagehand::rendering {
 
                             for (const auto &uniform_config : renderer.uniforms) {
                                 if (query_it.is_set(uniform_config.value_field_index)) {
-                                    auto values_field = query_it.field<const godot::Vector4>(uniform_config.value_field_index);
+                                    if (query_it.size(uniform_config.value_field_index) != sizeof(godot::Vector4)) {
+                                        continue;
+                                    }
+
+                                    flecs::untyped_field values_field = query_it.field(uniform_config.value_field_index);
                                     bool is_shared = !query_it.is_self(uniform_config.value_field_index);
-                                    instance_uniform_views.push_back(InstanceUniformView{
-                                        values_field,
-                                        query_it.is_set(uniform_config.changed_field_index), is_shared,
-                                        uniform_config.parameter_name});
+                                    bool has_changed_field = false;
+                                    if (uniform_config.changed_field_index >= 0) {
+                                        has_changed_field = query_it.is_set(uniform_config.changed_field_index);
+                                    }
+                                    instance_uniform_views.push_back(
+                                        InstanceUniformView{values_field, has_changed_field, is_shared, uniform_config.parameter_name});
                                 }
                             }
 
@@ -135,8 +143,9 @@ namespace stagehand::rendering {
 
                                     // Update instance uniforms
                                     for (const auto &uniform_view : instance_uniform_views) {
-                                        if (is_new || uniform_view.is_changed) {
-                                            const godot::Vector4 &val = uniform_view.is_shared ? uniform_view.values[0] : uniform_view.values[i];
+                                        if (is_new || uniform_view.has_changed) {
+                                            const void *raw_value = uniform_view.is_shared ? uniform_view.values[0] : uniform_view.values[i];
+                                            const godot::Vector4 &val = *static_cast<const godot::Vector4 *>(raw_value); // std::memcpy(&val, raw_value, sizeof(godot::Vector4)); might be more robust
                                             rendering_server->instance_geometry_set_shader_parameter(instance_rid, uniform_view.parameter_name, val);
                                         }
                                     }

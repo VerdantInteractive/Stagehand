@@ -73,7 +73,7 @@ namespace stagehand_tests {
         // Register UnitColor as an instance uniform for testing
         world.component<UnitColor>("UnitColor");
         register_vector4_members(world.component<UnitColor>());
-        world.component<UnitColor>().add<stagehand::rendering::InstanceUniform>();
+        world.component<UnitColor>().add<stagehand::rendering::IsInstanceUniform>();
 
         world.prefab(stagehand_tests::names::prefabs::INSTANCED_ENTITY_3D).is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
             .add<EntityValue>()

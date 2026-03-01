@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Stagehand Demos"
-run/main_scene="uid://bueq266njnou7"
+run/main_scene="uid://b7iax23iuf1rp"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 

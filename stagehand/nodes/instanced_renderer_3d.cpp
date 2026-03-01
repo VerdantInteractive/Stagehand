@@ -7,6 +7,7 @@
 
 #include "stagehand/ecs/components/transform.h"
 #include "stagehand/ecs/pipeline_phases.h"
+#include "stagehand/ecs/components/traits.h"
 
 void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count) {
     if (!renderer->validate_configuration()) {
@@ -18,7 +19,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
 
     // Build a query for all prefabs with Transform3D that changed in the current frame
     auto query_builder = world.query_builder<const stagehand::transform::Transform3D>();
-    query_builder.with<const stagehand::transform::ChangedTransform3D>().optional();
+    query_builder.with<const stagehand::transform::HasChangedTransform3D>().optional();
 
     int prefab_count = prefabs.size();
     for (int j = 0; j < prefab_count; ++j) {
@@ -41,7 +42,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     std::vector<flecs::entity> found_instance_uniform_components;
     std::vector<stagehand::rendering::InstancedRendererConfig::UniformConfig> uniform_configs;
 
-    // Discover instance uniform components with InstanceUniform trait from prefabs
+    // Discover instance uniform components with IsInstanceUniform trait from prefabs
     for (int j = 0; j < prefab_count; ++j) {
         godot::String prefab_name = prefabs[j];
         std::string prefab_name_str = prefab_name.utf8().get_data();
@@ -52,7 +53,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
                 if (id.is_pair())
                     return;
                 flecs::entity component = id.entity();
-                if (component.has<stagehand::rendering::InstanceUniform>()) {
+                if (component.has<stagehand::rendering::IsInstanceUniform>()) {
                     // Check if already added to avoid duplicates
                     bool exists = false;
                     for (auto u : found_instance_uniform_components) {
@@ -69,7 +70,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
         }
     }
 
-    // Base index: Transform3D (0), ChangedTransform3D (1), Prefab IsA chain (2..2+N-1)
+    // Base index: Transform3D (0), HasChangedTransform3D (1), Prefab IsA chain (2..2+N-1)
     int current_field_index = 2 + prefab_count;
 
     godot::PackedStringArray _discovered_instance_uniforms;
@@ -82,40 +83,40 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
 
         flecs::entity instance_uniform_component = found_instance_uniform_components[i];
         std::string instance_uniform_component_name_str = instance_uniform_component.name().c_str();
-        
+
         // Validate component size (must match Vector4)
         const flecs::Component *c_info = instance_uniform_component.try_get<flecs::Component>();
         if (!c_info || c_info->size != sizeof(godot::Vector4)) {
-            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + renderer->get_name() + "': Component '" + instance_uniform_component_name_str.c_str() +
-            "' has InstanceUniform trait but is not compatible with Vector4 (size mismatch).");
+            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + renderer->get_name() + "': Component '" +
+                                                  instance_uniform_component_name_str.c_str() +
+                                                  "' has IsInstanceUniform trait but is not compatible with Vector4 (size mismatch).");
             continue;
         }
-        
-        _discovered_instance_uniforms.push_back(godot::String(instance_uniform_component_name_str.c_str()));
-        
-        // Get or create the tag for change detection
-        std::string changed_tag_name_str = "Changed" + instance_uniform_component_name_str;
-        flecs::entity changed_tag = world.lookup(changed_tag_name_str.c_str());
-        if (!changed_tag) {
-            changed_tag = world.component(changed_tag_name_str.c_str());
 
-            // Register the reset system for this tag if it doesn't exist
-            std::string tag_reset_system_name = "stagehand::rendering::Tag Reset (" + changed_tag_name_str + ")";
-            if (!world.lookup(tag_reset_system_name.c_str())) {
-                world.system(tag_reset_system_name.c_str()).kind(stagehand::PostRender).with(changed_tag).each([changed_tag](flecs::entity e) { e.remove(changed_tag); });
+        _discovered_instance_uniforms.push_back(godot::String(instance_uniform_component_name_str.c_str()));
+
+        // Find the associated change detection tag via the With relationship.
+        flecs::entity changed_tag;
+        instance_uniform_component.each(flecs::With, [&](flecs::entity target) {
+            if (target.has<stagehand::IsChangeDetectionTag>()) {
+                changed_tag = target;
             }
-        }
+        });
 
         query_builder.with(instance_uniform_component).in().optional();
-        query_builder.with(changed_tag).optional();
 
         stagehand::rendering::InstancedRendererConfig::UniformConfig u_config;
         u_config.value_field_index = current_field_index;
-        u_config.changed_field_index = current_field_index + 1;
+        if (changed_tag) {
+            query_builder.with(changed_tag).optional();
+            u_config.changed_field_index = current_field_index + 1;
+            current_field_index += 2;
+        } else {
+            u_config.changed_field_index = -1;
+            current_field_index += 1;
+        }
         u_config.parameter_name = godot::StringName(instance_uniform_component_name_str.c_str());
         uniform_configs.push_back(u_config);
-
-        current_field_index += 2;
     }
 
     renderer->set_discovered_instance_uniforms(_discovered_instance_uniforms);
@@ -244,8 +245,12 @@ void InstancedRenderer3D::_bind_methods() {
     godot::ClassDB::add_property(
         "InstancedRenderer3D", godot::PropertyInfo(godot::Variant::ARRAY, "lod_levels", godot::PROPERTY_HINT_ARRAY_TYPE, "InstancedRenderer3DLODConfiguration"),
         "set_lod_levels", "get_lod_levels");
-    godot::ClassDB::add_property("InstancedRenderer3D", godot::PropertyInfo(godot::Variant::OBJECT, "material", godot::PROPERTY_HINT_RESOURCE_TYPE, "Material"), "set_material", "get_material");
-    godot::ClassDB::add_property("InstancedRenderer3D", godot::PropertyInfo(godot::Variant::PACKED_STRING_ARRAY, "discovered_instance_uniforms", godot::PROPERTY_HINT_NONE, "", godot::PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY), "set_discovered_instance_uniforms", "get_discovered_instance_uniforms");
+    godot::ClassDB::add_property("InstancedRenderer3D", godot::PropertyInfo(godot::Variant::OBJECT, "material", godot::PROPERTY_HINT_RESOURCE_TYPE, "Material"),
+                                 "set_material", "get_material");
+    godot::ClassDB::add_property("InstancedRenderer3D",
+                                 godot::PropertyInfo(godot::Variant::PACKED_STRING_ARRAY, "discovered_instance_uniforms", godot::PROPERTY_HINT_NONE, "",
+                                                     godot::PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY),
+                                 "set_discovered_instance_uniforms", "get_discovered_instance_uniforms");
 }
 
 void InstancedRenderer3DLODConfiguration::_bind_methods() {

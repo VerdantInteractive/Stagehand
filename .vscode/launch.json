@@ -75,6 +75,20 @@
             "args": [
                 "demos/project.godot"
             ],
+        },
+        {
+            "name": "debug3",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "/Applications/Godot.app/Contents/MacOS/Godot",
+            "args": [
+                "--path",
+                "demos",
+                "--quit-after",
+                "3"
+            ],
         }
     ]
 }
