@@ -6,6 +6,10 @@ namespace stagehand_tests::names {
 
     constexpr const char *NAMESPACE = NAMESPACE_STR;
 
+    namespace components {
+        constexpr const char *UNIT_COLOR = NAMESPACE_STR "::UnitColor";
+    }
+
     namespace prefabs {
         constexpr const char *TEST_ENTITY_2D = NAMESPACE_STR "::TestEntity2D";
         constexpr const char *TEST_ENTITY_3D = NAMESPACE_STR "::TestEntity3D";

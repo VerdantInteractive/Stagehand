@@ -69,13 +69,14 @@ namespace stagehand_tests {
 
         // ── Instanced rendering test prefab ──────────────────────────────────
         // A 3D entity prefab used by InstancedRenderer3D integration tests.
-        
+
         // Register UnitColor as an instance uniform for testing
-        world.component<UnitColor>("UnitColor");
+        world.component<UnitColor>(names::components::UNIT_COLOR);
         register_vector4_members(world.component<UnitColor>());
         world.component<UnitColor>().add<stagehand::rendering::IsInstanceUniform>();
 
-        world.prefab(stagehand_tests::names::prefabs::INSTANCED_ENTITY_3D).is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
+        world.prefab(stagehand_tests::names::prefabs::INSTANCED_ENTITY_3D)
+            .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
             .add<EntityValue>()
             .add<UnitColor>();
     });
