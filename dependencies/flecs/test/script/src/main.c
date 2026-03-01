@@ -40,6 +40,15 @@ void Eval_line_comment_after_stmt_same_line(void);
 void Eval_line_comment_before_scope_open(void);
 void Eval_line_comment_after_newline_before_scope_open(void);
 void Eval_line_comment_after_newline_before_newline_scope_open(void);
+void Eval_line_comment_multiple_before_newline_scope_open(void);
+void Eval_line_comment_after_newline_before_whitespace_newline_scope_open(void);
+void Eval_line_comment_after_newline_before_newline_scope_open_crlf(void);
+void Eval_line_comment_before_multi_line_comment_before_scope_open(void);
+void Eval_line_comment_after_newline_before_3_newline_scope_open(void);
+void Eval_line_comment_after_newline_before_mixed_comment_newline_scope_open(void);
+void Eval_multi_line_comment_after_newline_before_mixed_comment_newline_scope_open(void);
+void Eval_line_comment_after_newline_before_mixed_line_endings_scope_open(void);
+void Eval_line_comment_after_newline_before_multiple_multi_line_comments_scope_open(void);
 void Eval_multi_line_comment(void);
 void Eval_multi_line_comment_before_stmt(void);
 void Eval_multi_line_comment_after_stmt(void);
@@ -109,6 +118,7 @@ void Eval_create_subject_in_root_scope_w_resolvable_id(void);
 void Eval_create_subject_in_scope_w_resolvable_id(void);
 void Eval_create_subject_in_scope_w_resolvable_id_using(void);
 void Eval_using_scope(void);
+void Eval_using_tab_after_keyword(void);
 void Eval_using_nested_scope(void);
 void Eval_using_nested_in_scope(void);
 void Eval_using_with_scope(void);
@@ -236,11 +246,19 @@ void Eval_if_true_in_scope(void);
 void Eval_if_false_in_scope(void);
 void Eval_if_lt(void);
 void Eval_if_lt_const(void);
+void Eval_if_tab_after_keyword(void);
 void Eval_if_else_if(void);
 void Eval_if_else_if_else(void);
 void Eval_if_else_if_else_if(void);
 void Eval_if_else_newline_if(void);
 void Eval_if_else_space_newline_if(void);
+void Eval_if_else_comment_newline_if(void);
+void Eval_if_else_comment_no_space_newline_if(void);
+void Eval_if_else_comment_newline_newline_if(void);
+void Eval_if_else_comment_mixed_comment_newline_if(void);
+void Eval_if_else_comment_newline_scope_open(void);
+void Eval_if_else_comment_mixed_comment_newline_scope_open(void);
+void Eval_if_else_comment_no_space_scope_open(void);
 void Eval_isa_in_module(void);
 void Eval_isa_hierarchy(void);
 void Eval_isa_hierarchy_in_module(void);
@@ -418,6 +436,22 @@ void Eval_tree_parent_nested_w_with_scope(void);
 void Eval_update_after_add_remove_tree_parent(void);
 void Eval_assign_eq_enum_to_component(void);
 void Eval_assign_eq_enum_to_const(void);
+void Eval_using_w_comment(void);
+void Eval_using_comment_no_space_after_keyword(void);
+void Eval_2_using_w_comment(void);
+void Eval_using_wildcard_w_comment(void);
+void Eval_module_stmt_w_comment(void);
+void Eval_template_stmt_w_comment(void);
+void Eval_const_var_expr_w_comment(void);
+void Eval_const_var_initializer_w_comment(void);
+void Eval_export_const_var_w_comment(void);
+void Eval_auto_override_tag_w_comment(void);
+void Eval_pair_tag_w_comment(void);
+void Eval_negative_hex_and_binary_literals(void);
+void Eval_scientific_notation_negative_exponent(void);
+void Eval_scientific_notation_positive_exponent_sign(void);
+void Eval_const_var_w_new_expr_two_tags(void);
+void Eval_const_var_w_new_expr_tag_component(void);
 
 // Testsuite 'Template'
 void Template_template_no_scope(void);
@@ -504,6 +538,7 @@ void Template_template_w_tree_parent_change_value(void);
 
 // Testsuite 'Error'
 void Error_multi_line_comment_after_newline_before_newline_scope_open(void);
+void Error_unterminated_multi_line_comment_after_line_comment(void);
 void Error_missing_end_of_scope(void);
 void Error_with_n_tags_2_levels_invalid_tag(void);
 void Error_assignment_to_non_component(void);
@@ -584,6 +619,13 @@ void Error_reload_script_w_component_w_error_again(void);
 void Error_initializer_w_int_to_struct(void);
 void Error_script_initializer_w_int_to_struct(void);
 void Error_capture_error(void);
+void Error_invalid_hex_number_prefix(void);
+void Error_invalid_binary_number_prefix(void);
+void Error_unterminated_multiline_string_capture_error(void);
+void Error_invalid_char_literal_two_chars(void);
+void Error_match_operator_without_equals_capture_error(void);
+void Error_eval_root_var_component_capture_error(void);
+void Error_string_tag_with_gt_capture_error(void);
 void Error_unresolved_component_error_w_script_run(void);
 void Error_unresolved_component_error_w_script_init(void);
 void Error_unresolved_component_error_w_script_init_existing(void);
@@ -1182,6 +1224,113 @@ void Fuzzing_11(void);
 void Fuzzing_12(void);
 void Fuzzing_13(void);
 void Fuzzing_14(void);
+void Fuzzing_15(void);
+void Fuzzing_16(void);
+void Fuzzing_17(void);
+void Fuzzing_18(void);
+void Fuzzing_19(void);
+void Fuzzing_20(void);
+void Fuzzing_21(void);
+void Fuzzing_22(void);
+void Fuzzing_23(void);
+void Fuzzing_24(void);
+void Fuzzing_25(void);
+void Fuzzing_26(void);
+void Fuzzing_27(void);
+void Fuzzing_28(void);
+void Fuzzing_29(void);
+void Fuzzing_30(void);
+void Fuzzing_31(void);
+void Fuzzing_32(void);
+void Fuzzing_33(void);
+void Fuzzing_34(void);
+void Fuzzing_35(void);
+void Fuzzing_36(void);
+void Fuzzing_37(void);
+void Fuzzing_38(void);
+void Fuzzing_39(void);
+void Fuzzing_40(void);
+void Fuzzing_41(void);
+void Fuzzing_42(void);
+void Fuzzing_43(void);
+void Fuzzing_44(void);
+void Fuzzing_45(void);
+void Fuzzing_46(void);
+void Fuzzing_47(void);
+void Fuzzing_48(void);
+void Fuzzing_49(void);
+void Fuzzing_50(void);
+void Fuzzing_51(void);
+void Fuzzing_52(void);
+void Fuzzing_53(void);
+void Fuzzing_54(void);
+void Fuzzing_55(void);
+void Fuzzing_56(void);
+void Fuzzing_57(void);
+void Fuzzing_58(void);
+void Fuzzing_59(void);
+void Fuzzing_60(void);
+void Fuzzing_61(void);
+void Fuzzing_62(void);
+void Fuzzing_63(void);
+void Fuzzing_64(void);
+void Fuzzing_65(void);
+void Fuzzing_66(void);
+void Fuzzing_67(void);
+void Fuzzing_68(void);
+void Fuzzing_69(void);
+void Fuzzing_70(void);
+void Fuzzing_71(void);
+void Fuzzing_72(void);
+void Fuzzing_73(void);
+void Fuzzing_74(void);
+void Fuzzing_75(void);
+void Fuzzing_76(void);
+void Fuzzing_77(void);
+void Fuzzing_78(void);
+void Fuzzing_79(void);
+void Fuzzing_80(void);
+void Fuzzing_81(void);
+void Fuzzing_82(void);
+void Fuzzing_83(void);
+void Fuzzing_84(void);
+void Fuzzing_85(void);
+void Fuzzing_86(void);
+void Fuzzing_87(void);
+void Fuzzing_88(void);
+void Fuzzing_89(void);
+void Fuzzing_90(void);
+void Fuzzing_91(void);
+void Fuzzing_92(void);
+void Fuzzing_93(void);
+void Fuzzing_94(void);
+void Fuzzing_95(void);
+void Fuzzing_96(void);
+void Fuzzing_97(void);
+void Fuzzing_98(void);
+void Fuzzing_99(void);
+void Fuzzing_100(void);
+void Fuzzing_101(void);
+void Fuzzing_102(void);
+void Fuzzing_103(void);
+void Fuzzing_104(void);
+void Fuzzing_105(void);
+void Fuzzing_106(void);
+void Fuzzing_107(void);
+void Fuzzing_108(void);
+void Fuzzing_109(void);
+void Fuzzing_110(void);
+void Fuzzing_111(void);
+void Fuzzing_112(void);
+void Fuzzing_113(void);
+void Fuzzing_114(void);
+void Fuzzing_115(void);
+void Fuzzing_116(void);
+void Fuzzing_117(void);
+void Fuzzing_118(void);
+void Fuzzing_119(void);
+void Fuzzing_120(void);
+void Fuzzing_121(void);
 
 bake_test_case Eval_testcases[] = {
     {
@@ -1307,6 +1456,42 @@ bake_test_case Eval_testcases[] = {
     {
         "line_comment_after_newline_before_newline_scope_open",
         Eval_line_comment_after_newline_before_newline_scope_open
+    },
+    {
+        "line_comment_multiple_before_newline_scope_open",
+        Eval_line_comment_multiple_before_newline_scope_open
+    },
+    {
+        "line_comment_after_newline_before_whitespace_newline_scope_open",
+        Eval_line_comment_after_newline_before_whitespace_newline_scope_open
+    },
+    {
+        "line_comment_after_newline_before_newline_scope_open_crlf",
+        Eval_line_comment_after_newline_before_newline_scope_open_crlf
+    },
+    {
+        "line_comment_before_multi_line_comment_before_scope_open",
+        Eval_line_comment_before_multi_line_comment_before_scope_open
+    },
+    {
+        "line_comment_after_newline_before_3_newline_scope_open",
+        Eval_line_comment_after_newline_before_3_newline_scope_open
+    },
+    {
+        "line_comment_after_newline_before_mixed_comment_newline_scope_open",
+        Eval_line_comment_after_newline_before_mixed_comment_newline_scope_open
+    },
+    {
+        "multi_line_comment_after_newline_before_mixed_comment_newline_scope_open",
+        Eval_multi_line_comment_after_newline_before_mixed_comment_newline_scope_open
+    },
+    {
+        "line_comment_after_newline_before_mixed_line_endings_scope_open",
+        Eval_line_comment_after_newline_before_mixed_line_endings_scope_open
+    },
+    {
+        "line_comment_after_newline_before_multiple_multi_line_comments_scope_open",
+        Eval_line_comment_after_newline_before_multiple_multi_line_comments_scope_open
     },
     {
         "multi_line_comment",
@@ -1583,6 +1768,10 @@ bake_test_case Eval_testcases[] = {
     {
         "using_scope",
         Eval_using_scope
+    },
+    {
+        "using_tab_after_keyword",
+        Eval_using_tab_after_keyword
     },
     {
         "using_nested_scope",
@@ -2093,6 +2282,10 @@ bake_test_case Eval_testcases[] = {
         Eval_if_lt_const
     },
     {
+        "if_tab_after_keyword",
+        Eval_if_tab_after_keyword
+    },
+    {
         "if_else_if",
         Eval_if_else_if
     },
@@ -2111,6 +2304,34 @@ bake_test_case Eval_testcases[] = {
     {
         "if_else_space_newline_if",
         Eval_if_else_space_newline_if
+    },
+    {
+        "if_else_comment_newline_if",
+        Eval_if_else_comment_newline_if
+    },
+    {
+        "if_else_comment_no_space_newline_if",
+        Eval_if_else_comment_no_space_newline_if
+    },
+    {
+        "if_else_comment_newline_newline_if",
+        Eval_if_else_comment_newline_newline_if
+    },
+    {
+        "if_else_comment_mixed_comment_newline_if",
+        Eval_if_else_comment_mixed_comment_newline_if
+    },
+    {
+        "if_else_comment_newline_scope_open",
+        Eval_if_else_comment_newline_scope_open
+    },
+    {
+        "if_else_comment_mixed_comment_newline_scope_open",
+        Eval_if_else_comment_mixed_comment_newline_scope_open
+    },
+    {
+        "if_else_comment_no_space_scope_open",
+        Eval_if_else_comment_no_space_scope_open
     },
     {
         "isa_in_module",
@@ -2819,6 +3040,70 @@ bake_test_case Eval_testcases[] = {
     {
         "assign_eq_enum_to_const",
         Eval_assign_eq_enum_to_const
+    },
+    {
+        "using_w_comment",
+        Eval_using_w_comment
+    },
+    {
+        "using_comment_no_space_after_keyword",
+        Eval_using_comment_no_space_after_keyword
+    },
+    {
+        "2_using_w_comment",
+        Eval_2_using_w_comment
+    },
+    {
+        "using_wildcard_w_comment",
+        Eval_using_wildcard_w_comment
+    },
+    {
+        "module_stmt_w_comment",
+        Eval_module_stmt_w_comment
+    },
+    {
+        "template_stmt_w_comment",
+        Eval_template_stmt_w_comment
+    },
+    {
+        "const_var_expr_w_comment",
+        Eval_const_var_expr_w_comment
+    },
+    {
+        "const_var_initializer_w_comment",
+        Eval_const_var_initializer_w_comment
+    },
+    {
+        "export_const_var_w_comment",
+        Eval_export_const_var_w_comment
+    },
+    {
+        "auto_override_tag_w_comment",
+        Eval_auto_override_tag_w_comment
+    },
+    {
+        "pair_tag_w_comment",
+        Eval_pair_tag_w_comment
+    },
+    {
+        "negative_hex_and_binary_literals",
+        Eval_negative_hex_and_binary_literals
+    },
+    {
+        "scientific_notation_negative_exponent",
+        Eval_scientific_notation_negative_exponent
+    },
+    {
+        "scientific_notation_positive_exponent_sign",
+        Eval_scientific_notation_positive_exponent_sign
+    },
+    {
+        "const_var_w_new_expr_two_tags",
+        Eval_const_var_w_new_expr_two_tags
+    },
+    {
+        "const_var_w_new_expr_tag_component",
+        Eval_const_var_w_new_expr_tag_component
     }
 };
 
@@ -3155,6 +3440,10 @@ bake_test_case Error_testcases[] = {
         Error_multi_line_comment_after_newline_before_newline_scope_open
     },
     {
+        "unterminated_multi_line_comment_after_line_comment",
+        Error_unterminated_multi_line_comment_after_line_comment
+    },
+    {
         "missing_end_of_scope",
         Error_missing_end_of_scope
     },
@@ -3473,6 +3762,34 @@ bake_test_case Error_testcases[] = {
     {
         "capture_error",
         Error_capture_error
+    },
+    {
+        "invalid_hex_number_prefix",
+        Error_invalid_hex_number_prefix
+    },
+    {
+        "invalid_binary_number_prefix",
+        Error_invalid_binary_number_prefix
+    },
+    {
+        "unterminated_multiline_string_capture_error",
+        Error_unterminated_multiline_string_capture_error
+    },
+    {
+        "invalid_char_literal_two_chars",
+        Error_invalid_char_literal_two_chars
+    },
+    {
+        "match_operator_without_equals_capture_error",
+        Error_match_operator_without_equals_capture_error
+    },
+    {
+        "eval_root_var_component_capture_error",
+        Error_eval_root_var_component_capture_error
+    },
+    {
+        "string_tag_with_gt_capture_error",
+        Error_string_tag_with_gt_capture_error
     },
     {
         "unresolved_component_error_w_script_run",
@@ -5827,6 +6144,434 @@ bake_test_case Fuzzing_testcases[] = {
     {
         "14",
         Fuzzing_14
+    },
+    {
+        "15",
+        Fuzzing_15
+    },
+    {
+        "16",
+        Fuzzing_16
+    },
+    {
+        "17",
+        Fuzzing_17
+    },
+    {
+        "18",
+        Fuzzing_18
+    },
+    {
+        "19",
+        Fuzzing_19
+    },
+    {
+        "20",
+        Fuzzing_20
+    },
+    {
+        "21",
+        Fuzzing_21
+    },
+    {
+        "22",
+        Fuzzing_22
+    },
+    {
+        "23",
+        Fuzzing_23
+    },
+    {
+        "24",
+        Fuzzing_24
+    },
+    {
+        "25",
+        Fuzzing_25
+    },
+    {
+        "26",
+        Fuzzing_26
+    },
+    {
+        "27",
+        Fuzzing_27
+    },
+    {
+        "28",
+        Fuzzing_28
+    },
+    {
+        "29",
+        Fuzzing_29
+    },
+    {
+        "30",
+        Fuzzing_30
+    },
+    {
+        "31",
+        Fuzzing_31
+    },
+    {
+        "32",
+        Fuzzing_32
+    },
+    {
+        "33",
+        Fuzzing_33
+    },
+    {
+        "34",
+        Fuzzing_34
+    },
+    {
+        "35",
+        Fuzzing_35
+    },
+    {
+        "36",
+        Fuzzing_36
+    },
+    {
+        "37",
+        Fuzzing_37
+    },
+    {
+        "38",
+        Fuzzing_38
+    },
+    {
+        "39",
+        Fuzzing_39
+    },
+    {
+        "40",
+        Fuzzing_40
+    },
+    {
+        "41",
+        Fuzzing_41
+    },
+    {
+        "42",
+        Fuzzing_42
+    },
+    {
+        "43",
+        Fuzzing_43
+    },
+    {
+        "44",
+        Fuzzing_44
+    },
+    {
+        "45",
+        Fuzzing_45
+    },
+    {
+        "46",
+        Fuzzing_46
+    },
+    {
+        "47",
+        Fuzzing_47
+    },
+    {
+        "48",
+        Fuzzing_48
+    },
+    {
+        "49",
+        Fuzzing_49
+    },
+    {
+        "50",
+        Fuzzing_50
+    },
+    {
+        "51",
+        Fuzzing_51
+    },
+    {
+        "52",
+        Fuzzing_52
+    },
+    {
+        "53",
+        Fuzzing_53
+    },
+    {
+        "54",
+        Fuzzing_54
+    },
+    {
+        "55",
+        Fuzzing_55
+    },
+    {
+        "56",
+        Fuzzing_56
+    },
+    {
+        "57",
+        Fuzzing_57
+    },
+    {
+        "58",
+        Fuzzing_58
+    },
+    {
+        "59",
+        Fuzzing_59
+    },
+    {
+        "60",
+        Fuzzing_60
+    },
+    {
+        "61",
+        Fuzzing_61
+    },
+    {
+        "62",
+        Fuzzing_62
+    },
+    {
+        "63",
+        Fuzzing_63
+    },
+    {
+        "64",
+        Fuzzing_64
+    },
+    {
+        "65",
+        Fuzzing_65
+    },
+    {
+        "66",
+        Fuzzing_66
+    },
+    {
+        "67",
+        Fuzzing_67
+    },
+    {
+        "68",
+        Fuzzing_68
+    },
+    {
+        "69",
+        Fuzzing_69
+    },
+    {
+        "70",
+        Fuzzing_70
+    },
+    {
+        "71",
+        Fuzzing_71
+    },
+    {
+        "72",
+        Fuzzing_72
+    },
+    {
+        "73",
+        Fuzzing_73
+    },
+    {
+        "74",
+        Fuzzing_74
+    },
+    {
+        "75",
+        Fuzzing_75
+    },
+    {
+        "76",
+        Fuzzing_76
+    },
+    {
+        "77",
+        Fuzzing_77
+    },
+    {
+        "78",
+        Fuzzing_78
+    },
+    {
+        "79",
+        Fuzzing_79
+    },
+    {
+        "80",
+        Fuzzing_80
+    },
+    {
+        "81",
+        Fuzzing_81
+    },
+    {
+        "82",
+        Fuzzing_82
+    },
+    {
+        "83",
+        Fuzzing_83
+    },
+    {
+        "84",
+        Fuzzing_84
+    },
+    {
+        "85",
+        Fuzzing_85
+    },
+    {
+        "86",
+        Fuzzing_86
+    },
+    {
+        "87",
+        Fuzzing_87
+    },
+    {
+        "88",
+        Fuzzing_88
+    },
+    {
+        "89",
+        Fuzzing_89
+    },
+    {
+        "90",
+        Fuzzing_90
+    },
+    {
+        "91",
+        Fuzzing_91
+    },
+    {
+        "92",
+        Fuzzing_92
+    },
+    {
+        "93",
+        Fuzzing_93
+    },
+    {
+        "94",
+        Fuzzing_94
+    },
+    {
+        "95",
+        Fuzzing_95
+    },
+    {
+        "96",
+        Fuzzing_96
+    },
+    {
+        "97",
+        Fuzzing_97
+    },
+    {
+        "98",
+        Fuzzing_98
+    },
+    {
+        "99",
+        Fuzzing_99
+    },
+    {
+        "100",
+        Fuzzing_100
+    },
+    {
+        "101",
+        Fuzzing_101
+    },
+    {
+        "102",
+        Fuzzing_102
+    },
+    {
+        "103",
+        Fuzzing_103
+    },
+    {
+        "104",
+        Fuzzing_104
+    },
+    {
+        "105",
+        Fuzzing_105
+    },
+    {
+        "106",
+        Fuzzing_106
+    },
+    {
+        "107",
+        Fuzzing_107
+    },
+    {
+        "108",
+        Fuzzing_108
+    },
+    {
+        "109",
+        Fuzzing_109
+    },
+    {
+        "110",
+        Fuzzing_110
+    },
+    {
+        "111",
+        Fuzzing_111
+    },
+    {
+        "112",
+        Fuzzing_112
+    },
+    {
+        "113",
+        Fuzzing_113
+    },
+    {
+        "114",
+        Fuzzing_114
+    },
+    {
+        "115",
+        Fuzzing_115
+    },
+    {
+        "116",
+        Fuzzing_116
+    },
+    {
+        "117",
+        Fuzzing_117
+    },
+    {
+        "118",
+        Fuzzing_118
+    },
+    {
+        "119",
+        Fuzzing_119
+    },
+    {
+        "120",
+        Fuzzing_120
+    },
+    {
+        "121",
+        Fuzzing_121
     }
 };
 
@@ -5844,7 +6589,7 @@ static bake_test_suite suites[] = {
         "Eval",
         NULL,
         NULL,
-        409,
+        443,
         Eval_testcases
     },
     {
@@ -5858,7 +6603,7 @@ static bake_test_suite suites[] = {
         "Error",
         NULL,
         NULL,
-        92,
+        100,
         Error_testcases
     },
     {
@@ -5904,7 +6649,7 @@ static bake_test_suite suites[] = {
         "Fuzzing",
         NULL,
         NULL,
-        14,
+        121,
         Fuzzing_testcases
     }
 };
