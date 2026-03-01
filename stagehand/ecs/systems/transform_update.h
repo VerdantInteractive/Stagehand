@@ -3,6 +3,7 @@
 #include "stagehand/ecs/components/godot_variants.h"
 #include "stagehand/ecs/components/transform.h"
 #include "stagehand/ecs/pipeline_phases.h"
+#include "stagehand/entity.h"
 #include "stagehand/names.h"
 #include "stagehand/registry.h"
 
@@ -21,15 +22,16 @@ namespace stagehand::transform {
             .write<HasChangedTransform2D>()
             .multi_threaded()
             .each([](
-                flecs::entity e,
+                stagehand::entity e,
                 Transform2D &transform,
                 const Position2D &position,
                 const Rotation2D &rotation,
                 const Scale2D &scale
             ){
-                transform.set_origin(position);
-                transform.set_rotation_and_scale(rotation, scale);
-                e.enable<HasChangedTransform2D>();
+                e.modify(transform, [&](Transform2D &t) {
+                    t.set_origin(position);
+                    t.set_rotation_and_scale(rotation, scale);
+                });
             });
 
         world.system<
@@ -44,14 +46,15 @@ namespace stagehand::transform {
             .write<HasChangedTransform3D>()
             .multi_threaded()
             .each([](
-                flecs::entity e,
+                stagehand::entity e,
                 Transform3D &transform,
                 const Position3D &position,
                 const Rotation3D &rotation,
                 const Scale3D &scale
             ){
-                transform = Transform3D(Basis(rotation).scaled(scale), position);
-                e.enable<HasChangedTransform3D>();
+                e.modify(transform, [&](Transform3D &t) {
+                    t = Transform3D(Basis(rotation).scaled(scale), position);
+                });
             });
         // clang-format on
     });

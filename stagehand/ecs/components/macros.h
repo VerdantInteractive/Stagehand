@@ -40,13 +40,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a single-precision floating-point number.
 #define FLOAT(Name, ...)                                                                                                                                       \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         float value{__VA_ARGS__};                                                                                                                              \
         Name() = default;                                                                                                                                      \
         Name(float v) : value(v) {}                                                                                                                            \
         NUMERIC_COMPONENT_OPERATORS(Name, float)                                                                                                               \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_float = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<float>("value");                                                                                                        \
         stagehand::register_component<Name, float>(#Name);                                                                                                     \
@@ -56,13 +62,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a double-precision floating-point number.
 #define DOUBLE(Name, ...)                                                                                                                                      \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         double value{__VA_ARGS__};                                                                                                                             \
         Name() = default;                                                                                                                                      \
         Name(double v) : value(v) {}                                                                                                                           \
         NUMERIC_COMPONENT_OPERATORS(Name, double)                                                                                                              \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_double = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<double>("value");                                                                                                       \
         stagehand::register_component<Name, double>(#Name);                                                                                                    \
@@ -72,13 +84,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a signed 32-bit integer.
 #define INT32(Name, ...)                                                                                                                                       \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         int32_t value{__VA_ARGS__};                                                                                                                            \
         Name() = default;                                                                                                                                      \
         Name(int32_t v) : value(v) {}                                                                                                                          \
         NUMERIC_COMPONENT_OPERATORS(Name, int32_t)                                                                                                             \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_int32 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<int32_t>("value");                                                                                                      \
         stagehand::register_component<Name, int32_t>(#Name);                                                                                                   \
@@ -88,13 +106,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping an unsigned 32-bit integer.
 #define UINT32(Name, ...)                                                                                                                                      \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         uint32_t value{__VA_ARGS__};                                                                                                                           \
         Name() = default;                                                                                                                                      \
         Name(uint32_t v) : value(v) {}                                                                                                                         \
         NUMERIC_COMPONENT_OPERATORS(Name, uint32_t)                                                                                                            \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_uint32 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<uint32_t>("value");                                                                                                     \
         stagehand::register_component<Name, uint32_t>(#Name);                                                                                                  \
@@ -104,13 +128,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a signed 16-bit integer (-32,768 to 32,767).
 #define INT16(Name, ...)                                                                                                                                       \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         int16_t value{__VA_ARGS__};                                                                                                                            \
         Name() = default;                                                                                                                                      \
         Name(int16_t v) : value(v) {}                                                                                                                          \
         NUMERIC_COMPONENT_OPERATORS(Name, int16_t)                                                                                                             \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_int16 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<int16_t>("value");                                                                                                      \
         stagehand::register_component<Name, int16_t>(#Name);                                                                                                   \
@@ -120,13 +150,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping an unsigned 16-bit integer (0 to 65,535).
 #define UINT16(Name, ...)                                                                                                                                      \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         uint16_t value{__VA_ARGS__};                                                                                                                           \
         Name() = default;                                                                                                                                      \
         Name(uint16_t v) : value(v) {}                                                                                                                         \
         NUMERIC_COMPONENT_OPERATORS(Name, uint16_t)                                                                                                            \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_uint16 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>().member<uint16_t>("value");                                                                                                     \
         stagehand::register_component<Name, uint16_t>(#Name);                                                                                                  \
@@ -136,13 +172,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a signed 8-bit integer (-128 to 127).
 #define INT8(Name, ...)                                                                                                                                        \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         int8_t value{__VA_ARGS__};                                                                                                                             \
         Name() = default;                                                                                                                                      \
         Name(int8_t v) : value(v) {}                                                                                                                           \
         NUMERIC_COMPONENT_OPERATORS(Name, int8_t)                                                                                                              \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_int8 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
         world.component<Name>().member<int8_t>("value");                                                                                                       \
         stagehand::register_component<Name, int8_t>(#Name);                                                                                                    \
@@ -152,13 +194,19 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping an unsigned 8-bit integer (0 to 255).
 #define UINT8(Name, ...)                                                                                                                                       \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         uint8_t value{__VA_ARGS__};                                                                                                                            \
         Name() = default;                                                                                                                                      \
         Name(uint8_t v) : value(v) {}                                                                                                                          \
         NUMERIC_COMPONENT_OPERATORS(Name, uint8_t)                                                                                                             \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_uint8 = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>().member<uint8_t>("value");                                                                                                      \
         stagehand::register_component<Name, uint8_t>(#Name);                                                                                                   \
@@ -168,7 +216,9 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a pointer type.
 #define POINTER(Name, Type, ...)                                                                                                                               \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         Type *ptr{__VA_ARGS__};                                                                                                                                \
         Name() = default;                                                                                                                                      \
         Name(Type *p) : ptr(p) {}                                                                                                                              \
@@ -185,7 +235,11 @@ using std::uint8_t;
         bool operator!=(const Name &other) const { return ptr != other.ptr; }                                                                                  \
         explicit operator bool() const { return ptr != nullptr; }                                                                                              \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_pointer = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                      \
         world.component<Name>().member<std::uintptr_t>("ptr");                                                                                                 \
         stagehand::register_component<Name, uint64_t>(#Name);                                                                                                  \
@@ -202,6 +256,7 @@ using std::uint8_t;
 /// Usage: ENUM(Name) or ENUM(Name, UnderlyingType). Default UnderlyingType is uint8_t.
 #define ENUM_IMPL(Name, Type)                                                                                                                                  \
     struct HasChanged##Name {};                                                                                                                                \
+    inline HasChanged##Name stagehand_get_change_tag(Name *) { return {}; }                                                                                    \
     inline auto register_##Name##_enum = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component<Name, Type>(#Name);                                                                                                      \
@@ -245,12 +300,18 @@ using std::uint8_t;
 ///
 /// Example: VECTOR(MyVectorComponent, float, {1.0f, 2.0f, 3.0f})
 #define VECTOR(Name, ElementType, ...)                                                                                                                         \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         std::vector<ElementType> value{__VA_ARGS__};                                                                                                           \
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::vector<ElementType>)                                                                                  \
         std::size_t size() const { return value.size(); }                                                                                                      \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_vector = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component<Name>(#Name);                                                                                                            \
@@ -266,12 +327,18 @@ using std::uint8_t;
 ///
 /// Example: ARRAY(MyArrayComponent, int, 5, {10, 20, 30, 40, 50})
 #define ARRAY(Name, ElementType, Size, ...)                                                                                                                    \
+    struct HasChanged##Name {};                                                                                                                                \
     struct Name {                                                                                                                                              \
+        using ChangeTag = HasChanged##Name;                                                                                                                    \
         std::array<ElementType, Size> value{__VA_ARGS__};                                                                                                      \
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::array<ElementType, Size>)                                                                             \
         constexpr std::size_t size() const { return Size; }                                                                                                    \
     };                                                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        e.enable<HasChanged##Name>();                                                                                                                          \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
     inline auto register_##Name##_array = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                        \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component<Name>(#Name);                                                                                                            \
