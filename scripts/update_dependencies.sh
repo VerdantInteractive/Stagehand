@@ -9,8 +9,6 @@ cd "${SCRIPT_DIR}/.."
 : ${FLECS_BRANCH:=master}
 : ${GOOGLETEST_BRANCH:=v1.17.x}
 
-git stash
-
 git fetch godot-cpp "${GODOT_CPP_BRANCH}"
 git subtree pull --prefix dependencies/godot-cpp godot-cpp "${GODOT_CPP_BRANCH}" --squash
 
@@ -19,5 +17,3 @@ git subtree pull --prefix dependencies/flecs flecs "${FLECS_BRANCH}" --squash
 
 git fetch googletest "${GOOGLETEST_BRANCH}"
 git subtree pull --prefix dependencies/googletest googletest "${GOOGLETEST_BRANCH}" --squash
-
-git stash pop
