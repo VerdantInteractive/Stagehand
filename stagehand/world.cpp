@@ -31,7 +31,7 @@ namespace stagehand {
 #if defined(DEBUG_ENABLED)
         godot::UtilityFunctions::print(godot::String("Debug build. Enabling extra logging and Flecs Explorer: https://www.flecs.dev/explorer/?host=localhost"));
         world.set<flecs::Rest>({});
-        world.import <flecs::stats>();
+        world.import<flecs::stats>();
         // flecs::log::set_level(1);
 #endif
 
@@ -228,6 +228,35 @@ namespace stagehand {
         }
 
         return static_cast<uint64_t>(instance.id());
+    }
+
+    void FlecsWorld::emit_event(const godot::StringName &event_name, const godot::Dictionary &data, uint64_t source_entity_id) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::emit_flecs_event called before world initialised");
+            return;
+        }
+
+        // Resolve the Event ID from the string name. This allows C++ observers to filter by this specific tag.
+        // We use world.entity() to ensure it exists (auto-create).
+        flecs::entity event_tag = world.entity(godot::String(event_name).utf8().get_data());
+
+        // Emit the event using the generic Signal component as the payload.
+        stagehand::Signal payload;
+        payload.name = event_name;
+        payload.data = data;
+
+        flecs::event_builder_typed<stagehand::Signal> event = world.event<stagehand::Signal>().id(event_tag).ctx(payload);
+
+        if (source_entity_id != 0) {
+            if (unlikely(!world.is_alive(static_cast<ecs_entity_t>(source_entity_id)))) {
+                godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::emit_flecs_event called with invalid source entity: ") +
+                                                      godot::String::num_uint64(source_entity_id));
+                return;
+            }
+            event.entity(static_cast<ecs_entity_t>(source_entity_id));
+        }
+
+        event.emit();
     }
 
     void FlecsWorld::set_progress_tick(ProgressTick p_progress_tick) {
@@ -467,6 +496,9 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("lookup", "name"), &FlecsWorld::lookup);
         godot::ClassDB::bind_method(godot::D_METHOD("get_entity_name", "entity_id"), &FlecsWorld::get_entity_name);
         godot::ClassDB::bind_method(godot::D_METHOD("instantiate_prefab", "prefab_name", "components"), &FlecsWorld::instantiate_prefab, DEFVAL(Dictionary()));
+
+        godot::ClassDB::bind_method(godot::D_METHOD("emit_flecs_event", "event_name", "data", "source_entity_id"), &FlecsWorld::emit_event,
+                                    DEFVAL(Dictionary()), DEFVAL(0));
 
         godot::ClassDB::bind_method(godot::D_METHOD("set_progress_tick", "progress_tick"), &FlecsWorld::set_progress_tick);
         godot::ClassDB::bind_method(godot::D_METHOD("get_progress_tick"), &FlecsWorld::get_progress_tick);

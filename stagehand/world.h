@@ -76,6 +76,12 @@ namespace stagehand {
         /// @return The entity ID of the new instance, or 0 if failed.
         uint64_t instantiate_prefab(const godot::StringName &prefab_name, const godot::Dictionary &components = {});
 
+        /// Emits a Flecs event with a payload. Intended to be called from GDScript.
+        /// @param event_name The name of the event (used as the event tag).
+        /// @param data The data payload for the event.
+        /// @param source_entity_id The entity emitting the event (optional).
+        void emit_event(const godot::StringName &event_name, const godot::Dictionary &data = {}, uint64_t source_entity_id = 0);
+
         void set_progress_tick(ProgressTick p_progress_tick);
         ProgressTick get_progress_tick() const { return progress_tick; }
         /// Advances the ECS world by a delta time.
