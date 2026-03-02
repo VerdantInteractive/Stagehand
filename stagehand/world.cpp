@@ -11,9 +11,9 @@
 #include <godot_cpp/core/defs.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include "stagehand/ecs/components/event_payload.h"
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
-#include "stagehand/ecs/components/signal.h"
 #include "stagehand/ecs/components/world_configuration.h"
 #include "stagehand/ecs/systems/rendering_instanced.h"
 #include "stagehand/ecs/systems/rendering_multimesh.h"
@@ -33,7 +33,7 @@ namespace stagehand {
 #if defined(DEBUG_ENABLED)
         godot::UtilityFunctions::print(godot::String("Debug build. Enabling extra logging and Flecs Explorer: https://www.flecs.dev/explorer/?host=localhost"));
         world.set<flecs::Rest>({});
-        world.import<flecs::stats>();
+        world.import <flecs::stats>();
         // flecs::log::set_level(1);
 #endif
 
@@ -238,7 +238,7 @@ namespace stagehand {
             return;
         }
 
-        stagehand::Signal payload;
+        stagehand::EventPayload payload;
         payload.name = event_name;
         payload.data = data;
         payload.source_entity_id = source_entity_id;
@@ -260,7 +260,7 @@ namespace stagehand {
         // Flecs requires:
         // - desc.event to be a component type when using desc.param (payload)
         // - at least one id; use EcsAny as a generic id for Stagehand events.
-        world.event<stagehand::Signal>().id(flecs::Any).entity(emitter_entity_id).ctx(std::move(payload)).emit();
+        world.event<stagehand::EventPayload>().id(flecs::Any).entity(emitter_entity_id).ctx(std::move(payload)).emit();
     }
 
     void FlecsWorld::set_progress_tick(ProgressTick p_progress_tick) {
@@ -414,10 +414,10 @@ namespace stagehand {
 
     void FlecsWorld::register_signal_observer() {
         world.observer("stagehand::SignalObserver")
-            .event<Signal>()
+            .event<EventPayload>()
             .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
             .each([this](flecs::iter &it, size_t index) {
-                const Signal *signal = it.param<Signal>();
+                const EventPayload *signal = it.param<EventPayload>();
                 if (likely(signal)) {
                     this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
                 }

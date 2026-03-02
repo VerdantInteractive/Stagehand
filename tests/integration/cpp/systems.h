@@ -31,7 +31,7 @@ namespace stagehand_tests {
 
         // ── Emit Test Signal (on-demand) ─────────────────────────────────────
         // An on-demand system that emits a GodotSignal when run from GDScript
-        // via run_system(). The signal name and data come from the parameters.
+        // via run_system(). It constructs EventPayload from parameters.
         world.system(names::systems::EMIT_TEST_SIGNAL)
             .kind(0) // on-demand
             .run([](flecs::iter &it) {
@@ -50,7 +50,10 @@ namespace stagehand_tests {
                 // Create a temporary entity to emit the signal from
                 flecs::world world = it.world();
                 flecs::entity signal_source = world.entity("stagehand_tests::SignalSource");
-                stagehand::emit_signal(world, signal_source, signal_name, signal_data);
+                stagehand::EventPayload payload;
+                payload.name = signal_name;
+                payload.data = signal_data;
+                stagehand::emit_signal(signal_source, payload);
             });
 
         // ── Read Scene Children (on-demand) ──────────────────────────────────
@@ -627,12 +630,12 @@ namespace stagehand_tests {
         world.set<TestEventBData>({godot::Dictionary()});
 
         // Universal event observer - listens to all events emitted via emit_event
-        world.observer(names::systems::UNIVERSAL_EVENT_OBSERVER).event<stagehand::Signal>().with(flecs::Any).each([](flecs::iter &it, size_t index) {
+        world.observer(names::systems::UNIVERSAL_EVENT_OBSERVER).event<stagehand::EventPayload>().with(flecs::Any).each([](flecs::iter &it, size_t index) {
             flecs::world world = it.world();
             (void)index;
 
             // Get the Signal payload from the parameter
-            const stagehand::Signal *signal_payload = it.param<stagehand::Signal>();
+            const stagehand::EventPayload *signal_payload = it.param<stagehand::EventPayload>();
             if (!signal_payload) {
                 return;
             }
@@ -653,11 +656,11 @@ namespace stagehand_tests {
         });
 
         // Observer for TestEventA - filters by payload name
-        world.observer(names::systems::TEST_EVENT_A_OBSERVER).with(flecs::Any).event<stagehand::Signal>().each([](flecs::iter &it, size_t index) {
+        world.observer(names::systems::TEST_EVENT_A_OBSERVER).with(flecs::Any).event<stagehand::EventPayload>().each([](flecs::iter &it, size_t index) {
             flecs::world world = it.world();
             (void)index;
 
-            const stagehand::Signal *signal_payload = it.param<stagehand::Signal>();
+            const stagehand::EventPayload *signal_payload = it.param<stagehand::EventPayload>();
             if (!signal_payload) {
                 return;
             }
@@ -680,11 +683,11 @@ namespace stagehand_tests {
         });
 
         // Observer for TestEventB - filters by payload name
-        world.observer(names::systems::TEST_EVENT_B_OBSERVER).with(flecs::Any).event<stagehand::Signal>().each([](flecs::iter &it, size_t index) {
+        world.observer(names::systems::TEST_EVENT_B_OBSERVER).with(flecs::Any).event<stagehand::EventPayload>().each([](flecs::iter &it, size_t index) {
             flecs::world world = it.world();
             (void)index;
 
-            const stagehand::Signal *signal_payload = it.param<stagehand::Signal>();
+            const stagehand::EventPayload *signal_payload = it.param<stagehand::EventPayload>();
             if (!signal_payload) {
                 return;
             }

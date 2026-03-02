@@ -9,13 +9,12 @@
 
 namespace stagehand {
 
-    /// Component used to signal events to Godot.
-    // TODO: Rename this to EventPayload or something
-    struct Signal {
+    /// Event payload component used for Stagehand event and signal bridging.
+    struct EventPayload {
         godot::StringName name;
         godot::Dictionary data;
         uint64_t source_entity_id = 0;
     };
 
-    REGISTER([](flecs::world &world) { world.component<Signal>("stagehand::Signal"); });
+    REGISTER([](flecs::world &world) { world.component<EventPayload>("stagehand::EventPayload"); });
 } // namespace stagehand
