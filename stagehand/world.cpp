@@ -497,8 +497,8 @@ namespace stagehand {
         godot::ClassDB::bind_method(godot::D_METHOD("get_entity_name", "entity_id"), &FlecsWorld::get_entity_name);
         godot::ClassDB::bind_method(godot::D_METHOD("instantiate_prefab", "prefab_name", "components"), &FlecsWorld::instantiate_prefab, DEFVAL(Dictionary()));
 
-        godot::ClassDB::bind_method(godot::D_METHOD("emit_flecs_event", "event_name", "data", "source_entity_id"), &FlecsWorld::emit_event,
-                                    DEFVAL(Dictionary()), DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("emit_event", "event_name", "data", "source_entity_id"), &FlecsWorld::emit_event, DEFVAL(Dictionary()),
+                                    DEFVAL(0));
 
         godot::ClassDB::bind_method(godot::D_METHOD("set_progress_tick", "progress_tick"), &FlecsWorld::set_progress_tick);
         godot::ClassDB::bind_method(godot::D_METHOD("get_progress_tick"), &FlecsWorld::get_progress_tick);
