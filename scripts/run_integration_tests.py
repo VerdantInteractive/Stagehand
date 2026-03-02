@@ -16,6 +16,7 @@ def run_test(godot_bin, project_dir, tests_dir, scene_path, quiet):
         godot_bin,
         "--headless",
         "--no-header",
+        "--disable-crash-handler",
         "--quit-after", "3",
         "--path", project_dir,
         "--scene", scene_path
