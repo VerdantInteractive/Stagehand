@@ -49,6 +49,11 @@ namespace stagehand_tests::names {
         constexpr const char *QUERY_PHYSICS_BODY_STATE = NAMESPACE_STR "::Query Physics Body State";
         constexpr const char *QUERY_PHYSICS_SPACES = NAMESPACE_STR "::Query Physics Spaces";
         constexpr const char *UPDATE_ENTITY_PHYSICS = NAMESPACE_STR "::Update Entity Physics";
+
+        // Event emission test observers
+        constexpr const char *UNIVERSAL_EVENT_OBSERVER = NAMESPACE_STR "::Universal Event Observer";
+        constexpr const char *TEST_EVENT_A_OBSERVER = NAMESPACE_STR "::TestEventA Observer";
+        constexpr const char *TEST_EVENT_B_OBSERVER = NAMESPACE_STR "::TestEventB Observer";
     } // namespace systems
 
 #undef NAMESPACE_STR

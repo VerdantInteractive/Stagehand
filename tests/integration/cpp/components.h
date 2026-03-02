@@ -56,6 +56,22 @@ namespace stagehand_tests {
 
     GODOT_VARIANT(SceneChildrenResult, godot::Dictionary);
 
+    // ─── Event emission test components ──────────────────────────────────────────
+
+    // Stores the most recently received event data
+    GODOT_VARIANT(LastEventData, godot::Dictionary);
+
+    // Counter for total number of events received
+    INT32(EventReceivedCount, 0);
+
+    // Stores data from events with a specific tag
+    GODOT_VARIANT(TestEventAData, godot::Dictionary);
+    GODOT_VARIANT(TestEventBData, godot::Dictionary);
+
+    // Counter for specific event types
+    INT32(TestEventACount, 0);
+    INT32(TestEventBCount, 0);
+
     // ─── ComponentRegistrar::then() test: default value via on_add ────────────────
 
     FLOAT(DefaultedFloat, 0.0f).then([](flecs::component<DefaultedFloat> c) { c.on_add([](DefaultedFloat &f) { f.value = 42.0f; }); });

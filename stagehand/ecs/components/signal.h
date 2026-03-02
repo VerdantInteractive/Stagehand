@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdint>
+
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/string_name.hpp>
 
@@ -12,6 +14,7 @@ namespace stagehand {
     struct Signal {
         godot::StringName name;
         godot::Dictionary data;
+        uint64_t source_entity_id = 0;
     };
 
     REGISTER([](flecs::world &world) { world.component<Signal>("stagehand::Signal"); });

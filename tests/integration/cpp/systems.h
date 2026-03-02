@@ -615,6 +615,96 @@ namespace stagehand_tests {
                     e.set<stagehand::physics::CollisionMask>(stagehand::physics::CollisionMask(mask));
                 }
             });
+
+        // ── Event Emission Test Observers ────────────────────────────────────
+
+        // Initialize event test singletons
+        world.set<EventReceivedCount>({0});
+        world.set<TestEventACount>({0});
+        world.set<TestEventBCount>({0});
+        world.set<LastEventData>({godot::Dictionary()});
+        world.set<TestEventAData>({godot::Dictionary()});
+        world.set<TestEventBData>({godot::Dictionary()});
+
+        // Universal event observer - listens to all events emitted via emit_event
+        world.observer(names::systems::UNIVERSAL_EVENT_OBSERVER).event<stagehand::Signal>().with(flecs::Any).each([](flecs::iter &it, size_t index) {
+            flecs::world world = it.world();
+            (void)index;
+
+            // Get the Signal payload from the parameter
+            const stagehand::Signal *signal_payload = it.param<stagehand::Signal>();
+            if (!signal_payload) {
+                return;
+            }
+
+            // Update counters and store data
+            EventReceivedCount &counter = world.ensure<EventReceivedCount>();
+            counter.value++;
+
+            // Store the event data
+            godot::Dictionary event_info;
+            event_info["name"] = signal_payload->name;
+            event_info["data"] = signal_payload->data;
+            event_info["count"] = counter.value;
+
+            event_info["source_entity_id"] = signal_payload->source_entity_id;
+
+            world.set<LastEventData>({event_info});
+        });
+
+        // Observer for TestEventA - filters by payload name
+        world.observer(names::systems::TEST_EVENT_A_OBSERVER).with(flecs::Any).event<stagehand::Signal>().each([](flecs::iter &it, size_t index) {
+            flecs::world world = it.world();
+            (void)index;
+
+            const stagehand::Signal *signal_payload = it.param<stagehand::Signal>();
+            if (!signal_payload) {
+                return;
+            }
+
+            if (signal_payload->name != godot::StringName("TestEventA")) {
+                return;
+            }
+
+            TestEventACount &counter = world.ensure<TestEventACount>();
+            counter.value++;
+
+            godot::Dictionary event_data;
+            event_data["name"] = signal_payload->name;
+            event_data["data"] = signal_payload->data;
+            event_data["count"] = counter.value;
+
+            event_data["source_entity_id"] = signal_payload->source_entity_id;
+
+            world.set<TestEventAData>({event_data});
+        });
+
+        // Observer for TestEventB - filters by payload name
+        world.observer(names::systems::TEST_EVENT_B_OBSERVER).with(flecs::Any).event<stagehand::Signal>().each([](flecs::iter &it, size_t index) {
+            flecs::world world = it.world();
+            (void)index;
+
+            const stagehand::Signal *signal_payload = it.param<stagehand::Signal>();
+            if (!signal_payload) {
+                return;
+            }
+
+            if (signal_payload->name != godot::StringName("TestEventB")) {
+                return;
+            }
+
+            TestEventBCount &counter = world.ensure<TestEventBCount>();
+            counter.value++;
+
+            godot::Dictionary event_data;
+            event_data["name"] = signal_payload->name;
+            event_data["data"] = signal_payload->data;
+            event_data["count"] = counter.value;
+
+            event_data["source_entity_id"] = signal_payload->source_entity_id;
+
+            world.set<TestEventBData>({event_data});
+        });
     });
 
 } // namespace stagehand_tests

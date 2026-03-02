@@ -1,5 +1,7 @@
 #include "stagehand/world.h"
 
+#include <utility>
+
 #include <godot_cpp/classes/engine.hpp>
 #include <godot_cpp/classes/multi_mesh.hpp>
 #include <godot_cpp/classes/multi_mesh_instance2d.hpp>
@@ -236,27 +238,29 @@ namespace stagehand {
             return;
         }
 
-        // Resolve the Event ID from the string name. This allows C++ observers to filter by this specific tag.
-        // We use world.entity() to ensure it exists (auto-create).
-        flecs::entity event_tag = world.entity(godot::String(event_name).utf8().get_data());
-
-        // Emit the event using the generic Signal component as the payload.
         stagehand::Signal payload;
         payload.name = event_name;
         payload.data = data;
+        payload.source_entity_id = source_entity_id;
 
-        flecs::event_builder_typed<stagehand::Signal> event = world.event<stagehand::Signal>().id(event_tag).ctx(payload);
-
+        // Flecs requires emitted events to have a valid table, which in practice means the event must be associated with an entity.
+        ecs_entity_t emitter_entity_id = 0;
         if (source_entity_id != 0) {
             if (unlikely(!world.is_alive(static_cast<ecs_entity_t>(source_entity_id)))) {
                 godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::emit_flecs_event called with invalid source entity: ") +
                                                       godot::String::num_uint64(source_entity_id));
                 return;
             }
-            event.entity(static_cast<ecs_entity_t>(source_entity_id));
+            emitter_entity_id = static_cast<ecs_entity_t>(source_entity_id);
+        } else {
+            emitter_entity_id = world.entity("stagehand::internal::no_source_event_emitter").id();
+            payload.source_entity_id = 0;
         }
 
-        event.emit();
+        // Flecs requires:
+        // - desc.event to be a component type when using desc.param (payload)
+        // - at least one id; use EcsAny as a generic id for Stagehand events.
+        world.event<stagehand::Signal>().id(flecs::Any).entity(emitter_entity_id).ctx(std::move(payload)).emit();
     }
 
     void FlecsWorld::set_progress_tick(ProgressTick p_progress_tick) {
