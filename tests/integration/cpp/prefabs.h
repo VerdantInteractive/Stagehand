@@ -1,5 +1,6 @@
 #pragma once
 
+#include "stagehand/ecs/components/physics.h"
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/transform.h"
 #include "stagehand/names.h"
@@ -79,6 +80,56 @@ namespace stagehand_tests {
             .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
             .add<EntityValue>()
             .add<UnitColor>();
+
+        // ── Physics test prefabs ─────────────────────────────────────────
+
+        // 2D physics prefabs
+        world.prefab(stagehand_tests::names::prefabs::PHYSICS_STATIC_2D)
+            .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_2D))
+            .add<EntityValue>()
+            .set<stagehand::physics::PhysicsBodyType>(stagehand::physics::PhysicsBodyType::Static2D);
+
+        world.prefab(stagehand_tests::names::prefabs::PHYSICS_KINEMATIC_2D)
+            .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_2D))
+            .add<EntityValue>()
+            .add<stagehand::physics::Velocity2D>()
+            .add<stagehand::physics::AngularVelocity2D>()
+            .add<stagehand::physics::CollisionLayer>()
+            .add<stagehand::physics::CollisionMask>()
+            .set<stagehand::physics::PhysicsBodyType>(stagehand::physics::PhysicsBodyType::Kinematic2D);
+
+        world.prefab(stagehand_tests::names::prefabs::PHYSICS_RIGID_2D)
+            .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_2D))
+            .add<EntityValue>()
+            .add<stagehand::physics::Velocity2D>()
+            .add<stagehand::physics::AngularVelocity2D>()
+            .add<stagehand::physics::CollisionLayer>()
+            .add<stagehand::physics::CollisionMask>()
+            .set<stagehand::physics::PhysicsBodyType>(stagehand::physics::PhysicsBodyType::Rigid2D);
+
+        // 3D physics prefabs
+        world.prefab(stagehand_tests::names::prefabs::PHYSICS_STATIC_3D)
+            .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
+            .add<EntityValue>()
+            .set<stagehand::physics::PhysicsBodyType>(stagehand::physics::PhysicsBodyType::Static3D);
+
+        world.prefab(stagehand_tests::names::prefabs::PHYSICS_KINEMATIC_3D)
+            .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
+            .add<EntityValue>()
+            .add<stagehand::physics::Velocity3D>()
+            .add<stagehand::physics::AngularVelocity3D>()
+            .add<stagehand::physics::CollisionLayer>()
+            .add<stagehand::physics::CollisionMask>()
+            .set<stagehand::physics::PhysicsBodyType>(stagehand::physics::PhysicsBodyType::Kinematic3D);
+
+        world.prefab(stagehand_tests::names::prefabs::PHYSICS_RIGID_3D)
+            .is_a(world.lookup(::stagehand::names::prefabs::ENTITY_3D))
+            .add<EntityValue>()
+            .add<stagehand::physics::Velocity3D>()
+            .add<stagehand::physics::AngularVelocity3D>()
+            .add<stagehand::physics::CollisionLayer>()
+            .add<stagehand::physics::CollisionMask>()
+            .set<stagehand::physics::PhysicsBodyType>(stagehand::physics::PhysicsBodyType::Rigid3D);
     });
 
 } // namespace stagehand_tests

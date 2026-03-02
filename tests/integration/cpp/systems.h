@@ -1,10 +1,14 @@
 #pragma once
 
+#include <godot_cpp/classes/physics_server2d.hpp>
+#include <godot_cpp/classes/physics_server3d.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
+#include "stagehand/ecs/components/physics.h"
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
 #include "stagehand/ecs/components/signal.h"
+#include "stagehand/entity.h"
 
 #include "components.h"
 #include "names.h"
@@ -336,6 +340,280 @@ namespace stagehand_tests {
                 result["renderer_count"] = static_cast<int>(renderers->instanced_renderers.size());
                 result["renderers"] = renderer_array;
                 world.set<SceneChildrenResult>(SceneChildrenResult(result));
+            });
+    });
+
+    // ── Query Physics Bodies (on-demand) ─────────────────────────────────
+    // Queries entities with physics body components and returns state info.
+    // Parameters: { "prefab": "prefab_name" }
+    // Result Dictionary stored in SceneChildrenResult:
+    //   { "count": N, "bodies": [{ "rid_valid": bool, "in_space": bool,
+    //     "body_type": int, "has_collision_layer": bool, "has_velocity": bool }] }
+    REGISTER([](flecs::world &world) {
+        world.system(names::systems::QUERY_PHYSICS_BODIES)
+            .kind(0) // on-demand
+            .run([](flecs::iter &it) {
+                const godot::Dictionary *parameters = static_cast<const godot::Dictionary *>(it.param());
+                if (!parameters || !parameters->has("prefab")) {
+                    godot::UtilityFunctions::push_warning("Query Physics Bodies: 'prefab' parameter required.");
+                    return;
+                }
+
+                godot::String prefab_name = (*parameters)["prefab"];
+                std::string prefab_str = prefab_name.utf8().get_data();
+
+                flecs::world world = it.world();
+                flecs::entity prefab = world.lookup(prefab_str.c_str());
+                if (!prefab.is_valid()) {
+                    godot::UtilityFunctions::push_warning("Query Physics Bodies: prefab not found: " + prefab_name);
+                    world.set<SceneChildrenResult>(SceneChildrenResult(godot::Dictionary()));
+                    return;
+                }
+
+                godot::Dictionary result;
+                godot::Array bodies;
+                int count = 0;
+
+                auto query =
+                    world.query_builder<const stagehand::physics::PhysicsBodyRID, const stagehand::physics::PhysicsBodyType>().with(flecs::IsA, prefab).build();
+
+                query.each([&](flecs::entity e, const stagehand::physics::PhysicsBodyRID &rid, const stagehand::physics::PhysicsBodyType &body_type) {
+                    godot::Dictionary body_info;
+                    body_info["rid_valid"] = rid.is_valid();
+                    body_info["in_space"] = e.has<stagehand::physics::PhysicsBodyInSpace>();
+                    body_info["body_type"] = static_cast<int>(body_type);
+
+                    const stagehand::physics::CollisionLayer *layer = e.try_get<stagehand::physics::CollisionLayer>();
+                    body_info["has_collision_layer"] = (layer != nullptr);
+                    body_info["collision_layer"] = layer ? static_cast<int>(layer->value) : 0;
+
+                    const stagehand::physics::CollisionMask *mask = e.try_get<stagehand::physics::CollisionMask>();
+                    body_info["has_collision_mask"] = (mask != nullptr);
+                    body_info["collision_mask"] = mask ? static_cast<int>(mask->value) : 0;
+
+                    const stagehand::physics::Velocity3D *vel3d = e.try_get<stagehand::physics::Velocity3D>();
+                    body_info["has_velocity_3d"] = (vel3d != nullptr);
+                    if (vel3d) {
+                        body_info["velocity_3d"] = godot::Vector3(vel3d->x, vel3d->y, vel3d->z);
+                    }
+
+                    const stagehand::physics::Velocity2D *vel2d = e.try_get<stagehand::physics::Velocity2D>();
+                    body_info["has_velocity_2d"] = (vel2d != nullptr);
+                    if (vel2d) {
+                        body_info["velocity_2d"] = godot::Vector2(vel2d->x, vel2d->y);
+                    }
+
+                    // Read position
+                    const stagehand::transform::Position3D *pos3d = e.try_get<stagehand::transform::Position3D>();
+                    if (pos3d) {
+                        body_info["position_3d"] = godot::Vector3(pos3d->x, pos3d->y, pos3d->z);
+                    }
+                    const stagehand::transform::Position2D *pos2d = e.try_get<stagehand::transform::Position2D>();
+                    if (pos2d) {
+                        body_info["position_2d"] = godot::Vector2(pos2d->x, pos2d->y);
+                    }
+
+                    body_info["entity_id"] = static_cast<int64_t>(e.id());
+                    bodies.push_back(body_info);
+                    count++;
+                });
+
+                result["count"] = count;
+                result["bodies"] = bodies;
+                world.set<SceneChildrenResult>(SceneChildrenResult(result));
+            });
+    });
+
+    // ── Query Physics Body State (on-demand) ─────────────────────────────
+    // Queries the PhysicsServer directly for a body's state.
+    // Parameters: { "prefab": "prefab_name", "dimension": "2d" or "3d" }
+    // Result Dictionary stored in SceneChildrenResult:
+    //   { "count": N, "states": [{ "transform": ..., "linear_velocity": ..., "angular_velocity": ... }] }
+    REGISTER([](flecs::world &world) {
+        world.system(names::systems::QUERY_PHYSICS_BODY_STATE)
+            .kind(0) // on-demand
+            .run([](flecs::iter &it) {
+                const godot::Dictionary *parameters = static_cast<const godot::Dictionary *>(it.param());
+                if (!parameters || !parameters->has("prefab")) {
+                    godot::UtilityFunctions::push_warning("Query Physics Body State: 'prefab' parameter required.");
+                    return;
+                }
+
+                godot::String prefab_name = (*parameters)["prefab"];
+                godot::String dimension = parameters->get("dimension", "3d");
+                std::string prefab_str = prefab_name.utf8().get_data();
+
+                flecs::world world = it.world();
+                flecs::entity prefab = world.lookup(prefab_str.c_str());
+                if (!prefab.is_valid()) {
+                    godot::UtilityFunctions::push_warning("Query Physics Body State: prefab not found: " + prefab_name);
+                    world.set<SceneChildrenResult>(SceneChildrenResult(godot::Dictionary()));
+                    return;
+                }
+
+                godot::Dictionary result;
+                godot::Array states;
+                int count = 0;
+
+                auto query = world.query_builder<const stagehand::physics::PhysicsBodyRID>()
+                                 .with(flecs::IsA, prefab)
+                                 .with<stagehand::physics::PhysicsBodyInSpace>()
+                                 .build();
+
+                query.each([&](flecs::entity e, const stagehand::physics::PhysicsBodyRID &rid) {
+                    godot::Dictionary state;
+                    if (!rid.is_valid()) {
+                        states.push_back(state);
+                        count++;
+                        return;
+                    }
+
+                    if (dimension == "3d") {
+                        godot::PhysicsServer3D *server = godot::PhysicsServer3D::get_singleton();
+                        if (server) {
+                            godot::Transform3D t = server->body_get_state(rid, godot::PhysicsServer3D::BODY_STATE_TRANSFORM);
+                            state["origin"] = t.origin;
+                            godot::Vector3 vel = server->body_get_state(rid, godot::PhysicsServer3D::BODY_STATE_LINEAR_VELOCITY);
+                            state["linear_velocity"] = vel;
+                            godot::Vector3 avel = server->body_get_state(rid, godot::PhysicsServer3D::BODY_STATE_ANGULAR_VELOCITY);
+                            state["angular_velocity"] = avel;
+                        }
+                    } else {
+                        godot::PhysicsServer2D *server = godot::PhysicsServer2D::get_singleton();
+                        if (server) {
+                            godot::Transform2D t = server->body_get_state(rid, godot::PhysicsServer2D::BODY_STATE_TRANSFORM);
+                            state["origin"] = t.get_origin();
+                            godot::Vector2 vel = server->body_get_state(rid, godot::PhysicsServer2D::BODY_STATE_LINEAR_VELOCITY);
+                            state["linear_velocity"] = vel;
+                            float avel = server->body_get_state(rid, godot::PhysicsServer2D::BODY_STATE_ANGULAR_VELOCITY);
+                            state["angular_velocity"] = avel;
+                        }
+                    }
+
+                    states.push_back(state);
+                    count++;
+                });
+
+                result["count"] = count;
+                result["states"] = states;
+                world.set<SceneChildrenResult>(SceneChildrenResult(result));
+            });
+    });
+
+    // ── Query Physics Spaces (on-demand) ─────────────────────────────────
+    // Returns info about the physics space pair singletons.
+    // Spaces are stored as (PhysicsSpaceRID, DimensionTag) pairs on the
+    // component entity, with ownership tracked via (OwnedPhysicsSpace, DimensionTag).
+    // Result Dictionary stored in SceneChildrenResult:
+    //   { "has_space_2d": bool, "space_2d_valid": bool, "space_2d_owned": bool,
+    //     "has_space_3d": bool, "space_3d_valid": bool, "space_3d_owned": bool }
+    REGISTER([](flecs::world &world) {
+        world.system(names::systems::QUERY_PHYSICS_SPACES)
+            .kind(0) // on-demand
+            .run([](flecs::iter &it) {
+                flecs::world world = it.world();
+                godot::Dictionary result;
+
+                const auto *space2d_rid = world.try_get<stagehand::physics::PhysicsSpaceRID, stagehand::physics::PhysicsSpace2D>();
+                result["has_space_2d"] = (space2d_rid != nullptr);
+                result["space_2d_valid"] = space2d_rid ? space2d_rid->is_valid() : false;
+                result["space_2d_owned"] = world.has<stagehand::physics::OwnedPhysicsSpace, stagehand::physics::PhysicsSpace2D>();
+
+                const auto *space3d_rid = world.try_get<stagehand::physics::PhysicsSpaceRID, stagehand::physics::PhysicsSpace3D>();
+                result["has_space_3d"] = (space3d_rid != nullptr);
+                result["space_3d_valid"] = space3d_rid ? space3d_rid->is_valid() : false;
+                result["space_3d_owned"] = world.has<stagehand::physics::OwnedPhysicsSpace, stagehand::physics::PhysicsSpace3D>();
+
+                world.set<SceneChildrenResult>(SceneChildrenResult(result));
+            });
+    });
+
+    // ── Update Entity Physics (on-demand) ──────────────────────────────
+    // Sets transform/velocity/collision components on a specific entity
+    // using stagehand::entity, which triggers HasChanged tags for change
+    // detection.  This enables testing the sync pipeline end-to-end.
+    // Parameters: { "entity_id": int,
+    //   "position_3d": Vector3,  (optional)
+    //   "position_2d": Vector2,  (optional)
+    //   "rotation_3d": Quaternion, (optional)
+    //   "rotation_2d": float,   (optional)
+    //   "scale_3d": Vector3,    (optional)
+    //   "scale_2d": Vector2,    (optional)
+    //   "velocity_3d": Vector3, (optional)
+    //   "velocity_2d": Vector2, (optional)
+    //   "angular_velocity_3d": Vector3, (optional)
+    //   "angular_velocity_2d": float, (optional)
+    //   "collision_layer": int, (optional)
+    //   "collision_mask": int   (optional)
+    // }
+    REGISTER([](flecs::world &world) {
+        world.system(names::systems::UPDATE_ENTITY_PHYSICS)
+            .kind(0) // on-demand
+            .run([](flecs::iter &it) {
+                const godot::Dictionary *parameters = static_cast<const godot::Dictionary *>(it.param());
+                if (!parameters || !parameters->has("entity_id")) {
+                    godot::UtilityFunctions::push_warning("Update Entity Physics: 'entity_id' parameter required.");
+                    return;
+                }
+
+                flecs::world world = it.world();
+                int64_t entity_id = (*parameters)["entity_id"];
+                if (!world.is_alive(static_cast<ecs_entity_t>(entity_id))) {
+                    godot::UtilityFunctions::push_warning("Update Entity Physics: entity is not alive.");
+                    return;
+                }
+
+                // Use stagehand::entity to trigger HasChanged tags
+                stagehand::entity e(flecs::entity(world, static_cast<ecs_entity_t>(entity_id)));
+
+                if (parameters->has("position_3d")) {
+                    godot::Vector3 pos = (*parameters)["position_3d"];
+                    e.set<stagehand::transform::Position3D>(stagehand::transform::Position3D(pos));
+                }
+                if (parameters->has("position_2d")) {
+                    godot::Vector2 pos = (*parameters)["position_2d"];
+                    e.set<stagehand::transform::Position2D>(stagehand::transform::Position2D(pos));
+                }
+                if (parameters->has("rotation_3d")) {
+                    godot::Quaternion rot = (*parameters)["rotation_3d"];
+                    e.set<stagehand::transform::Rotation3D>(stagehand::transform::Rotation3D(rot));
+                }
+                if (parameters->has("rotation_2d")) {
+                    float rot = (*parameters)["rotation_2d"];
+                    e.set<stagehand::transform::Rotation2D>(stagehand::transform::Rotation2D(rot));
+                }
+                if (parameters->has("scale_3d")) {
+                    godot::Vector3 scl = (*parameters)["scale_3d"];
+                    e.set<stagehand::transform::Scale3D>(stagehand::transform::Scale3D(scl));
+                }
+                if (parameters->has("scale_2d")) {
+                    godot::Vector2 scl = (*parameters)["scale_2d"];
+                    e.set<stagehand::transform::Scale2D>(stagehand::transform::Scale2D(scl));
+                }
+                if (parameters->has("velocity_3d")) {
+                    godot::Vector3 vel = (*parameters)["velocity_3d"];
+                    e.set<stagehand::physics::Velocity3D>(stagehand::physics::Velocity3D(vel));
+                }
+                if (parameters->has("velocity_2d")) {
+                    godot::Vector2 vel = (*parameters)["velocity_2d"];
+                    e.set<stagehand::physics::Velocity2D>(stagehand::physics::Velocity2D(vel));
+                }
+                if (parameters->has("angular_velocity_3d")) {
+                    godot::Vector3 avel = (*parameters)["angular_velocity_3d"];
+                    e.set<stagehand::physics::AngularVelocity3D>(stagehand::physics::AngularVelocity3D(avel));
+                }
+                if (parameters->has("angular_velocity_2d")) {
+                    float avel = (*parameters)["angular_velocity_2d"];
+                    e.set<stagehand::physics::AngularVelocity2D>(stagehand::physics::AngularVelocity2D(avel));
+                }
+                if (parameters->has("collision_layer")) {
+                    uint32_t layer = static_cast<uint32_t>(static_cast<int>((*parameters)["collision_layer"]));
+                    e.set<stagehand::physics::CollisionLayer>(stagehand::physics::CollisionLayer(layer));
+                }
+                if (parameters->has("collision_mask")) {
+                    uint32_t mask = static_cast<uint32_t>(static_cast<int>((*parameters)["collision_mask"]));
+                    e.set<stagehand::physics::CollisionMask>(stagehand::physics::CollisionMask(mask));
+                }
             });
     });
 

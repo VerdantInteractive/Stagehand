@@ -22,6 +22,14 @@ namespace stagehand_tests::names {
         constexpr const char *FULL_ENTITY_2D = NAMESPACE_STR "::FullEntity2D";
         constexpr const char *FULL_ENTITY_3D = NAMESPACE_STR "::FullEntity3D";
         constexpr const char *INSTANCED_ENTITY_3D = NAMESPACE_STR "::InstancedEntity3D";
+
+        // Physics test prefabs
+        constexpr const char *PHYSICS_STATIC_2D = NAMESPACE_STR "::PhysicsStatic2D";
+        constexpr const char *PHYSICS_KINEMATIC_2D = NAMESPACE_STR "::PhysicsKinematic2D";
+        constexpr const char *PHYSICS_RIGID_2D = NAMESPACE_STR "::PhysicsRigid2D";
+        constexpr const char *PHYSICS_STATIC_3D = NAMESPACE_STR "::PhysicsStatic3D";
+        constexpr const char *PHYSICS_KINEMATIC_3D = NAMESPACE_STR "::PhysicsKinematic3D";
+        constexpr const char *PHYSICS_RIGID_3D = NAMESPACE_STR "::PhysicsRigid3D";
     } // namespace prefabs
 
     namespace systems {
@@ -35,6 +43,12 @@ namespace stagehand_tests::names {
         constexpr const char *QUERY_ENTITY_TRANSFORMS = NAMESPACE_STR "::Query Entity Transforms";
         constexpr const char *LOOKUP_ENTITIES = NAMESPACE_STR "::Lookup Entities";
         constexpr const char *QUERY_INSTANCED_RENDERERS = NAMESPACE_STR "::Query Instanced Renderers";
+
+        // Physics test helper systems
+        constexpr const char *QUERY_PHYSICS_BODIES = NAMESPACE_STR "::Query Physics Bodies";
+        constexpr const char *QUERY_PHYSICS_BODY_STATE = NAMESPACE_STR "::Query Physics Body State";
+        constexpr const char *QUERY_PHYSICS_SPACES = NAMESPACE_STR "::Query Physics Spaces";
+        constexpr const char *UPDATE_ENTITY_PHYSICS = NAMESPACE_STR "::Update Entity Physics";
     } // namespace systems
 
 #undef NAMESPACE_STR

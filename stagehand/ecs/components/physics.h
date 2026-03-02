@@ -1,5 +1,6 @@
 #pragma once
 
+#include <array>
 #include <cstdint>
 
 #include <godot_cpp/classes/physics_server2d.hpp>
@@ -14,6 +15,8 @@
 
 namespace stagehand::physics {
 
+    // ─── Physics Body Type Enum ──────────────────────────────────────────
+
     enum class PhysicsBodyType : uint8_t {
         Static2D = 0,
         Kinematic2D = 1,
@@ -25,14 +28,59 @@ namespace stagehand::physics {
         RigidLinear3D = 7,
     };
 
+    static constexpr uint8_t PHYSICS_BODY_TYPE_COUNT = 8;
+
+    // ─── Compile-time body type property tables ──────────────────────────
+
+    static constexpr std::array<bool, PHYSICS_BODY_TYPE_COUNT> body_type_is_2d = {
+        true, true, true, true, false, false, false, false,
+    };
+
+    static constexpr std::array<bool, PHYSICS_BODY_TYPE_COUNT> body_type_is_dynamic = {
+        false, false, true, true, false, false, true, true,
+    };
+
+    constexpr bool is_2d_body_type(PhysicsBodyType type) {
+        return body_type_is_2d[static_cast<uint8_t>(type)];
+    }
+
+    constexpr bool is_dynamic_body_type(PhysicsBodyType type) {
+        return body_type_is_dynamic[static_cast<uint8_t>(type)];
+    }
+
+    // ─── Components ──────────────────────────────────────────────────────
+
     GODOT_VARIANT(PhysicsBodyRID, godot::RID);
+
+    /// Physics space RID.  Used as a singleton with dimension tags
+    /// (PhysicsSpace2D / PhysicsSpace3D) applied to the singleton entity.
+    GODOT_VARIANT(PhysicsSpaceRID, godot::RID);
 
     GODOT_VARIANT(Velocity2D, godot::Vector2);
     FLOAT(AngularVelocity2D);
     GODOT_VARIANT(Velocity3D, godot::Vector3);
     GODOT_VARIANT(AngularVelocity3D, godot::Vector3);
 
-    template <typename ServerType> struct PhysicsServerTraits {
+    UINT32(CollisionLayer, 1);
+    UINT32(CollisionMask, 1);
+
+    /// Tag indicating that a physics body has been assigned to a physics space.
+    TAG(PhysicsBodyInSpace);
+
+    /// Tag applied to PhysicsSpaceRID singleton entities that the framework
+    /// created and therefore must free on teardown.
+    TAG(OwnedPhysicsSpace);
+
+    /// Dimension tags applied to PhysicsSpaceRID singleton entities to
+    /// distinguish 2D from 3D spaces.  Using tags lets the Flecs query
+    /// engine filter by dimension without runtime branching.
+    TAG(PhysicsSpace2D);
+    TAG(PhysicsSpace3D);
+
+    // ─── PhysicsServer Traits ────────────────────────────────────────────
+
+    template <typename ServerType>
+    struct PhysicsServerTraits {
         using BodyMode = typename ServerType::BodyMode;
 
         static ServerType *get_singleton() { return ServerType::get_singleton(); }
@@ -136,6 +184,11 @@ namespace stagehand::physics {
         })
         .then([](auto c) {
             c.on_add([](flecs::entity entity, PhysicsBodyType &physics_body_type) {
+                // Skip body creation for prefab templates – they are
+                // blueprints and should not own PhysicsServer resources.
+                if (entity.has(flecs::Prefab)) {
+                    return;
+                }
                 const godot::RID body_rid = create_physics_body(physics_body_type);
                 if (body_rid.is_valid()) {
                     entity.set<PhysicsBodyRID>(body_rid);
@@ -143,6 +196,18 @@ namespace stagehand::physics {
             });
 
             c.on_remove([](flecs::entity entity, PhysicsBodyType &physics_body_type) {
+                // During world destruction, component registrations may already
+                // be deleted so accessing PhysicsBodyRID would assert.
+                // The ecs_atfini callback in systems/physics.h handles cleanup.
+                if (ecs_is_fini(entity.world().c_ptr())) {
+                    return;
+                }
+
+                // Prefab templates never created a body, so nothing to free.
+                if (entity.has(flecs::Prefab)) {
+                    return;
+                }
+
                 const PhysicsBodyRID *body_rid_component = entity.try_get<PhysicsBodyRID>();
                 if (body_rid_component == nullptr) {
                     return;
