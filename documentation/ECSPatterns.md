@@ -1,14 +1,21 @@
 # Stagehand ECS Patterns & Best Practices
 
-Stagehand introduces specific patterns to streamline ECS usage, particularly focusing on ergonomic component modification and automatic change detection.
+Stagehand introduces specific patterns to streamline ECS usage, particularly focusing on ergonomic component modification and optional automatic change detection.
 
 ## Automatic Change Detection
 
 To avoid the error-prone manual management of `HasChanged*` tags, Stagehand provides zero-overhead abstractions that automatically toggle these tags when components are modified.
 
+Change tracking can be enabled or disabled at component definition time:
+
+- Use normal macros (e.g. `FLOAT`, `GODOT_VARIANT`, `VECTOR`) to enable change tracking.
+- Use underscore macros (e.g. `FLOAT_`, `GODOT_VARIANT_`, `VECTOR_`) to opt out of change tracking and avoid the extra overhead.
+
 ### 1. The `stagehand::entity` Wrapper
 
 `stagehand::entity` is a lightweight wrapper around `flecs::entity` that intercepts component modifications to handle change detection logic. It has the same memory layout as `flecs::entity` and incurs no runtime overhead in optimized builds.
+
+If a component was defined with an underscore macro (`*_`), `stagehand::entity` methods still work normally but skip change-tag toggling for that component.
 
 #### Usage in Systems
 
@@ -53,7 +60,7 @@ world.system<Position, Velocity>()
 For a concise "fire-and-forget" syntax, you can use the `<<` operator to set component values on a raw `flecs::entity`. This is particularly useful for initialization or simple updates.
 
 ```cpp
-// Sets the Position component and enables HasChangedPosition
+// Sets the Position component and enables HasChangedPosition (if Position was defined with tracking enabled)
 e << Position{10, 20, 30};
 
 // Works with Godot variants too
@@ -62,7 +69,10 @@ e << NodePath("some/path");
 
 ## Component Definition
 
-To enable these features, components must be defined using Stagehand's macros. These macros generate the component struct, the associated `HasChanged` tag, and the necessary type traits.
+To enable these features, components must be defined using Stagehand's macros. These macros generate the component struct and registration glue.
+
+- Non-underscore macros (`FLOAT`, `INT32`, `GODOT_VARIANT`, `VECTOR`, `ARRAY`, `ENUM`, etc.) also generate/associate a `HasChanged*` tag.
+- Underscore variants (`FLOAT_`, `INT32_`, `GODOT_VARIANT_`, `VECTOR_`, `ARRAY_`, `ENUM_`, etc.) do not generate/associate a `HasChanged*` tag.
 
 ### Primitive Wrappers
 
@@ -77,6 +87,15 @@ INT32(Health);
 FLOAT(Speed);
 ```
 
+### Primitive Wrappers (No Change Tracking)
+
+Use underscore variants when no system queries `HasChanged*` for that component.
+
+```cpp
+INT32_(HealthCached);
+FLOAT_(SpeedCached);
+```
+
 ### Godot Variants
 
 Use `GODOT_VARIANT` from `stagehand/ecs/components/godot_variants.h` to wrap Godot types.
@@ -84,6 +103,11 @@ Use `GODOT_VARIANT` from `stagehand/ecs/components/godot_variants.h` to wrap God
 ```cpp
 // Defines struct Position2D : public godot::Vector2 { ... };
 GODOT_VARIANT(Position2D, godot::Vector2);
+```
+
+```cpp
+// Same wrapper type, but no HasChangedPosition2D tag setup
+GODOT_VARIANT_(Position2DStatic, godot::Vector2);
 ```
 
 ### Containers
@@ -95,11 +119,16 @@ Use `VECTOR` or `ARRAY` for STL containers.
 VECTOR(PathPoints, Vector2);
 ```
 
+```cpp
+// No change-tracking setup for this container component
+VECTOR_(PathCache, Vector2);
+```
+
 ## Summary of Modification Patterns
 
 | Pattern | Use Case | Overhead | Change Tagging |
 | :--- | :--- | :--- | :--- |
-| `e.modify(comp, lambda)` | Inside `.each()` loops when you have the component ref. | Zero | Automatic |
-| `e.modify<T>(lambda)` | When you only have the entity handle. | Low (1 lookup) | Automatic |
-| `e.set<T>(val)` | Overwriting a component value. | Low (1 lookup) | Automatic |
-| `e << val` | Concise syntax for setting values. | Low (1 lookup) | Automatic |
+| `e.modify(comp, lambda)` | Inside `.each()` loops when you have the component ref. | Zero | Automatic when component has tracking; no-op otherwise |
+| `e.modify<T>(lambda)` | When you only have the entity handle. | Low (1 lookup) | Automatic when component has tracking; no-op otherwise |
+| `e.set<T>(val)` | Overwriting a component value. | Low (1 lookup) | Automatic when component has tracking; no-op otherwise |
+| `e << val` | Concise syntax for setting values. | Low (1 lookup) | Automatic when component has tracking; no-op otherwise |

@@ -40,21 +40,17 @@ namespace stagehand::physics {
         false, false, true, true, false, false, true, true,
     };
 
-    constexpr bool is_2d_body_type(PhysicsBodyType type) {
-        return body_type_is_2d[static_cast<uint8_t>(type)];
-    }
+    constexpr bool is_2d_body_type(PhysicsBodyType type) { return body_type_is_2d[static_cast<uint8_t>(type)]; }
 
-    constexpr bool is_dynamic_body_type(PhysicsBodyType type) {
-        return body_type_is_dynamic[static_cast<uint8_t>(type)];
-    }
+    constexpr bool is_dynamic_body_type(PhysicsBodyType type) { return body_type_is_dynamic[static_cast<uint8_t>(type)]; }
 
     // ─── Components ──────────────────────────────────────────────────────
 
-    GODOT_VARIANT(PhysicsBodyRID, godot::RID);
+    GODOT_VARIANT_(PhysicsBodyRID, godot::RID);
 
     /// Physics space RID.  Used as a singleton with dimension tags
     /// (PhysicsSpace2D / PhysicsSpace3D) applied to the singleton entity.
-    GODOT_VARIANT(PhysicsSpaceRID, godot::RID);
+    GODOT_VARIANT_(PhysicsSpaceRID, godot::RID);
 
     GODOT_VARIANT(Velocity2D, godot::Vector2);
     FLOAT(AngularVelocity2D);
@@ -79,8 +75,7 @@ namespace stagehand::physics {
 
     // ─── PhysicsServer Traits ────────────────────────────────────────────
 
-    template <typename ServerType>
-    struct PhysicsServerTraits {
+    template <typename ServerType> struct PhysicsServerTraits {
         using BodyMode = typename ServerType::BodyMode;
 
         static ServerType *get_singleton() { return ServerType::get_singleton(); }
@@ -171,7 +166,7 @@ namespace stagehand::physics {
         internal::get_physics_body_handlers(body_type).free(rid);
     }
 
-    ENUM(PhysicsBodyType)
+    ENUM_(PhysicsBodyType)
         .then([](auto c) {
             c.constant("Static2D", PhysicsBodyType::Static2D)
                 .constant("Kinematic2D", PhysicsBodyType::Kinematic2D)

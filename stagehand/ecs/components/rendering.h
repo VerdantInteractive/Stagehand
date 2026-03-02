@@ -16,7 +16,7 @@
 #include "stagehand/utilities/godot_hashes.h" // IWYU pragma: keep
 
 namespace stagehand::rendering {
-    GODOT_VARIANT(CustomData, Vector4); // Used as MultiMesh instance custom data in the Entity Rendering (MultiMesh) system
+    GODOT_VARIANT_(CustomData, Vector4); // Used as MultiMesh instance custom data in the Entity Rendering (MultiMesh) system
 
     enum class RendererType {
         Instanced,

@@ -174,11 +174,9 @@ template <typename T> void register_projection_members(flecs::component<T> c) { 
 
 /// Macro to define a component that wraps a Godot type, inheriting constructors and assignment.
 /// Components are defined in the namespace where the macro is invoked.
-#define GODOT_VARIANT(Name, Base, ...)                                                                                                                         \
-    struct HasChanged##Name {};                                                                                                                                \
-    struct Name : public Base {                                                                                                                                \
-        using ChangeTag = HasChanged##Name;                                                                                                                    \
-        using base_type = Base;                                                                                                                                \
+#define STAGEHAND_GODOT_VARIANT_IMPL(Name, Base, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                           \
+    ChangeTagDecl struct Name : public Base {                                                                                                                  \
+        ChangeTagAlias using base_type = Base;                                                                                                                 \
         using base_type::base_type;                                                                                                                            \
         Name() : Base(__VA_ARGS__) {}                                                                                                                          \
         Name(const Base &other) : Base(other) {}                                                                                                               \
@@ -189,15 +187,19 @@ template <typename T> void register_projection_members(flecs::component<T> c) { 
     };                                                                                                                                                         \
     inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
         e.set<Name>(value);                                                                                                                                    \
-        e.enable<HasChanged##Name>();                                                                                                                          \
+        stagehand::internal::mark_component_changed_if_needed<Name>(e);                                                                                        \
         return e;                                                                                                                                              \
     }                                                                                                                                                          \
-    inline auto register_##Name##_variant = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                      \
+    inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         register_godot_members(world.component<Name>(), static_cast<Base *>(nullptr));                                                                         \
         stagehand::register_component<Name, Base>(#Name);                                                                                                      \
-        world.component<HasChanged##Name>().add<stagehand::IsChangeDetectionTag>().add(flecs::CanToggle);                                                      \
-        world.component<Name>().add(flecs::With, world.component<HasChanged##Name>());                                                                         \
+        stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
+
+#define GODOT_VARIANT(Name, Base, ...)                                                                                                                         \
+    STAGEHAND_GODOT_VARIANT_IMPL(Name, Base, variant, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+
+#define GODOT_VARIANT_(Name, Base, ...) STAGEHAND_GODOT_VARIANT_IMPL(Name, Base, variant_no_change, , , __VA_ARGS__)
 
 // Dispatcher overloads to automatically select the correct registration function
 // Struct type
