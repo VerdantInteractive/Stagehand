@@ -9,6 +9,7 @@
 #include <vector>
 
 #include <godot_cpp/core/type_info.hpp>
+#include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/variant.hpp>
 
@@ -29,6 +30,10 @@ namespace stagehand {
     /// Returns true if any module-scoped callbacks were registered for
     /// `module_name` in this process.
     bool has_module_callbacks_for(const std::string &module_name);
+
+    /// Returns all module names that currently have module-scoped callbacks.
+    /// Names are unique and sorted lexicographically.
+    std::vector<std::string> get_registered_module_names();
 
     /// Register a callback to be called during world initialization.
     /// @param callback The callback to register.
@@ -232,4 +237,29 @@ namespace stagehand {
             }
         };
     }
+
+    /// Introspection metadata for a registered ECS entity.
+    /// Used to bridge registered ECS entity information to scripting.
+    struct RegisteredEntityInfo {
+        flecs::entity_t id = 0;
+        std::string name;
+        std::string path;
+        std::string namespace_path;
+        std::string module_path;
+        bool is_component = false;
+        bool is_prefab = false;
+        bool is_system = false;
+        bool is_tag = false;
+        size_t component_size = 0;
+        size_t component_alignment = 0;
+    };
+
+    /// Collects registered components, prefabs and systems from a world.
+    /// @param world World to inspect.
+    /// @param include_flecs_builtin When false, excludes entities in the flecs:: namespace.
+    /// @return Flat list of metadata entries with name/path/module/type details.
+    std::vector<RegisteredEntityInfo> collect_registered_entities(flecs::world &world, bool include_flecs_builtin = false);
+
+    /// Converts a single registered entity entry into a GDScript-friendly dictionary.
+    [[nodiscard]] godot::Dictionary to_registered_entity_dictionary(const RegisteredEntityInfo &info);
 } // namespace stagehand

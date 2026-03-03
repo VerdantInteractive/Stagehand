@@ -2,7 +2,7 @@
 
 CPP_STANDARD = "c++20"
 
-import os, sys
+import os, subprocess, sys
 from SCons.Script import ARGUMENTS, SConscript, Alias, Default, COMMAND_LINE_TARGETS
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
@@ -241,6 +241,35 @@ else:
     )
 
 
+def run_ecs_registry_generator(target, source, env):
+    generator_path = os.path.abspath(str(source[0]))
+    output_path = os.path.abspath(str(target[0]))
+
+    output_directory = os.path.dirname(output_path)
+    if output_directory:
+        os.makedirs(output_directory, exist_ok=True)
+
+    result = subprocess.run([generator_path, output_path], cwd=os.getcwd())
+    return result.returncode
+
+
+godot_lib_name = "libgodot-cpp" + env["suffix"] + env["LIBSUFFIX"]
+godotcpp_lib_path = os.path.join("dependencies", "godot-cpp", "bin", godot_lib_name)
+
+ecs_registry_generator = project_env.Program(
+    target=os.path.join(BUILD_DIR, "tools", "ecs_registry_generator"),
+    source=stagehand_objs + [flecs_c_obj, os.path.join("scripts", "ecs_registry_generator.cpp"), godotcpp_lib_path],
+    CXXFLAGS=project_env["CXXFLAGS"] + cxx_flags,
+)
+
+ecs_registry_gd = project_env.Command(
+    target=os.path.join("generated", "ECS.gd"),
+    source=ecs_registry_generator,
+    action=run_ecs_registry_generator,
+)
+Alias("ecs_registry", ecs_registry_gd)
+
+
 def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=None, build_dir=None, flecs_c_obj=None, stagehand_objs=None, project_env=None):
     """Build and return the unit test program."""
     from SCons.Script import ARGUMENTS, Environment, File
@@ -388,7 +417,7 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
         source=all_objs,
     )
 
-Default(library)
+Default([library, ecs_registry_gd])
 
 
 # Unit tests target
