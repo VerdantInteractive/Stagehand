@@ -73,6 +73,9 @@ def find_source_files(base_dir):
 
 # Source code paths
 stagehand_cpp_sources = find_source_files("stagehand")
+# Exclude generator translation units from the main library so their `main()` implementations are only compiled into the standalone generator program.
+generator_dir_prefix = os.path.join("stagehand", "utilities", "generators").replace("\\", "/")
+stagehand_cpp_sources = [s for s in stagehand_cpp_sources if not s.startswith(generator_dir_prefix + "/")]
 # Also include demo translation units in the main library so demo REGISTER_IN_MODULE callbacks are linked
 # into the extension and available at runtime unless when building as a downstream project (addons/stagehand).
 if os.path.isdir("demos") and not is_downstream_project:
@@ -258,12 +261,12 @@ godotcpp_lib_path = os.path.join("dependencies", "godot-cpp", "bin", godot_lib_n
 
 ecs_registry_generator = project_env.Program(
     target=os.path.join(BUILD_DIR, "tools", "ecs_registry_generator"),
-    source=stagehand_objs + [flecs_c_obj, os.path.join("scripts", "ecs_registry_generator.cpp"), godotcpp_lib_path],
+    source=stagehand_objs + [flecs_c_obj, os.path.join("stagehand", "utilities", "generators", "ecs_registry.cpp"), godotcpp_lib_path],
     CXXFLAGS=project_env["CXXFLAGS"] + cxx_flags,
 )
 
 ecs_registry_gd = project_env.Command(
-    target=os.path.join("generated", "ECS.gd"),
+    target=os.path.join("generated", "ecs_registry.gd"),
     source=ecs_registry_generator,
     action=run_ecs_registry_generator,
 )

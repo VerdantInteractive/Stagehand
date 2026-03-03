@@ -41,9 +41,9 @@ namespace {
 
     std::string load_generated_ecs_script() {
         const std::vector<std::filesystem::path> candidate_paths = {
-            std::filesystem::path("generated") / "ECS.gd",
-            std::filesystem::path("..") / "generated" / "ECS.gd",
-            std::filesystem::path("..") / ".." / "generated" / "ECS.gd",
+            std::filesystem::path("generated") / "ecs_registry.gd",
+            std::filesystem::path("..") / "generated" / "ecs_registry.gd",
+            std::filesystem::path("..") / ".." / "generated" / "ecs_registry.gd",
         };
 
         for (const std::filesystem::path &candidate_path : candidate_paths) {
@@ -149,7 +149,7 @@ TEST_F(RegistryFixture, RegistrationIsIdempotentAcrossWorlds) {
 TEST_F(RegistryFixture, GeneratedEcsScriptHasExpectedFormatSuffixingAndTopLevelKeys) {
     const std::string script = load_generated_ecs_script();
 
-    ASSERT_FALSE(script.empty()) << "Could not locate generated/ECS.gd";
+    ASSERT_FALSE(script.empty()) << "Could not locate generated/ecs_registry.gd";
 
     EXPECT_NE(script.find("class_name ECS"), std::string::npos);
     EXPECT_NE(script.find("extends Object"), std::string::npos);
