@@ -45,11 +45,11 @@ namespace stagehand {
         /// Gets a component value from an entity.
         [[nodiscard]] godot::Variant get_component(const godot::StringName &component_name, uint64_t entity_id = 0);
         /// Checks if an entity has a component.
-        [[nodiscard]] bool has_component(const godot::StringName &component_name, uint64_t entity_id);
+        [[nodiscard]] bool has_component(const godot::StringName &component_name, uint64_t entity_id = 0);
         /// Adds a component (or tag) to an entity.
-        void add_component(const godot::StringName &component_name, uint64_t entity_id);
+        void add_component(const godot::StringName &component_name, uint64_t entity_id = 0);
         /// Removes a component (or tag) from an entity.
-        void remove_component(const godot::StringName &component_name, uint64_t entity_id);
+        void remove_component(const godot::StringName &component_name, uint64_t entity_id = 0);
 
         /// Enables or disables an entity by ID.
         bool enable_entity(uint64_t entity_id, bool enabled = true);

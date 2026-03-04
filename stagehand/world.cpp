@@ -98,7 +98,15 @@ namespace stagehand {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return false;
         }
-        return world.entity(static_cast<ecs_entity_t>(entity_id)).has(component_ids[component_name]);
+
+        const ecs_entity_t component_id = component_ids[component_name];
+        if (entity_id == 0) {
+            return world.entity(component_id).has(component_id);
+        }
+
+        const ecs_entity_t flecs_entity_id = static_cast<ecs_entity_t>(entity_id);
+
+        return world.entity(flecs_entity_id).has(component_id);
     }
 
     void FlecsWorld::add_component(const godot::StringName &component_name, uint64_t entity_id) {
@@ -110,7 +118,16 @@ namespace stagehand {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return;
         }
-        world.entity(static_cast<ecs_entity_t>(entity_id)).add(component_ids[component_name]);
+
+        const ecs_entity_t component_id = component_ids[component_name];
+        if (entity_id == 0) {
+            world.entity(component_id).add(component_id);
+            return;
+        }
+
+        const ecs_entity_t flecs_entity_id = static_cast<ecs_entity_t>(entity_id);
+
+        world.entity(flecs_entity_id).add(component_id);
     }
 
     void FlecsWorld::remove_component(const godot::StringName &component_name, uint64_t entity_id) {
@@ -122,7 +139,16 @@ namespace stagehand {
             godot::UtilityFunctions::push_warning("Component not found: " + component_name);
             return;
         }
-        world.entity(static_cast<ecs_entity_t>(entity_id)).remove(component_ids[component_name]);
+
+        const ecs_entity_t component_id = component_ids[component_name];
+        if (entity_id == 0) {
+            world.entity(component_id).remove(component_id);
+            return;
+        }
+
+        const ecs_entity_t flecs_entity_id = static_cast<ecs_entity_t>(entity_id);
+
+        world.entity(flecs_entity_id).remove(component_id);
     }
 
     bool FlecsWorld::enable_entity(uint64_t entity_id, bool enabled) {
@@ -299,7 +325,7 @@ namespace stagehand {
         }
 
         const WorldConfiguration *existing_configuration = world.try_get<WorldConfiguration>();
-        if (unlikely(existing_configuration != nullptr && p_configuration == previous_configuration && existing_configuration->value != world_configuration)) {
+        if (unlikely(existing_configuration != nullptr && p_configuration == previous_configuration && *existing_configuration != world_configuration)) {
             return;
         }
 
@@ -319,7 +345,7 @@ namespace stagehand {
 
         const WorldConfiguration *configuration = world.try_get<WorldConfiguration>();
         if (likely(configuration != nullptr)) {
-            return configuration->value;
+            return *configuration;
         }
 
         return world_configuration;
@@ -487,9 +513,9 @@ namespace stagehand {
     void FlecsWorld::_bind_methods() {
         godot::ClassDB::bind_method(godot::D_METHOD("set_component", "component_name", "data", "entity_id"), &FlecsWorld::set_component, DEFVAL(0));
         godot::ClassDB::bind_method(godot::D_METHOD("get_component", "component_name", "entity_id"), &FlecsWorld::get_component, DEFVAL(0));
-        godot::ClassDB::bind_method(godot::D_METHOD("has_component", "component_name", "entity_id"), &FlecsWorld::has_component);
-        godot::ClassDB::bind_method(godot::D_METHOD("add_component", "component_name", "entity_id"), &FlecsWorld::add_component);
-        godot::ClassDB::bind_method(godot::D_METHOD("remove_component", "component_name", "entity_id"), &FlecsWorld::remove_component);
+        godot::ClassDB::bind_method(godot::D_METHOD("has_component", "component_name", "entity_id"), &FlecsWorld::has_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("add_component", "component_name", "entity_id"), &FlecsWorld::add_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("remove_component", "component_name", "entity_id"), &FlecsWorld::remove_component, DEFVAL(0));
 
         godot::ClassDB::bind_method(godot::D_METHOD("enable_entity", "entity_id", "enabled"), &FlecsWorld::enable_entity, DEFVAL(true));
         godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));

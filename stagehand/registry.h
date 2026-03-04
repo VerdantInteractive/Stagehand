@@ -124,6 +124,10 @@ namespace stagehand {
         { t.value } -> StdArray;
     };
 
+    // Concept to detect if a type is a Dictionary, TypedDictionary, or inherits from them
+    template <typename T>
+    concept IsDictionary = std::is_base_of_v<godot::Dictionary, std::remove_cvref_t<T>>;
+
     inline std::string normalize_registered_component_name(std::string name) {
         while (name.rfind("::", 0) == 0) {
             name.erase(0, 2);
@@ -162,6 +166,9 @@ namespace stagehand {
             }
             godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) +
                                                   " returned empty component data for " + component_name.c_str() + ". Returning empty Variant.");
+            if constexpr (IsDictionary<T>) {
+                return godot::Variant(godot::Dictionary());
+            }
             return godot::Variant();
         };
 
