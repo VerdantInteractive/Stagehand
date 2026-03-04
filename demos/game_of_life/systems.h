@@ -23,7 +23,7 @@ REGISTER_IN_MODULE(stagehand_demos::game_of_life::systems, [](flecs::world &worl
 
     world.system<const stagehand::WorldConfiguration>("Grid Initialization").kind(flecs::OnStart).run([grid_population](flecs::iter &it) {
         if (it.next()) {
-            auto world_config = it.field<const stagehand::WorldConfiguration>(0)->value;
+            auto world_config = *it.field<const stagehand::WorldConfiguration>(0);
             const double population_scale = std::clamp(static_cast<double>(world_config.get("population_scale", 1.0)), 0.1, 2.0);
             *grid_population = godot::Vector2(480, 270) * population_scale;
             const double initial_alive_percentage = std::clamp(static_cast<double>(world_config.get("initial_alive_percentage", 0.2)), 0.05, 0.5);

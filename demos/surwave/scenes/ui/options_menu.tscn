@@ -1,0 +1,155 @@
+[gd_scene load_steps=6 format=3 uid="uid://crlhaxk0hrl4f"]
+
+[ext_resource type="Script" uid="uid://c0b477wmljnr" path="res://surwave/scenes/ui/options_menu.gd" id="1_0ejsc"]
+[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://surwave/scenes/ui/images/background.png" id="2_0ejsc"]
+[ext_resource type="Texture2D" uid="uid://dy5a5bkda6dk3" path="res://surwave/scenes/ui/images/options-small-2color.png" id="2_imaij"]
+[ext_resource type="PackedScene" uid="uid://bh7u0ixgau5bc" path="res://surwave/scenes/ui/audible_button.tscn" id="3_c4822"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="4_hb1yv"]
+
+[node name="OptionsMenu" type="CanvasLayer"]
+layer = 2
+script = ExtResource("1_0ejsc")
+
+[node name="BackgroundImage" type="TextureRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_0ejsc")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer"]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 16
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 12
+
+[node name="Title" type="TextureRect" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/MarginContainer"]
+layout_mode = 2
+texture = ExtResource("2_imaij")
+
+[node name="Options" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 20
+
+[node name="DifficultySettingMargin" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options"]
+custom_minimum_size = Vector2(0, 140)
+layout_mode = 2
+theme_override_constants/margin_bottom = 12
+
+[node name="DifficultySetting" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/DifficultySettingMargin"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/DifficultySettingMargin/DifficultySetting"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Difficulty"
+
+[node name="DifficultySlider" type="HSlider" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/DifficultySettingMargin/DifficultySetting"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 2.0
+value = 1.0
+rounded = true
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/DifficultySettingMargin/DifficultySetting"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="DifficultyName" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/DifficultySettingMargin/DifficultySetting/VBoxContainer"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "A fair challenge"
+horizontal_alignment = 1
+vertical_alignment = 1
+uppercase = true
+
+[node name="DifficultyDescription" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/DifficultySettingMargin/DifficultySetting/VBoxContainer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+text = "You will survive with a bit of agility and planning"
+horizontal_alignment = 1
+vertical_alignment = 1
+autowrap_mode = 2
+
+[node name="AudioVolumeOptions" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/AudioVolumeOptions"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Sound Effects Volume"
+
+[node name="SFXSlider" type="HSlider" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/AudioVolumeOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+
+[node name="MusicVolumeOptions" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/MusicVolumeOptions"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Music Volume"
+
+[node name="MusicSlider" type="HSlider" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/MusicVolumeOptions"]
+unique_name_in_owner = true
+layout_mode = 2
+max_value = 1.0
+step = 0.01
+
+[node name="WindowModeOptions" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/WindowModeOptions"]
+layout_mode = 2
+size_flags_horizontal = 4
+text = "Window Mode"
+
+[node name="WindowModeButton" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options/WindowModeOptions" instance=ExtResource("3_c4822")]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/Options"]
+layout_mode = 2
+
+[node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_constants/margin_top = 12
+
+[node name="BackButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/MarginContainer2"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Back"
+script = ExtResource("4_hb1yv")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
