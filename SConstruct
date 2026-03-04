@@ -7,6 +7,10 @@ from SCons.Script import ARGUMENTS, SConscript, Alias, Default, COMMAND_LINE_TAR
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 
+from submodule_check import check_and_init_submodules
+# Ensure git submodules are initialized and updated before proceeding with the build
+check_and_init_submodules()
+
 # Check that the Godot project file structure is set up correctly and get the project directory path
 is_downstream_project = (
     os.path.basename(os.getcwd()) == "stagehand"
