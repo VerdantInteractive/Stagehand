@@ -14,8 +14,7 @@ namespace stagehand::rendering {
 
     REGISTER([](flecs::world &world) {
         struct InstanceUniformView {
-            // untyped_field performs type erasure, allowing the system to hold a reference to the component data column regardless of its actual component type.
-            // One entity might use InstanceColor (a component wrapping Vector4) as a uniform. Another might use InstanceEmission (a different component, also wrapping Vector4).
+            // `untyped_field` performs type erasure, allowing the system to hold a reference to the component data column regardless of its actual type
             flecs::untyped_field values;
             bool has_changed;
             bool is_shared;
@@ -23,7 +22,7 @@ namespace stagehand::rendering {
         };
 
         // clang-format off
-    stagehand::rendering::EntityRenderingInstanced = world.system(stagehand::names::systems::ENTITY_RENDERING_INSTANCED)
+        stagehand::rendering::EntityRenderingInstanced = world.system(stagehand::names::systems::ENTITY_RENDERING_INSTANCED)
         .kind(stagehand::OnRender)
         .run([](flecs::iter &it) {
                 // clang-format on
@@ -145,7 +144,8 @@ namespace stagehand::rendering {
                                     for (const auto &uniform_view : instance_uniform_views) {
                                         if (is_new || uniform_view.has_changed) {
                                             const void *raw_value = uniform_view.is_shared ? uniform_view.values[0] : uniform_view.values[i];
-                                            const godot::Vector4 &val = *static_cast<const godot::Vector4 *>(raw_value); // std::memcpy(&val, raw_value, sizeof(godot::Vector4)); might be more robust
+                                            const godot::Vector4 &val = *static_cast<const godot::Vector4 *>(
+                                                raw_value); // std::memcpy(&val, raw_value, sizeof(godot::Vector4)); might be more robust
                                             rendering_server->instance_geometry_set_shader_parameter(instance_rid, uniform_view.parameter_name, val);
                                         }
                                     }
