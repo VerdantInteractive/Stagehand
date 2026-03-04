@@ -192,7 +192,7 @@ template <typename T> void register_projection_members(flecs::component<T> c) { 
     }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         register_godot_members(world.component<Name>(), static_cast<Base *>(nullptr));                                                                         \
-        stagehand::register_component<Name, Base>(#Name);                                                                                                      \
+        stagehand::register_component_with_world_name<Name, Base>(world, #Name);                                                                               \
         stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 

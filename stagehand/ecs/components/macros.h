@@ -53,7 +53,7 @@ using std::uint8_t;
     }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>().member<Type>("value");                                                                                                         \
-        stagehand::register_component<Name, Type>(#Name);                                                                                                      \
+        stagehand::register_component_with_world_name<Name, Type>(world, #Name);                                                                               \
         stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 
@@ -114,7 +114,7 @@ using std::uint8_t;
     }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>().member<std::uintptr_t>("ptr");                                                                                                 \
-        stagehand::register_component<Name, uint64_t>(#Name);                                                                                                  \
+        stagehand::register_component_with_world_name<Name, uint64_t>(world, #Name);                                                                           \
         stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 
@@ -135,14 +135,14 @@ using std::uint8_t;
     struct HasChanged##Name {};                                                                                                                                \
     inline auto register_##Name##_enum = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
         world.component<Name>();                                                                                                                               \
-        stagehand::register_component<Name, Type>(#Name);                                                                                                      \
+        stagehand::register_component_with_world_name<Name, Type>(world, #Name);                                                                               \
         stagehand::internal::register_change_detection_for_component<Name, HasChanged##Name>(world);                                                           \
     })
 
 #define ENUM_IMPL_(Name, Type)                                                                                                                                 \
     inline auto register_##Name##_enum_no_change = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                               \
         world.component<Name>();                                                                                                                               \
-        stagehand::register_component<Name, Type>(#Name);                                                                                                      \
+        stagehand::register_component_with_world_name<Name, Type>(world, #Name);                                                                               \
     })
 
 #define ENUM_1(Name) ENUM_IMPL(Name, uint8_t)
@@ -198,7 +198,7 @@ using std::uint8_t;
     }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>();                                                                                                                               \
-        stagehand::register_component<Name>(#Name);                                                                                                            \
+        stagehand::register_component_with_world_name<Name>(world, #Name);                                                                                     \
         stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 
@@ -226,7 +226,7 @@ using std::uint8_t;
     }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>();                                                                                                                               \
-        stagehand::register_component<Name>(#Name);                                                                                                            \
+        stagehand::register_component_with_world_name<Name>(world, #Name);                                                                                     \
         stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 

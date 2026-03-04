@@ -124,12 +124,19 @@ namespace stagehand {
         { t.value } -> StdArray;
     };
 
+    inline std::string normalize_registered_component_name(std::string name) {
+        while (name.rfind("::", 0) == 0) {
+            name.erase(0, 2);
+        }
+        return name;
+    }
+
     /// Unified component registration for scalars, vectors, and arrays.
-    template <typename T, typename StorageType = T> void register_component(const char *name) {
+    template <typename T, typename StorageType = T> void register_component(const std::string &name) {
         auto &registry = get_component_registry()[name];
 
         // Register Getter
-        registry.getter = [name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
+        registry.getter = [component_name = name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
             const T *data = nullptr;
             if (entity_id == 0) {
                 data = world.try_get<T>();
@@ -154,15 +161,15 @@ namespace stagehand {
                 }
             }
             godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) +
-                                                  " returned empty component data for " + name + ". Returning empty Variant.");
+                                                  " returned empty component data for " + component_name.c_str() + ". Returning empty Variant.");
             return godot::Variant();
         };
 
         // Register Setter
-        registry.setter = [name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
+        registry.setter = [component_name = name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
             if constexpr (HasVectorValue<T>) {
                 if (v.get_type() != godot::Variant::ARRAY) {
-                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected Array, got " +
+                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + component_name.c_str() + "'. Expected Array, got " +
                                                           godot::Variant::get_type_name(v.get_type()));
                     return;
                 }
@@ -187,7 +194,7 @@ namespace stagehand {
                 }
             } else if constexpr (HasArrayValue<T>) {
                 if (v.get_type() != godot::Variant::ARRAY) {
-                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected Array, got " +
+                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + component_name.c_str() + "'. Expected Array, got " +
                                                           godot::Variant::get_type_name(v.get_type()));
                     return;
                 }
@@ -195,7 +202,7 @@ namespace stagehand {
                 using ArrType = decltype(T::value);
                 constexpr size_t N = std::tuple_size<ArrType>::value;
                 if (arr.size() != static_cast<int>(N)) {
-                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + name + "'. Expected array size " +
+                    godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + component_name.c_str() + "'. Expected array size " +
                                                           godot::String::num_int64(N) + ", got " + godot::String::num_int64(arr.size()));
                     return;
                 }
@@ -232,10 +239,23 @@ namespace stagehand {
                 } else {
                     godot::String warning_message = "Failed to set component '{0}'. Cannot convert provided data from type '{1}' to the expected type '{2}'.";
                     godot::UtilityFunctions::push_warning(warning_message.format(
-                        godot::Array::make(name, godot::Variant::get_type_name(v.get_type()), godot::Variant::get_type_name(expected_type))));
+                        godot::Array::make(component_name.c_str(), godot::Variant::get_type_name(v.get_type()), godot::Variant::get_type_name(expected_type))));
                 }
             }
         };
+    }
+
+    template <typename T, typename StorageType = T> void register_component_with_world_name(flecs::world &world, const char *fallback_name) {
+        const flecs::component<T> component_handle = world.component<T>();
+        flecs::string component_path = component_handle.path();
+        std::string qualified_name = component_path.c_str() != nullptr ? std::string(component_path.c_str()) : std::string();
+        qualified_name = normalize_registered_component_name(std::move(qualified_name));
+
+        if (!qualified_name.empty()) {
+            register_component<T, StorageType>(qualified_name);
+        }
+
+        register_component<T, StorageType>(std::string(fallback_name));
     }
 
     /// Introspection metadata for a registered ECS entity.
