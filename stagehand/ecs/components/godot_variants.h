@@ -29,6 +29,7 @@
 #include <godot_cpp/variant/string_name.hpp>
 #include <godot_cpp/variant/transform2d.hpp>
 #include <godot_cpp/variant/transform3d.hpp>
+#include <godot_cpp/variant/typed_dictionary.hpp>
 #include <godot_cpp/variant/vector2.hpp>
 #include <godot_cpp/variant/vector2i.hpp>
 #include <godot_cpp/variant/vector3.hpp>
@@ -68,6 +69,7 @@ using godot::String;
 using godot::StringName;
 using godot::Transform2D;
 using godot::Transform3D;
+using godot::TypedDictionary;
 using godot::Vector2;
 using godot::Vector2i;
 using godot::Vector3;
@@ -222,10 +224,6 @@ template <typename T> void register_godot_members(flecs::component<T> c, Project
 
 // Class types
 template <typename T> void register_godot_members(flecs::component<T> c, Array *) {}
-template <typename T> void register_godot_members(flecs::component<T> c, Dictionary *) {}
-template <typename T> void register_godot_members(flecs::component<T> c, String *) {}
-template <typename T> void register_godot_members(flecs::component<T> c, StringName *) {}
-template <typename T> void register_godot_members(flecs::component<T> c, NodePath *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, PackedByteArray *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, PackedColorArray *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, PackedFloat32Array *) {}
@@ -236,6 +234,11 @@ template <typename T> void register_godot_members(flecs::component<T> c, PackedS
 template <typename T> void register_godot_members(flecs::component<T> c, PackedVector2Array *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, PackedVector3Array *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, PackedVector4Array *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, Dictionary *) {}
+template <typename T, typename K, typename V> void register_godot_members(flecs::component<T> c, TypedDictionary<K, V> *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, String *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, StringName *) {}
+template <typename T> void register_godot_members(flecs::component<T> c, NodePath *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, Callable *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, RID *) {}
 template <typename T> void register_godot_members(flecs::component<T> c, Signal *) {}
@@ -301,18 +304,6 @@ REGISTER([](flecs::world &world) {
     world.component<Array>();
     stagehand::register_component<Array>("Array");
 
-    world.component<Dictionary>();
-    stagehand::register_component<Dictionary>("Dictionary");
-
-    world.component<String>();
-    stagehand::register_component<String>("String");
-
-    world.component<StringName>();
-    stagehand::register_component<StringName>("StringName");
-
-    world.component<NodePath>();
-    stagehand::register_component<NodePath>("NodePath");
-
     world.component<PackedByteArray>();
     stagehand::register_component<PackedByteArray>("PackedByteArray");
 
@@ -342,6 +333,21 @@ REGISTER([](flecs::world &world) {
 
     world.component<PackedVector4Array>();
     stagehand::register_component<PackedVector4Array>("PackedVector4Array");
+
+    world.component<Dictionary>();
+    stagehand::register_component<Dictionary>("Dictionary");
+
+    world.component<TypedDictionary<String, godot::Variant>>();
+    stagehand::register_component<TypedDictionary<String, godot::Variant>>("TypedDictionary");
+
+    world.component<String>();
+    stagehand::register_component<String>("String");
+
+    world.component<StringName>();
+    stagehand::register_component<StringName>("StringName");
+
+    world.component<NodePath>();
+    stagehand::register_component<NodePath>("NodePath");
 
     world.component<Callable>();
     stagehand::register_component<Callable>("Callable");
