@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="MultiMeshRenderer2D" inherits="MultiMeshInstance2D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		A 2D node that renders ECS entities as instances in a MultiMesh.
+	</brief_description>
+	<description>
+		[b]MultiMeshRenderer2D[/b] is a 2D node that efficiently renders multiple ECS entities as instances within a single MultiMesh. It maps one or more Flecs prefabs to multimesh instances, updating their transforms each frame for optimal 2D rendering performance.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_draw_order">
+			<return type="int" enum="MultiMeshDrawOrder" />
+			<description>
+				Returns the draw ordering mode for multimesh instances.
+			</description>
+		</method>
+		<method name="get_prefabs_rendered">
+			<return type="PackedStringArray" />
+			<description>
+				Returns the array of prefab names whose entities will be rendered by this renderer.
+			</description>
+		</method>
+		<method name="set_draw_order">
+			<return type="void" />
+			<param index="0" name="draw_order" type="int" enum="MultiMeshDrawOrder" />
+			<description>
+				Sets the draw ordering mode for multimesh instances.
+			</description>
+		</method>
+		<method name="set_prefabs_rendered">
+			<return type="void" />
+			<param index="0" name="prefabs" type="PackedStringArray" />
+			<description>
+				Sets the array of prefab names whose entities will be rendered by this renderer.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="draw_order" type="int" setter="set_draw_order" getter="get_draw_order" enum="MultiMeshDrawOrder" default="0">
+			Controls instance sorting for rendering (None, X, or Y axis).
+		</member>
+		<member name="prefabs_rendered" type="PackedStringArray" setter="set_prefabs_rendered" getter="get_prefabs_rendered" default="PackedStringArray()">
+			Prefab names whose entities are rendered by this node.
+		</member>
+	</members>
+	<constants>
+	</constants>
+</class>

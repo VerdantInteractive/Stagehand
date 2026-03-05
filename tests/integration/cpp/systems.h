@@ -7,6 +7,7 @@
 #include "stagehand/ecs/components/physics.h"
 #include "stagehand/ecs/components/rendering.h"
 #include "stagehand/ecs/components/scene_children.h"
+#include "stagehand/ecs/components/transform.h"
 #include "stagehand/entity.h"
 #include "stagehand/utilities/emit_signal.h"
 

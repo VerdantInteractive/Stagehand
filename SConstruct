@@ -3,7 +3,7 @@
 CPP_STANDARD = "c++20"
 
 import os, subprocess, sys
-from SCons.Script import ARGUMENTS, SConscript, Alias, Default, COMMAND_LINE_TARGETS
+from SCons.Script import ARGUMENTS, SConscript, Alias, Default, COMMAND_LINE_TARGETS, Glob
 
 sys.path.insert(0, os.path.join(os.getcwd(), "scripts/scons_helpers"))
 
@@ -222,6 +222,15 @@ for src in project_cpp_sources:
     ))
 
 project_objs = stagehand_objs + project_cpp_objs + [flecs_c_obj]
+
+# Embed the class reference documentation into the binary for editor and template_debug targets
+doc_data_obj = None
+if env["target"] in ["editor", "template_debug", "template_release"]:
+    doc_data_obj = project_env.GodotCPPDocData(
+        target=os.path.join(BUILD_DIR, "doc_data.gen.cpp"),
+        source=Glob("documentation/class_reference/*.xml")
+    )
+    project_objs.append(doc_data_obj)
 
 if env["platform"] == "macos":
     library = project_env.SharedLibrary(
