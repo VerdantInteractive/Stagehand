@@ -299,3 +299,39 @@ TEST_F(RegistryFixture, CollectRegisteredEntitiesPreservesModulePathForModuleSco
     EXPECT_EQ(component->module_path, "test_registry::module");
     EXPECT_EQ(component->namespace_path, "test_registry::module");
 }
+
+TEST_F(RegistryFixture, ModuleCallbackMetadataApiReportsRegisteredModulesSortedAndUnique) {
+    stagehand::Registry registry_one("test_registry::zz_module", [](flecs::world &) {});
+    stagehand::Registry registry_two("test_registry::aa_module", [](flecs::world &) {});
+    stagehand::Registry registry_three("test_registry::aa_module", [](flecs::world &) {});
+
+    const std::vector<std::string> module_names = stagehand::get_registered_module_names();
+
+    ASSERT_TRUE(std::is_sorted(module_names.begin(), module_names.end()));
+    ASSERT_EQ(std::adjacent_find(module_names.begin(), module_names.end()), module_names.end());
+    ASSERT_NE(std::find(module_names.begin(), module_names.end(), "test_registry::aa_module"), module_names.end());
+    ASSERT_NE(std::find(module_names.begin(), module_names.end(), "test_registry::zz_module"), module_names.end());
+
+    EXPECT_TRUE(stagehand::has_module_callbacks_for("test_registry::aa_module"));
+    EXPECT_TRUE(stagehand::has_module_callbacks_for("test_registry::zz_module"));
+    EXPECT_FALSE(stagehand::has_module_callbacks_for("test_registry::definitely_missing_module"));
+}
+
+TEST_F(RegistryFixture, CollectRegisteredEntitiesCanIncludeFlecsBuiltinsWhenRequested) {
+    const std::vector<stagehand::RegisteredEntityInfo> without_flecs = stagehand::collect_registered_entities(world, false);
+    const std::vector<stagehand::RegisteredEntityInfo> with_flecs = stagehand::collect_registered_entities(world, true);
+
+    ASSERT_GE(with_flecs.size(), without_flecs.size());
+
+    const bool contains_flecs_builtin = std::any_of(with_flecs.begin(), with_flecs.end(), [](const stagehand::RegisteredEntityInfo &entry) {
+        return entry.path.starts_with("flecs::") || entry.module_path.starts_with("flecs::");
+    });
+
+    ASSERT_TRUE(contains_flecs_builtin);
+
+    const bool filtered_output_contains_flecs = std::any_of(without_flecs.begin(), without_flecs.end(), [](const stagehand::RegisteredEntityInfo &entry) {
+        return entry.path.starts_with("flecs::") || entry.module_path.starts_with("flecs::");
+    });
+
+    EXPECT_FALSE(filtered_output_contains_flecs);
+}

@@ -57,23 +57,5 @@ namespace stagehand {
             mark_changed<T>();
             return *this;
         }
-
-        /// Optimized assignment method.
-        /// Uses get_mut() to retrieve the component (adding it if necessary) and assigns the value.
-        /// This can be faster than set() as it bypasses some internal checks.
-        template <typename T> inline entity &assign(const T &value) {
-            *this->get_mut<T>() = value;
-            this->modified<T>();
-            mark_changed<T>();
-            return *this;
-        }
-
-        template <typename T> inline entity &assign(T &&value) {
-            using DecayedT = std::decay_t<T>;
-            *this->get_mut<DecayedT>() = std::forward<T>(value);
-            this->modified<DecayedT>();
-            mark_changed<DecayedT>();
-            return *this;
-        }
     };
 } // namespace stagehand

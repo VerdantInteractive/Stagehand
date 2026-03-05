@@ -95,6 +95,7 @@ namespace stagehand {
     struct ComponentFunctions {
         ComponentGetter getter;
         ComponentSetter setter;
+        flecs::entity_t entity_id = 0; ///< Populated by register_component_with_world_name
     };
 
     /// Returns the global map of component functions, keyed by component name.
@@ -254,15 +255,18 @@ namespace stagehand {
 
     template <typename T, typename StorageType = T> void register_component_with_world_name(flecs::world &world, const char *fallback_name) {
         const flecs::component<T> component_handle = world.component<T>();
+        const flecs::entity_t comp_id = component_handle.id();
         flecs::string component_path = component_handle.path();
         std::string qualified_name = component_path.c_str() != nullptr ? std::string(component_path.c_str()) : std::string();
         qualified_name = normalize_registered_component_name(std::move(qualified_name));
 
         if (!qualified_name.empty()) {
             register_component<T, StorageType>(qualified_name);
+            get_component_registry()[qualified_name].entity_id = comp_id;
         }
 
         register_component<T, StorageType>(std::string(fallback_name));
+        get_component_registry()[std::string(fallback_name)].entity_id = comp_id;
     }
 
     /// Introspection metadata for a registered ECS entity.

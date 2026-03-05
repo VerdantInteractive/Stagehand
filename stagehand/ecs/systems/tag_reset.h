@@ -8,17 +8,21 @@
 
 namespace stagehand {
     REGISTER([](flecs::world &world) {
-        // Generic system that disables all change detection tags. Uses a wildcard query
-        // to match all entities with any component/tag marked with the IsChangeDetectionTag trait, then disables those tags.
+        // Disables all change detection tags. Uses a query with variables to match all entities
+        // with any component/tag marked with the IsChangeDetectionTag trait, then disables those tags.
         // clang-format off
         world.system(names::systems::TAG_RESET_CHANGE_DETECTION)
             .kind(PostRender)
-            .with(flecs::Wildcard)
-            .second<IsChangeDetectionTag>()
-            .each([](flecs::iter &it, size_t i) {
+            .with<IsChangeDetectionTag>().src("$change_detection_tag_component")
+            .term().first("$change_detection_tag_component")
+            .run([](flecs::iter &it) {
                 // clang-format on
-                // Disable the component/tag matched by the wildcard (identified by id(0))
-                it.entity(i).disable(it.id(0));
+                while (it.next()) {
+                    flecs::id_t component_id = it.id(1);
+                    for (auto i : it) {
+                        it.entity(i).disable(component_id);
+                    }
+                }
             });
     });
 } // namespace stagehand

@@ -15,6 +15,10 @@
 
 namespace stagehand_tests {
 
+    // Register a no-op module callback so FlecsWorld module import checks succeed
+    // for the module-loading integration tests.
+    REGISTER_IN_MODULE(foo::bar, [](flecs::world &) {});
+
     REGISTER([](flecs::world &world) {
         // ── TickCount singleton ──────────────────────────────────────────────
         // Needed so that GDScript can read the singleton via get_component.

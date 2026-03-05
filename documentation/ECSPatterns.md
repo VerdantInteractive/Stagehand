@@ -46,12 +46,6 @@ world.system<Position, Velocity>()
         // 3. Set
         // Overwrites the component. Triggers HasChangedVelocity.
         e.set<Velocity>({10.0f, 0.0f, 0.0f});
-
-        // 4. Assign
-        // Optimized overwrite. Uses get_mut internally.
-        // Faster than set() but assumes component exists (unsafe if missing).
-        // Triggers HasChangedVelocity.
-        e.assign<Velocity>({10.0f, 0.0f, 0.0f});
     });
 ```
 

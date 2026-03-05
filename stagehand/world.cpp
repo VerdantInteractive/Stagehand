@@ -46,8 +46,15 @@ namespace stagehand {
         for (const auto &[component_name, funcs] : get_component_registry()) {
             godot::StringName name(component_name.c_str());
 
-            // Cache the component entity ID for fast lookups in has/add/remove
-            component_ids[name] = world.lookup(component_name.c_str()).id();
+            // Cache the component entity ID for fast lookups in has/add/remove.
+            // Prefer the entity_id stored during registration (always correct),
+            // falling back to world.lookup() for components registered without
+            // register_component_with_world_name.
+            flecs::entity_t comp_id = funcs.entity_id;
+            if (comp_id == 0) {
+                comp_id = world.lookup(component_name.c_str()).id();
+            }
+            component_ids[name] = comp_id;
 
             if (funcs.setter) {
                 component_setters[name] = [this, global_setter = funcs.setter](flecs::entity_t entity_id, const godot::Variant &data) {

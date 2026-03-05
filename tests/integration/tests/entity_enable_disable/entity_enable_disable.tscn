@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/entity_enable_disable/entity_enable_disable.gd" id="1"]
+
+[node name="EntityEnableDisable" type="FlecsWorld"]
+script = ExtResource("1")
