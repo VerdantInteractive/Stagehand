@@ -5,9 +5,8 @@
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/transform.h"
-#include "stagehand/ecs/pipeline_phases.h"
 #include "stagehand/ecs/components/traits.h"
+#include "stagehand/ecs/components/transform.h"
 
 void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count) {
     if (!renderer->validate_configuration()) {
