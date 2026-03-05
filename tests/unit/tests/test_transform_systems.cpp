@@ -2,9 +2,9 @@
 /// These test the pure math operations used by the transform systems
 /// without requiring a running Godot engine.
 
-#include <cmath>
 #include <flecs.h>
 #include <gtest/gtest.h>
+#include <numbers>
 
 #include <godot_cpp/variant/basis.hpp>
 #include <godot_cpp/variant/quaternion.hpp>
@@ -69,7 +69,7 @@ TEST_F(TransformSystemFixture, Compose2DScale) {
 TEST_F(TransformSystemFixture, Compose2DRotation) {
     using Traits = stagehand::transform::TransformSystemTraits<stagehand::transform::Transform2D>;
     stagehand::transform::Transform2D result;
-    float angle = static_cast<float>(M_PI / 4.0); // 45 degrees
+    float angle = std::numbers::pi_v<float> / 4.0f; // 45 degrees
     Traits::compose_transform(result, stagehand::transform::Position2D(godot::Vector2(0, 0)), stagehand::transform::Rotation2D(angle),
                               stagehand::transform::Scale2D(godot::Vector2(1, 1)));
 
@@ -79,7 +79,7 @@ TEST_F(TransformSystemFixture, Compose2DRotation) {
 TEST_F(TransformSystemFixture, Compose2DCombinedPRS) {
     using Traits = stagehand::transform::TransformSystemTraits<stagehand::transform::Transform2D>;
     stagehand::transform::Transform2D result;
-    float angle = static_cast<float>(M_PI / 2.0);
+    float angle = std::numbers::pi_v<float> / 2.0f;
     Traits::compose_transform(result, stagehand::transform::Position2D(godot::Vector2(10, 20)), stagehand::transform::Rotation2D(angle),
                               stagehand::transform::Scale2D(godot::Vector2(2, 3)));
 
