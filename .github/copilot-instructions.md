@@ -7,7 +7,7 @@
 - Keep the tests up to date with code changes. If you add new features, add new tests for them. Maintain high test coverage for the project.
 - Keep the files in documentation/class_reference up to date with code changes.
 - Don't clean build files.
-- Don't make any git commits
+- Don't make any git commits.
 
 # Validation
 - After you make modifications, run scripts/build_debug.sh to verify that the project compiles successfully, and scripts/run_tests.sh to verify that all tests pass.
