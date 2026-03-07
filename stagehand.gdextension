@@ -6,15 +6,15 @@ reloadable = true
 
 [libraries]
 
-macos.debug = "res://addons/stagehand/bin/libstagehand.macos.template_debug.framework"
+macos.debug = "res://addons/stagehand/bin/libstagehand.macos.editor.framework"
 macos.release = "res://addons/stagehand/bin/libstagehand.macos.template_release.framework"
 ios.debug = "res://addons/stagehand/bin/libstagehand.ios.template_debug.xcframework"
 ios.release = "res://addons/stagehand/bin/libstagehand.ios.template_release.xcframework"
 windows.debug.x86_32 = "res://addons/stagehand/bin/libstagehand.windows.template_debug.x86_32.dll"
 windows.release.x86_32 = "res://addons/stagehand/bin/libstagehand.windows.template_release.x86_32.dll"
-windows.debug.x86_64 = "res://addons/stagehand/bin/libstagehand.windows.template_debug.x86_64.dll"
+windows.debug.x86_64 = "res://addons/stagehand/bin/libstagehand.windows.editor.x86_64.dll"
 windows.release.x86_64 = "res://addons/stagehand/bin/libstagehand.windows.template_release.x86_64.dll"
-linux.debug.x86_64 = "res://addons/stagehand/bin/libstagehand.linux.template_debug.x86_64.so"
+linux.debug.x86_64 = "res://addons/stagehand/bin/libstagehand.linux.editor.x86_64.so"
 linux.release.x86_64 = "res://addons/stagehand/bin/libstagehand.linux.template_release.x86_64.so"
 linux.debug.arm64 = "res://addons/stagehand/bin/libstagehand.linux.template_debug.arm64.so"
 linux.release.arm64 = "res://addons/stagehand/bin/libstagehand.linux.template_release.arm64.so"

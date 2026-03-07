@@ -30,6 +30,8 @@ if is_downstream_project:
 elif any(str(t) == "integration_tests" for t in COMMAND_LINE_TARGETS):
     project_path = "tests/integration"
     PROJECT_DIRECTORY = os.path.abspath(project_path)
+    if "target" not in ARGUMENTS:
+        ARGUMENTS["target"] = "editor"
 
 # - CCFLAGS are compilation flags shared between C and C++
 # - CFLAGS are for C-specific compilation flags
@@ -53,6 +55,8 @@ if "compiledb" not in ARGUMENTS: ARGUMENTS["compiledb"] = "yes"
 if sys.platform == "darwin" and "arch" not in ARGUMENTS: ARGUMENTS["arch"] = "x86_64"
 
 env = SConscript("dependencies/godot-cpp/SConstruct")
+
+is_debug_build = env["target"] in ["editor", "template_debug"]
 
 # Shared build directory for object files
 BUILD_DIR = "build/obj"
@@ -135,7 +139,7 @@ FLECS_PRODUCTION_OPTS = [
     "FLECS_SYSTEM",
     "FLECS_TIMER",
 ]
-FLECS_OPTS = FLECS_DEVELOPMENT_OPTS if env["target"] == "template_debug" else FLECS_PRODUCTION_OPTS
+FLECS_OPTS = FLECS_DEVELOPMENT_OPTS if is_debug_build else FLECS_PRODUCTION_OPTS
 
 FLECS_WINDOWS_OPTS = [f"/D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)] + ["/TC", "/DWIN32_LEAN_AND_MEAN"]
 FLECS_UNIX_OPTS =    [f"-D{o}" for o in (FLECS_OPTS + FLECS_COMMON_OPTS)] + ["-std=gnu99"]
@@ -173,8 +177,8 @@ project_env["CPPDEFINES"] = filter_cppdefines(
     {"NDEBUG"},
 )
 
-# Re-add NDEBUG only for non-debug templates so standard asserts are disabled in production builds, without conflicting with Flecs' FLECS_DEBUG in template_debug.
-if env["target"] != "template_debug":
+# Re-add NDEBUG only in non-debug builds so standard asserts are disabled in production builds, without conflicting with Flecs' FLECS_DEBUG.
+if not is_debug_build:
     project_env.Append(CPPDEFINES=["NDEBUG"])
 
 cxx_flags = []
@@ -223,14 +227,12 @@ for src in project_cpp_sources:
 
 project_objs = stagehand_objs + project_cpp_objs + [flecs_c_obj]
 
-# Embed the class reference documentation into the binary for editor and template_debug targets
-doc_data_obj = None
-if env["target"] in ["editor", "template_debug", "template_release"]:
-    doc_data_obj = project_env.GodotCPPDocData(
-        target=os.path.join(BUILD_DIR, "doc_data.gen.cpp"),
-        source=Glob("documentation/class_reference/*.xml")
-    )
-    project_objs.append(doc_data_obj)
+# Embed the class reference documentation into the binary
+doc_data_obj = project_env.GodotCPPDocData(
+    target=os.path.join(BUILD_DIR, "doc_data.gen.cpp"),
+    source=Glob("documentation/class_reference/*.xml")
+)
+project_objs.append(doc_data_obj)
 
 if env["platform"] == "macos":
     library = project_env.SharedLibrary(
@@ -318,7 +320,7 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
                 plat = sys.platform
 
         # Map template_debug/template_release to debug/release for platform key
-        target_map = {"template_debug": "debug", "template_release": "release", "editor": "debug"}
+        target_map = {"editor": "debug", "template_debug": "debug", "template_release": "release"}
         target_key = target_map.get(target, "debug")
 
         arch = None
