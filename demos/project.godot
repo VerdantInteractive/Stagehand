@@ -25,11 +25,10 @@ boot_splash/bg_color=Color(0.23137255, 0.023529412, 0.22745098, 1)
 boot_splash/stretch_mode=0
 boot_splash/use_filter=false
 boot_splash/image="uid://d0bs3fs7eqtc5"
-config/icon="res://_assets/icon.svg"
 
 [audio]
 
-buses/default_bus_layout="res://_assets/default_bus_layout.tres"
+buses/default_bus_layout="res://surwave/resources/default_bus_layout.tres"
 
 [autoload]
 

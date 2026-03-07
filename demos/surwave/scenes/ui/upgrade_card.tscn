@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://dg3fliufon0m4"]
 
 [ext_resource type="Script" uid="uid://bmic2nb52351x" path="res://surwave/scenes/ui/upgrade_card.gd" id="1_08fp5"]
-[ext_resource type="Theme" uid="uid://dqjww1l3b8tt4" path="res://_assets/theme.tres" id="1_40ijt"]
+[ext_resource type="Theme" uid="uid://dqjww1l3b8tt4" path="res://surwave/resources/theme.tres" id="1_40ijt"]
 [ext_resource type="Texture2D" uid="uid://ca4ojb4ufv384" path="res://surwave/scenes/ui/images/gem_icon.png" id="3_ay13x"]
 [ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="4_qdprk"]
 
