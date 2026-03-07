@@ -14,9 +14,10 @@ TBC
 
 ## Usage
 
+Note: On Windows, symbolic links must be enabled both at OS and git configuration level for opening the demo project or running the integration tests.
+
 ```
-git remote add -f stagehand https://github.com/VerdantInteractive/Stagehand.git
-git subtree add --prefix addons/stagehand stagehand alpha --squash
+git clone --recursive git@github.com:VerdantInteractive/Stagehand.git
 
 scons -C addons/stagehand
 ```
