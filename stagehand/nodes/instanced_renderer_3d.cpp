@@ -170,60 +170,75 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     renderer_count++;
 }
 
-bool InstancedRenderer3D::validate_configuration() const {
-    bool is_valid = true;
+void InstancedRenderer3D::set_prefabs_rendered(const godot::PackedStringArray &p_prefabs) {
+    prefabs_rendered = p_prefabs;
+    update_configuration_warnings();
+}
+
+void InstancedRenderer3D::set_lod_levels(const godot::TypedArray<InstancedRenderer3DLODConfiguration> &p_lod_levels) {
+    lod_levels = p_lod_levels;
+    update_configuration_warnings();
+}
+
+godot::PackedStringArray InstancedRenderer3D::_get_configuration_warnings() const {
+    godot::PackedStringArray warnings;
 
     if (lod_levels.is_empty()) {
-        godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() +
-                                              "': No LOD levels configured. At least one LOD level with a mesh is required.");
-        is_valid = false;
+        warnings.push_back("No LOD levels configured. At least one LOD level with a mesh is required.");
     }
 
     if (prefabs_rendered.is_empty()) {
-        godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': 'prefabs_rendered' is empty.");
-        is_valid = false;
+        warnings.push_back("'prefabs_rendered' is empty.");
     }
 
     for (int i = 0; i < lod_levels.size(); ++i) {
         godot::Ref<InstancedRenderer3DLODConfiguration> lod = lod_levels[i];
         if (!lod.is_valid()) {
-            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) + " is null.");
-            is_valid = false;
+            warnings.push_back("LOD " + godot::String::num_int64(i) + " is null.");
             continue;
         }
 
         if (!lod->get_mesh().is_valid()) {
-            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) +
-                                                  " has no mesh assigned.");
-            is_valid = false;
+            warnings.push_back("LOD " + godot::String::num_int64(i) + " has no mesh assigned.");
         }
 
         if (lod->get_visibility_range_end() < lod->get_visibility_range_begin()) {
-            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) +
-                                                  " has visibility_range_end < visibility_range_begin. This may cause incorrect visibility ranges.");
+            warnings.push_back("LOD " + godot::String::num_int64(i) +
+                               " has visibility_range_end < visibility_range_begin. This may cause incorrect visibility ranges.");
         }
 
         if (lod->get_visibility_range_begin_margin() < 0.0f) {
-            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) +
-                                                  " has negative visibility_range_begin_margin.");
+            warnings.push_back("LOD " + godot::String::num_int64(i) + " has negative visibility_range_begin_margin.");
         }
 
         if (lod->get_visibility_range_end_margin() < 0.0f) {
-            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) +
-                                                  " has negative visibility_range_end_margin.");
+            warnings.push_back("LOD " + godot::String::num_int64(i) + " has negative visibility_range_end_margin.");
         }
 
         const godot::RenderingServer::VisibilityRangeFadeMode visibility_fade_mode = lod->get_visibility_range_fade_mode();
         if (visibility_fade_mode != godot::RenderingServer::VISIBILITY_RANGE_FADE_DISABLED &&
             visibility_fade_mode != godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF &&
             visibility_fade_mode != godot::RenderingServer::VISIBILITY_RANGE_FADE_DEPENDENCIES) {
-            godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + get_name() + "': LOD " + godot::String::num_int64(i) +
-                                                  " has invalid visibility_range_fade_mode.");
-            is_valid = false;
+            warnings.push_back("LOD " + godot::String::num_int64(i) + " has invalid visibility_range_fade_mode.");
         }
     }
 
-    return is_valid;
+    return warnings;
+}
+
+bool InstancedRenderer3D::validate_configuration() const {
+    if (lod_levels.is_empty() || prefabs_rendered.is_empty()) {
+        return false;
+    }
+
+    for (int i = 0; i < lod_levels.size(); ++i) {
+        godot::Ref<InstancedRenderer3DLODConfiguration> lod = lod_levels[i];
+        if (!lod.is_valid() || !lod->get_mesh().is_valid()) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 void InstancedRenderer3D::_bind_methods() {

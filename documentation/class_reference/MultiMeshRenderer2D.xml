@@ -5,6 +5,7 @@
 	</brief_description>
 	<description>
 		[b]MultiMeshRenderer2D[/b] is a 2D node that efficiently renders multiple ECS entities as instances within a single MultiMesh. It maps one or more Flecs prefabs to multimesh instances, updating their transforms each frame for optimal 2D rendering performance.
+		Configuration issues (missing MultiMesh resource or empty [member prefabs_rendered]) are reported as warnings in the Scene dock.
 	</description>
 	<tutorials>
 	</tutorials>

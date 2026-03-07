@@ -65,7 +65,7 @@
 		<method name="validate_configuration">
 			<return type="bool" />
 			<description>
-				Validates the renderer configuration and emits warnings for any issues. Returns true if the configuration is valid enough to render.
+				Returns [code]true[/code] if the renderer configuration is valid enough to begin rendering (has at least one LOD level with a mesh and a non-empty [member prefabs_rendered] list). Configuration issues are surfaced as warnings in the Scene dock via [method Node._get_configuration_warnings].
 			</description>
 		</method>
 	</methods>

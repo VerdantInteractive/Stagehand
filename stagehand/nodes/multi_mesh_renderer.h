@@ -27,11 +27,13 @@ extern std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buf
 
 template <typename T> class MultiMeshRenderer : public T {
   public:
-    void set_prefabs_rendered(const godot::PackedStringArray &p_prefabs) { prefabs_rendered = p_prefabs; }
+    void set_prefabs_rendered(const godot::PackedStringArray &p_prefabs);
     [[nodiscard]] godot::PackedStringArray get_prefabs_rendered() const { return prefabs_rendered; }
 
     void set_draw_order(MultiMeshDrawOrder p_draw_order) { draw_order = p_draw_order; }
     [[nodiscard]] MultiMeshDrawOrder get_draw_order() const { return draw_order; }
+
+    [[nodiscard]] godot::PackedStringArray _get_configuration_warnings() const override;
 
   private:
     godot::PackedStringArray prefabs_rendered;
@@ -41,12 +43,22 @@ template <typename T> class MultiMeshRenderer : public T {
 class MultiMeshRenderer2D : public MultiMeshRenderer<godot::MultiMeshInstance2D> {
     GDCLASS(MultiMeshRenderer2D, godot::MultiMeshInstance2D)
 
+  public:
+    godot::PackedStringArray _get_configuration_warnings() const override {
+        return MultiMeshRenderer<godot::MultiMeshInstance2D>::_get_configuration_warnings();
+    }
+
   protected:
     static void _bind_methods();
 };
 
 class MultiMeshRenderer3D : public MultiMeshRenderer<godot::MultiMeshInstance3D> {
     GDCLASS(MultiMeshRenderer3D, godot::MultiMeshInstance3D)
+
+  public:
+    godot::PackedStringArray _get_configuration_warnings() const override {
+        return MultiMeshRenderer<godot::MultiMeshInstance3D>::_get_configuration_warnings();
+    }
 
   protected:
     static void _bind_methods();

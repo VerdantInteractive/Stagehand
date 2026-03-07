@@ -18,11 +18,11 @@ void initialize_flecs_module(godot::ModuleInitializationLevel p_level) {
 
     GDREGISTER_RUNTIME_CLASS(stagehand::FlecsWorld);
 
-    GDREGISTER_RUNTIME_CLASS(InstancedRenderer3D);
+    GDREGISTER_CLASS(InstancedRenderer3D);
     GDREGISTER_CLASS(InstancedRenderer3DLODConfiguration);
 
-    GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer2D);
-    GDREGISTER_RUNTIME_CLASS(MultiMeshRenderer3D);
+    GDREGISTER_CLASS(MultiMeshRenderer2D);
+    GDREGISTER_CLASS(MultiMeshRenderer3D);
 
     if (p_level == godot::MODULE_INITIALIZATION_LEVEL_EDITOR) {
         GDREGISTER_CLASS(FlecsScriptEditorExportPlugin);

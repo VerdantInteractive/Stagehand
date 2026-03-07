@@ -8,6 +8,43 @@
 
 std::unordered_map<godot::RID, godot::PackedFloat32Array> g_multimesh_buffer_cache;
 
+namespace {
+    template <typename TransformType, int Axis> int compare_transforms(flecs::entity_t, const TransformType *t1, flecs::entity_t, const TransformType *t2) {
+        double v1, v2;
+        if constexpr (std::is_same_v<TransformType, godot::Transform2D>) {
+            v1 = t1->get_origin()[Axis];
+            v2 = t2->get_origin()[Axis];
+        } else {
+            v1 = t1->origin[Axis];
+            v2 = t2->origin[Axis];
+        }
+        if (v1 > v2)
+            return 1;
+        if (v1 < v2)
+            return -1;
+        return 0;
+    }
+} // namespace
+
+template <typename T> void MultiMeshRenderer<T>::set_prefabs_rendered(const godot::PackedStringArray &p_prefabs) {
+    prefabs_rendered = p_prefabs;
+    this->update_configuration_warnings();
+}
+
+template <typename T> godot::PackedStringArray MultiMeshRenderer<T>::_get_configuration_warnings() const {
+    godot::PackedStringArray warnings;
+    if (!this->get_multimesh().is_valid()) {
+        warnings.push_back("No MultiMesh resource assigned.");
+    }
+    if (prefabs_rendered.is_empty()) {
+        warnings.push_back("'prefabs_rendered' is empty.");
+    }
+    return warnings;
+}
+
+template class MultiMeshRenderer<godot::MultiMeshInstance2D>;
+template class MultiMeshRenderer<godot::MultiMeshInstance3D>;
+
 template <MultiMeshRendererType T>
 void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count) {
     godot::RID multimesh_rid;
@@ -39,12 +76,10 @@ void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::re
         // Pre-populate the buffer cache to avoid the initial resizing
         g_multimesh_buffer_cache[multimesh_rid] = multimesh->get_buffer();
     } else {
-        godot::UtilityFunctions::push_warning(renderer->get_class() + godot::String(" node has no MultiMesh resource assigned."));
         return;
     }
 
     if (prefabs.is_empty()) {
-        godot::UtilityFunctions::push_warning(godot::String("Child node '") + renderer->get_name() + "' has empty 'prefabs_rendered'.");
         return;
     }
 
@@ -66,59 +101,21 @@ void register_multimesh_renderer(flecs::world &world, T *renderer, stagehand::re
     // This ensures that entities from different prefabs are sorted together.
     auto query = world.query_builder();
 
-    using TransformType = std::conditional_t<std::is_same_v<T, MultiMeshRenderer2D>, Transform2D, Transform3D>;
+    using TransformType = std::conditional_t<std::is_same_v<T, MultiMeshRenderer2D>, godot::Transform2D, godot::Transform3D>;
 
     query.with<const TransformType>();
 
     if (sort_axis != '\0') {
         switch (sort_axis) {
         case 'x':
-            query.order_by<TransformType>([](flecs::entity_t, const TransformType *t1, flecs::entity_t, const TransformType *t2) {
-                if constexpr (std::is_same_v<T, MultiMeshRenderer2D>) {
-                    const auto o1 = t1->get_origin();
-                    const auto o2 = t2->get_origin();
-                    if (o1.x > o2.x)
-                        return 1;
-                    if (o1.x < o2.x)
-                        return -1;
-                    return 0;
-                } else {
-                    if (t1->origin.x > t2->origin.x)
-                        return 1;
-                    if (t1->origin.x < t2->origin.x)
-                        return -1;
-                    return 0;
-                }
-            });
+            query.order_by<TransformType>(compare_transforms<TransformType, 0>);
             break;
         case 'y':
-            query.order_by<TransformType>([](flecs::entity_t, const TransformType *t1, flecs::entity_t, const TransformType *t2) {
-                if constexpr (std::is_same_v<T, MultiMeshRenderer2D>) {
-                    const auto o1 = t1->get_origin();
-                    const auto o2 = t2->get_origin();
-                    if (o1.y > o2.y)
-                        return 1;
-                    if (o1.y < o2.y)
-                        return -1;
-                    return 0;
-                } else {
-                    if (t1->origin.y > t2->origin.y)
-                        return 1;
-                    if (t1->origin.y < t2->origin.y)
-                        return -1;
-                    return 0;
-                }
-            });
+            query.order_by<TransformType>(compare_transforms<TransformType, 1>);
             break;
         case 'z':
             if constexpr (std::is_same_v<T, MultiMeshRenderer3D>) {
-                query.order_by<TransformType>([](flecs::entity_t, const TransformType *t1, flecs::entity_t, const TransformType *t2) {
-                    if (t1->origin.z > t2->origin.z)
-                        return 1;
-                    if (t1->origin.z < t2->origin.z)
-                        return -1;
-                    return 0;
-                });
+                query.order_by<TransformType>(compare_transforms<TransformType, 2>);
             }
             break;
         }

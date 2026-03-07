@@ -1,7 +1,7 @@
 #pragma once
 
-#include <godot_cpp/classes/mesh.hpp>
 #include <godot_cpp/classes/material.hpp>
+#include <godot_cpp/classes/mesh.hpp>
 #include <godot_cpp/classes/node3d.hpp>
 #include <godot_cpp/classes/rendering_server.hpp>
 #include <godot_cpp/classes/resource.hpp>
@@ -72,10 +72,10 @@ class InstancedRenderer3D : public godot::Node3D {
   public:
     static constexpr int MAX_LOD_LEVELS = 8;
 
-    void set_prefabs_rendered(const godot::PackedStringArray &p_prefabs) { prefabs_rendered = p_prefabs; }
+    void set_prefabs_rendered(const godot::PackedStringArray &p_prefabs);
     [[nodiscard]] godot::PackedStringArray get_prefabs_rendered() const { return prefabs_rendered; }
 
-    void set_lod_levels(const godot::TypedArray<InstancedRenderer3DLODConfiguration> &p_lod_levels) { lod_levels = p_lod_levels; }
+    void set_lod_levels(const godot::TypedArray<InstancedRenderer3DLODConfiguration> &p_lod_levels);
     [[nodiscard]] godot::TypedArray<InstancedRenderer3DLODConfiguration> get_lod_levels() const { return lod_levels; }
 
     void set_material(const godot::Ref<godot::Material> &p_material) { material = p_material; }
@@ -84,7 +84,9 @@ class InstancedRenderer3D : public godot::Node3D {
     void set_discovered_instance_uniforms(const godot::PackedStringArray &p_uniforms) { discovered_instance_uniforms = p_uniforms; }
     [[nodiscard]] godot::PackedStringArray get_discovered_instance_uniforms() const { return discovered_instance_uniforms; }
 
-    /// Validates configuration and emits warnings for issues.
+    /// Returns configuration warnings to display in the Godot Scene dock.
+    [[nodiscard]] godot::PackedStringArray _get_configuration_warnings() const override;
+
     /// Returns true if the configuration is valid enough to render.
     [[nodiscard]] bool validate_configuration() const;
 
