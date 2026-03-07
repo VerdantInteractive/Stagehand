@@ -42,9 +42,8 @@ func _ready() -> void:
 	progress(0.016)
 	print("  PASS: Progress with zero entities does not crash")
 
-	# Wait one frame so C++ _notification(NOTIFICATION_READY) fires and
-	# registers the instanced renderer into the ECS (GDScript _ready runs
-	# before the C++ notification handler).
+	# Wait one frame so the native FlecsWorld::_ready() callback can register
+	# the renderer after the node has entered a valid World3D.
 	await get_tree().process_frame
 
 	# ── Test 5: Verify instanced renderer was registered in ECS ──────────────

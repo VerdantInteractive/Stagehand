@@ -3,20 +3,16 @@ extends FlecsWorld
 ## Tests the C++ populate_scene_children_singleton() code path.
 ##
 ## Unlike scene_children.gd (which manually populates SceneChildren from
-## GDScript), this test relies on the C++ _notification(NOTIFICATION_READY)
-## handler to populate the singleton automatically.
-##
-## GDExtension notification ordering means the C++ handler executes AFTER
-## GDScript's _ready(). By awaiting one frame we ensure the C++ code has
-## already run, and then we read SceneChildren without setting it manually.
+## GDScript), this test relies on FlecsWorld::_ready() to populate the
+## singleton automatically.
 
 func _ready() -> void:
 	print("Test: SceneChildren auto-populated by C++ (populate_scene_children_singleton)")
 
 	set_progress_tick(PROGRESS_TICK_MANUAL)
 
-	# Wait one frame so that the C++ _notification(NOTIFICATION_READY)
-	# has executed and populated the SceneChildren singleton.
+	# Wait one frame so the native FlecsWorld::_ready() callback has populated
+	# the SceneChildren singleton.
 	await get_tree().process_frame
 
 	# ── Test 1: SceneChildren singleton should be auto-populated ─────────────

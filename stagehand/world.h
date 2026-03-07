@@ -99,11 +99,19 @@ namespace stagehand {
         /// Gets the list of Flecs modules configured for import.
         [[nodiscard]] godot::TypedArray<godot::String> get_modules_to_import() const;
 
+        void _enter_tree() override;
+        void _ready() override;
+        void _process(double p_delta) override;
+        void _physics_process(double p_delta) override;
+        void _exit_tree() override;
+
         ~FlecsWorld();
 
       private:
         flecs::world world;
         bool is_initialised = false;
+        bool enter_tree_setup_completed = false;
+        bool post_tree_setup_completed = false;
         ProgressTick progress_tick = ProgressTick::PROGRESS_TICK_RENDERING;
         godot::TypedDictionary<godot::String, godot::Variant> world_configuration;
         godot::TypedArray<godot::String> modules_to_import;
@@ -113,6 +121,7 @@ namespace stagehand {
         std::unordered_map<godot::StringName, std::function<godot::Variant(flecs::entity_t)>> component_getters;
         std::unordered_map<godot::StringName, flecs::entity_t> component_ids;
 
+        void run_post_tree_setup();
         void populate_scene_children_singleton();
         void setup_entity_renderers_instanced();
         void setup_entity_renderers_multimesh();
@@ -122,7 +131,6 @@ namespace stagehand {
         void cleanup_instanced_renderer_rids();
 
       protected:
-        void _notification(const int p_what);
         static void _bind_methods();
     };
 } // namespace stagehand

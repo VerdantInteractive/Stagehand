@@ -290,9 +290,7 @@ namespace {
         for (const stagehand::RegisteredEntityInfo &entry : entries) {
             output += "\t\"";
             output += escape_gd_string(entry.path);
-            output += "\": {\"id\": ";
-            output += std::to_string(entry.id);
-            output += ", \"name\": \"";
+            output += "\": {\"name\": \"";
             output += escape_gd_string(entry.name);
             output += "\", \"namespace\": \"";
             output += escape_gd_string(entry.namespace_path);

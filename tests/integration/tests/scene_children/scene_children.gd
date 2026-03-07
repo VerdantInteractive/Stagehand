@@ -4,10 +4,9 @@ extends FlecsWorld
 ## both GDScript and C++ systems. Verifies node references survive the ECS
 ## round-trip.
 ##
-## NOTE: Due to GDExtension notification ordering, the C++ _notification handler
-## (which calls populate_scene_children_singleton) runs AFTER GDScript's
-## _ready(). Therefore the test populates SceneChildren from GDScript to
-## exercise the same code path via set_component.
+## This test still populates SceneChildren from GDScript to exercise the
+## explicit set_component() path, even though FlecsWorld now auto-populates the
+## singleton during _enter_tree().
 
 func _ready() -> void:
 	print("Test: SceneChildren singleton population")
@@ -17,8 +16,8 @@ func _ready() -> void:
 	var godot_children = get_children()
 
 	# Populate SceneChildren singleton from GDScript (mirrors what
-	# populate_scene_children_singleton does in C++, but works regardless
-	# of the GDExtension notification ordering).
+	# populate_scene_children_singleton does in C++, but exercises the
+	# explicit set_component() code path).
 	var children_dict = {}
 	for child in godot_children:
 		children_dict[child.name] = child

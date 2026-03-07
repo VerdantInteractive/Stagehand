@@ -33,7 +33,7 @@ namespace stagehand {
 #if defined(DEBUG_ENABLED)
         godot::UtilityFunctions::print(godot::String("Debug build. Enabling extra logging and Flecs Explorer: https://www.flecs.dev/explorer/?host=localhost"));
         world.set<flecs::Rest>({});
-        world.import <flecs::stats>();
+        world.import<flecs::stats>();
         // flecs::log::set_level(1);
 #endif
 
@@ -65,6 +65,10 @@ namespace stagehand {
                 component_getters[name] = [this, global_getter = funcs.getter](flecs::entity_t entity_id) { return global_getter(this->world, entity_id); };
             }
         }
+
+        connect("tree_entered", callable_mp(this, &FlecsWorld::_enter_tree));
+        connect("ready", callable_mp(this, &FlecsWorld::run_post_tree_setup));
+        connect("tree_exiting", callable_mp(this, &FlecsWorld::_exit_tree));
 
         is_initialised = true;
     }
@@ -471,49 +475,58 @@ namespace stagehand {
         }
     }
 
-    void FlecsWorld::_notification(const int p_what) {
-        switch (p_what) {
-            // case NOTIFICATION_POSTINITIALIZE: // Seems to be running twice - before and after the class constructor
-            //     break;
+    void FlecsWorld::_enter_tree() {
+        if (enter_tree_setup_completed) {
+            return;
+        }
 
-            // case NOTIFICATION_SCENE_INSTANTIATED: //  Sent only to the *root node* of a newly instantiated scene when PackedScene.instantiate() completes
-            //     break;
+        enter_tree_setup_completed = true;
+        post_tree_setup_completed = false;
 
-        case NOTIFICATION_ENTER_TREE: // Fires on the parent node *before* its children are added to the scene tree
-            register_signal_observer();
-            import_configured_modules();
-            script_loader.run_all(world, modules_to_import);
-            set_world_configuration(world_configuration);
-            set_progress_tick(progress_tick);
-            break;
+        register_signal_observer();
+        import_configured_modules();
+        script_loader.run_all(world, modules_to_import);
+        set_world_configuration(world_configuration);
+        set_progress_tick(progress_tick);
 
-        case NOTIFICATION_POST_ENTER_TREE: // Fires on children first, then the parent (bottom-up order, opposite order from NOTIFICATION_ENTER_TREE)
-            populate_scene_children_singleton();
-            setup_entity_renderers_instanced();
-            setup_entity_renderers_multimesh();
-            break;
+        // GDScript subclasses can override _ready() without calling super, so
+        // schedule the shared post-tree setup independently of script method dispatch.
+        callable_mp(this, &FlecsWorld::run_post_tree_setup).call_deferred();
+    }
 
-            // case NOTIFICATION_READY: /// N.B. This fires *after* GDScript _ready()
-            //     break;
+    void FlecsWorld::run_post_tree_setup() {
+        if (post_tree_setup_completed || !is_inside_tree()) {
+            return;
+        }
 
-        case NOTIFICATION_PROCESS:
-            if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
-                progress(get_process_delta_time());
-            }
-            break;
+        post_tree_setup_completed = true;
 
-        case NOTIFICATION_PHYSICS_PROCESS:
-            if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
-                progress(get_physics_process_delta_time());
-            }
-            break;
+        populate_scene_children_singleton();
+        setup_entity_renderers_instanced();
+        setup_entity_renderers_multimesh();
+    }
 
-        case NOTIFICATION_EXIT_TREE:
-            if (is_initialised) {
-                cleanup_instanced_renderer_rids();
-                is_initialised = false;
-            }
-            break;
+    void FlecsWorld::_ready() { run_post_tree_setup(); }
+
+    void FlecsWorld::_process(double p_delta) {
+        if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
+            progress(p_delta);
+        }
+    }
+
+    void FlecsWorld::_physics_process(double p_delta) {
+        if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
+            progress(p_delta);
+        }
+    }
+
+    void FlecsWorld::_exit_tree() {
+        enter_tree_setup_completed = false;
+        post_tree_setup_completed = false;
+
+        if (is_initialised) {
+            cleanup_instanced_renderer_rids();
+            is_initialised = false;
         }
     }
 

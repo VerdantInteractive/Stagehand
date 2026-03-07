@@ -161,6 +161,7 @@ TEST_F(RegistryFixture, GeneratedEcsScriptHasExpectedFormatSuffixingAndTopLevelK
 
     EXPECT_NE(script.find("const Transform3D_ = \"godot::Transform3D\""), std::string::npos);
     EXPECT_EQ(script.find("const Transform3D = \"godot::Transform3D\""), std::string::npos);
+    EXPECT_EQ(script.find("\"id\":"), std::string::npos);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

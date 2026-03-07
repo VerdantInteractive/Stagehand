@@ -26,7 +26,7 @@ func _ready() -> void:
 	set_progress_tick(PROGRESS_TICK_RENDERING)
 	assert_eq(get_progress_tick(), PROGRESS_TICK_RENDERING, "Mode set to RENDERING")
 
-	# Wait several frames; the C++ _notification(NOTIFICATION_PROCESS) should
+	# Wait several frames; the C++ _process() override should
 	# call progress() automatically, causing TickCount to increment.
 	await get_tree().process_frame
 	await get_tree().process_frame
@@ -51,7 +51,7 @@ func _ready() -> void:
 	assert_eq(get_progress_tick(), PROGRESS_TICK_PHYSICS, "Mode set to PHYSICS")
 	set_component("TickCount", 0)
 
-	# Wait several idle frames; the C++ _notification(NOTIFICATION_PHYSICS_PROCESS)
+	# Wait several idle frames; the C++ _physics_process() override
 	# fires on the physics tick which runs in the same main loop before idle,
 	# so process_frame awaits give physics ticks enough time to fire.
 	await get_tree().process_frame

@@ -11,8 +11,8 @@ func _ready() -> void:
 	set_progress_tick(PROGRESS_TICK_MANUAL)
 
 	# Populate SceneChildren singleton from GDScript (mirrors what
-	# populate_scene_children_singleton does in C++, but works regardless
-	# of the GDExtension notification ordering).
+	# populate_scene_children_singleton does in C++, but exercises the
+	# explicit set_component() code path).
 	var godot_children = get_children()
 	var children_dict = {}
 	for child in godot_children:
