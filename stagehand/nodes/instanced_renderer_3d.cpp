@@ -1,5 +1,7 @@
 #include "stagehand/nodes/instanced_renderer_3d.h"
 
+#include <unordered_set>
+
 #include <godot_cpp/classes/world3d.hpp>
 #include <godot_cpp/core/class_db.hpp>
 #include <godot_cpp/variant/string.hpp>
@@ -16,61 +18,67 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     const godot::PackedStringArray prefabs = renderer->get_prefabs_rendered();
     const godot::TypedArray<InstancedRenderer3DLODConfiguration> &lod_levels = renderer->get_lod_levels();
 
-    // Build a query for all prefabs with Transform3D that changed in the current frame
-    auto query_builder = world.query_builder<const stagehand::transform::Transform3D>();
-    query_builder.with<const stagehand::transform::HasChangedTransform3D>().optional();
-
-    int prefab_count = prefabs.size();
-    for (int j = 0; j < prefab_count; ++j) {
-        godot::String prefab_name = prefabs[j];
-        std::string prefab_name_str = prefab_name.utf8().get_data();
+    std::vector<flecs::entity> prefab_entities;
+    prefab_entities.reserve(prefabs.size());
+    for (int i = 0; i < prefabs.size(); ++i) {
+        const godot::String prefab_name = prefabs[i];
+        const std::string prefab_name_str = prefab_name.utf8().get_data();
         flecs::entity prefab_entity = world.lookup(prefab_name_str.c_str());
         if (!prefab_entity.is_valid()) {
             godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + renderer->get_name() + "': Prefab not found: " + prefab_name);
             continue;
         }
-        query_builder.with(flecs::IsA, prefab_entity);
-        if (j < prefab_count - 1) {
-            query_builder.or_();
-        }
+        prefab_entities.push_back(prefab_entity);
     }
 
-    flecs::query<> query = query_builder.build();
+    if (prefab_entities.empty()) {
+        godot::UtilityFunctions::push_warning(godot::String("InstancedRenderer3D '") + renderer->get_name() + "': No valid prefabs found.");
+        return;
+    }
 
-    // Add instance uniforms to the query
+    const auto add_prefab_filters = [&](auto &builder) {
+        for (size_t prefab_index = 0; prefab_index < prefab_entities.size(); ++prefab_index) {
+            builder.with(flecs::IsA, prefab_entities[prefab_index]);
+            if (prefab_index + 1 < prefab_entities.size()) {
+                builder.or_();
+            }
+        }
+    };
+
+    auto reconcile_query_builder = world.query_builder<const stagehand::transform::Transform3D>();
+    add_prefab_filters(reconcile_query_builder);
+
+    auto transform_update_query_builder = world.query_builder<const stagehand::transform::Transform3D, const stagehand::transform::HasChangedTransform3D>();
+    add_prefab_filters(transform_update_query_builder);
+
     std::vector<flecs::entity> found_instance_uniform_components;
-    std::vector<stagehand::rendering::InstancedRendererConfig::UniformConfig> uniform_configs;
+    found_instance_uniform_components.reserve(16);
+    std::unordered_set<ecs_entity_t> seen_uniform_component_ids;
+    seen_uniform_component_ids.reserve(16);
 
-    // Discover instance uniform components with IsInstanceUniform trait from prefabs
-    for (int j = 0; j < prefab_count; ++j) {
-        godot::String prefab_name = prefabs[j];
-        std::string prefab_name_str = prefab_name.utf8().get_data();
-        flecs::entity prefab_entity = world.lookup(prefab_name_str.c_str());
+    for (const flecs::entity prefab_entity : prefab_entities) {
+        prefab_entity.each([&](flecs::id id) {
+            if (id.is_pair()) {
+                return;
+            }
 
-        if (prefab_entity.is_valid()) {
-            prefab_entity.each([&](flecs::id id) {
-                if (id.is_pair())
-                    return;
-                flecs::entity component = id.entity();
-                if (component.has<stagehand::rendering::IsInstanceUniform>()) {
-                    // Check if already added to avoid duplicates
-                    bool exists = false;
-                    for (auto u : found_instance_uniform_components) {
-                        if (u == component) {
-                            exists = true;
-                            break;
-                        }
-                    }
-                    if (!exists) {
-                        found_instance_uniform_components.push_back(component);
-                    }
-                }
-            });
-        }
+            const flecs::entity component = id.entity();
+            if (!component.has<stagehand::rendering::IsInstanceUniform>()) {
+                return;
+            }
+
+            if (seen_uniform_component_ids.insert(component.id()).second) {
+                found_instance_uniform_components.push_back(component);
+            }
+        });
     }
 
-    // Base index: Transform3D (0), HasChangedTransform3D (1), Prefab IsA chain (2..2+N-1)
-    int current_field_index = 2 + prefab_count;
+    std::vector<stagehand::rendering::InstancedRendererConfig::UniformInitConfig> initial_uniform_configs;
+    std::vector<stagehand::rendering::InstancedRendererConfig::UniformUpdateConfig> uniform_update_configs;
+    initial_uniform_configs.reserve(found_instance_uniform_components.size());
+    uniform_update_configs.reserve(found_instance_uniform_components.size());
+
+    int current_field_index = 1 + static_cast<int>(prefab_entities.size());
 
     godot::PackedStringArray _discovered_instance_uniforms;
     for (int i = 0; i < found_instance_uniform_components.size(); ++i) {
@@ -94,7 +102,6 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
 
         _discovered_instance_uniforms.push_back(godot::String(instance_uniform_component_name_str.c_str()));
 
-        // Find the associated change detection tag via the With relationship.
         flecs::entity changed_tag;
         instance_uniform_component.each(flecs::With, [&](flecs::entity target) {
             if (target.has<stagehand::IsChangeDetectionTag>()) {
@@ -102,28 +109,30 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
             }
         });
 
-        query_builder.with(instance_uniform_component).in().optional();
+        reconcile_query_builder.with(instance_uniform_component).in().optional();
 
-        stagehand::rendering::InstancedRendererConfig::UniformConfig u_config;
-        u_config.value_field_index = current_field_index;
+        stagehand::rendering::InstancedRendererConfig::UniformInitConfig init_config;
+        init_config.value_field_index = current_field_index;
+        init_config.parameter_name = godot::StringName(instance_uniform_component_name_str.c_str());
+        initial_uniform_configs.push_back(init_config);
+        current_field_index += 1;
+
+        auto uniform_update_query_builder = world.query_builder<>();
+        add_prefab_filters(uniform_update_query_builder);
+        uniform_update_query_builder.with(instance_uniform_component).in();
         if (changed_tag) {
-            query_builder.with(changed_tag).optional();
-            u_config.changed_field_index = current_field_index + 1;
-            current_field_index += 2;
-        } else {
-            u_config.changed_field_index = -1;
-            current_field_index += 1;
+            uniform_update_query_builder.with(changed_tag);
         }
-        u_config.parameter_name = godot::StringName(instance_uniform_component_name_str.c_str());
-        uniform_configs.push_back(u_config);
+
+        stagehand::rendering::InstancedRendererConfig::UniformUpdateConfig update_config;
+        update_config.value_field_index = static_cast<int>(prefab_entities.size());
+        update_config.parameter_name = godot::StringName(instance_uniform_component_name_str.c_str());
+        update_config.query = uniform_update_query_builder.build();
+        uniform_update_configs.push_back(std::move(update_config));
     }
 
     renderer->set_discovered_instance_uniforms(_discovered_instance_uniforms);
 
-    // Rebuild query with uniforms
-    query = query_builder.build();
-
-    // Build LOD configuration for this renderer
     std::vector<stagehand::rendering::InstancedRendererLODConfig> lod_configs;
     lod_configs.reserve(lod_levels.size());
     for (int i = 0; i < lod_levels.size(); ++i) {
@@ -145,7 +154,6 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
         lod_configs.push_back(lod_config);
     }
 
-    // Get the scenario RID from the renderer's world_3d
     godot::RID scenario_rid;
     godot::Ref<godot::World3D> world_3d = renderer->get_world_3d();
     if (world_3d.is_valid()) {
@@ -164,8 +172,10 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     config.scenario_rid = scenario_rid;
     config.material_rid = material_rid;
     config.lod_configs = std::move(lod_configs);
-    config.query = query;
-    config.uniforms = std::move(uniform_configs);
+    config.reconcile_query = reconcile_query_builder.build();
+    config.transform_update_query = transform_update_query_builder.build();
+    config.initial_uniforms = std::move(initial_uniform_configs);
+    config.uniform_updates = std::move(uniform_update_configs);
     renderers.instanced_renderers.push_back(std::move(config));
     renderer_count++;
 }

@@ -316,14 +316,18 @@ namespace stagehand_tests {
                 for (const stagehand::rendering::InstancedRendererConfig &renderer : renderers->instanced_renderers) {
                     godot::Dictionary renderer_info;
                     renderer_info["lod_count"] = static_cast<int>(renderer.lod_configs.size());
-                    renderer_info["entity_count"] = static_cast<int>(renderer.previous_entity_count);
+                    renderer_info["entity_count"] = static_cast<int>(renderer.active_entity_count);
                     renderer_info["instance_rid_count"] = static_cast<int>(renderer.instance_rids.size());
 
-                    // Check how many instance RIDs are valid
                     int valid_rids = 0;
-                    for (const godot::RID &rid : renderer.instance_rids) {
-                        if (rid.is_valid()) {
-                            valid_rids++;
+                    const size_t lod_count = renderer.lod_configs.size();
+                    for (const auto &[entity_id, slot_index] : renderer.entity_to_slot) {
+                        (void)entity_id;
+                        const size_t slot_offset = slot_index * lod_count;
+                        for (size_t lod_index = 0; lod_index < lod_count; ++lod_index) {
+                            if (renderer.instance_rids[slot_offset + lod_index].is_valid()) {
+                                valid_rids++;
+                            }
                         }
                     }
                     renderer_info["valid_instance_rids"] = valid_rids;

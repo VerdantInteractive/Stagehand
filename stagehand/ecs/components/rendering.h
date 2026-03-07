@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstdint>
 #include <unordered_map>
 #include <vector>
 
@@ -49,24 +50,36 @@ namespace stagehand::rendering {
     /// Configuration for one InstancedRenderer3D node.
     /// Each renderer manages RenderingServer instances (one per entity per LOD level).
     struct InstancedRendererConfig {
+        struct UniformInitConfig {
+            int value_field_index;
+            godot::StringName parameter_name;
+        };
+
+        struct UniformUpdateConfig {
+            int value_field_index;
+            godot::StringName parameter_name;
+            flecs::query<> query;
+        };
+
         godot::RID scenario_rid;
         godot::RID material_rid;
         std::vector<InstancedRendererLODConfig> lod_configs;
-        flecs::query<> query;
+        flecs::query<> reconcile_query;
+        flecs::query<> transform_update_query;
+        std::vector<UniformInitConfig> initial_uniforms;
+        std::vector<UniformUpdateConfig> uniform_updates;
 
-        struct UniformConfig {
-            int value_field_index;
-            int changed_field_index;
-            godot::StringName parameter_name;
-        };
-        std::vector<UniformConfig> uniforms;
-
-        /// Per-entity instance RIDs, indexed as [entity_index * lod_count + lod_index].
-        /// Managed by the instanced rendering system.
+        /// Per-slot instance RIDs, indexed as [slot_index * lod_count + lod_index].
+        /// Slots remain allocated so their RIDs can be reused across entity churn.
         std::vector<godot::RID> instance_rids;
+        std::vector<ecs_entity_t> slot_entities;
+        std::vector<uint64_t> slot_generations;
+        std::vector<uint64_t> slot_created_generations;
+        std::vector<size_t> free_slots;
+        std::unordered_map<ecs_entity_t, size_t> entity_to_slot;
 
-        /// Number of entities tracked in the previous frame.
-        size_t previous_entity_count = 0;
+        uint64_t current_generation = 0;
+        size_t active_entity_count = 0;
     };
 
     /// A trait that can be added to components to indicate that they are used as instance uniform parameters in the InstancedRenderer3D
