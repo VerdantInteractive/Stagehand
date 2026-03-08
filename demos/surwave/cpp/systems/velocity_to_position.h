@@ -9,10 +9,12 @@
 using namespace stagehand_demos::surwave;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
+    // clang-format off
     world.system<stagehand::transform::Position2D, godot::Transform2D, const stagehand::physics::Velocity2D>("Velocity to Position")
         .kind(flecs::PostUpdate)
         .each([](flecs::iter &it, size_t i, stagehand::transform::Position2D &position, godot::Transform2D &transform,
                  const stagehand::physics::Velocity2D &velocity) {
+            // clang-format on
             position += velocity * it.delta_time();
             transform.columns[2] = position;
         });

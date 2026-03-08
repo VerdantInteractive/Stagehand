@@ -77,9 +77,11 @@ namespace enemy_take_damage {
 } // namespace enemy_take_damage
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
+    // clang-format off
     world.system<Position2D, HitPoints, const HitRadius, ProjectileHitTimeout, ShockwaveHitTimeout, HitReactionTimer>("Enemy Take Damage")
         .with(flecs::IsA, EnemyPrefab)
         .run([](flecs::iter &it) {
+            // clang-format on
             flecs::world stage_world = it.world();
             const ProjectileData *projectile_data = stage_world.try_get<ProjectileData>();
             const EnemyBoidMovementSettings *movement_settings = stage_world.try_get<EnemyBoidMovementSettings>();

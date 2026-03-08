@@ -70,12 +70,14 @@ namespace enemy_animation {
 // BugLarge walk(up)
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
+    // clang-format off
     world
         .system<const HitPoints, const Velocity2D, const MovementSpeed, const AnimationFrameOffset, const DeathTimer, const HitReactionTimer, HFlipTimer,
                 VFlipTimer, RenderingCustomData>("Enemy Animation")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::PostUpdate)
         .run([](flecs::iter &it) {
+            // clang-format on
             const EnemyAnimationSettings *animation_settings = it.world().try_get<EnemyAnimationSettings>();
             if (animation_settings == nullptr) {
                 return;

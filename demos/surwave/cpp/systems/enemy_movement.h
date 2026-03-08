@@ -74,7 +74,11 @@ namespace enemy_movement {
 } // namespace enemy_movement
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
-    world.system<Position2D, Velocity2D, const MovementSpeed, const DeathTimer>("Enemy Movement").with(flecs::IsA, EnemyPrefab).run([](flecs::iter &it) {
+    // clang-format off
+    world.system<Position2D, Velocity2D, const MovementSpeed, const DeathTimer>("Enemy Movement")
+        .with(flecs::IsA, EnemyPrefab)
+        .run([](flecs::iter &it) {
+        // clang-format on
         flecs::world stage_world = it.world();
         const PlayerPosition *player_position = stage_world.try_get<PlayerPosition>();
         const EnemyBoidMovementSettings *movement_settings = stage_world.try_get<EnemyBoidMovementSettings>();

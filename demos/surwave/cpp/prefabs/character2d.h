@@ -20,13 +20,15 @@ using Velocity2D = stagehand::physics::Velocity2D;
 using RenderingCustomData = stagehand::rendering::CustomData;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
+    // clang-format off
     Character2DPrefab = world.prefab("Character2D")
-                            .set_auto_override<Velocity2D>({godot::Vector2(0.0f, 0.0f)})
+                            .set<Velocity2D>({godot::Vector2(0.0f, 0.0f)})
 
-                            .set_auto_override<Position2D>({godot::Vector2(0.0f, 0.0f)})
-                            .set_auto_override<Rotation2D>({0.0f})
-                            .set_auto_override<Scale2D>({godot::Vector2(1.0f, 1.0f)})
-                            .set_auto_override<godot::Transform2D>(godot::Transform2D())
+                            .set<Position2D>({godot::Vector2(0.0f, 0.0f)})
+                            .set<Rotation2D>({0.0f})
+                            .set<Scale2D>({godot::Vector2(1.0f, 1.0f)})
+                            .set<godot::Transform2D>(godot::Transform2D())
 
-                            .set_auto_override<RenderingCustomData>({0.0f, 0.0f, 0.0f, 0.0f});
+                            .set<RenderingCustomData>({0.0f, 0.0f, 0.0f, 0.0f});
+    // clang-format on
 });

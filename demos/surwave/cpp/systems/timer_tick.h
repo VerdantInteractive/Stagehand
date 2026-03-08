@@ -13,10 +13,12 @@
 using namespace stagehand_demos::surwave;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
+    // clang-format off
     world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer>("Enemy Timer Tick")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::PreUpdate)
         .run([](flecs::iter &it) {
+            // clang-format on
             const EnemyTakeDamageSettings *take_damage_settings = it.world().try_get<EnemyTakeDamageSettings>();
             const godot::real_t projectile_cooldown =
                 take_damage_settings != nullptr ? godot::Math::max(take_damage_settings->projectile_hit_cooldown, godot::real_t(0.0)) : godot::real_t(0.0);
@@ -67,7 +69,11 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
             }
         });
 
-    world.system<>("Player Damage Timer Tick").kind(flecs::PreUpdate).run([](flecs::iter &it) {
+    // clang-format off
+    world.system<>("Player Damage Timer Tick")
+        .kind(flecs::PreUpdate)
+        .run([](flecs::iter &it) {
+        // clang-format on
         flecs::world stage_world = it.world();
         const PlayerTakeDamageSettings *player_damage_settings = stage_world.try_get<PlayerTakeDamageSettings>();
         PlayerDamageCooldown *player_damage_cooldown = stage_world.try_get_mut<PlayerDamageCooldown>();

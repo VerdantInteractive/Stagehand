@@ -20,7 +20,11 @@ using namespace stagehand_demos::surwave;
 using Position2D = stagehand::transform::Position2D;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
-    world.system<const Position2D, const MeleeDamage>("Enemy Hit Player").with(flecs::IsA, EnemyPrefab).run([](flecs::iter &it) {
+    // clang-format off
+    world.system<const Position2D, const MeleeDamage>("Enemy Hit Player")
+        .with(flecs::IsA, EnemyPrefab)
+        .run([](flecs::iter &it) {
+        // clang-format on
         const PlayerPosition *player_position = it.world().try_get<PlayerPosition>();
         PlayerDamageCooldown *player_damage_cooldown = it.world().try_get_mut<PlayerDamageCooldown>();
         const PlayerTakeDamageSettings *damage_settings = it.world().try_get<PlayerTakeDamageSettings>();
@@ -40,8 +44,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
         while (it.next()) {
             flecs::field<const Position2D> positions = it.field<const Position2D>(0);
             flecs::field<const MeleeDamage> melee_damages = it.field<const MeleeDamage>(1);
-            const std::size_t entity_count = it.count();
-            for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
+            for (auto entity_index : it) {
                 const godot::Vector2 enemy_position = positions[entity_index];
                 const godot::Vector2 delta = player_position_value - enemy_position;
                 const godot::real_t distance_squared = delta.length_squared();
@@ -56,7 +59,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                     continue;
                 }
 
-                flecs::entity damaging_enemy = it.entity(static_cast<std::int32_t>(entity_index));
+                flecs::entity damaging_enemy = it.entity(entity_index);
                 godot::Dictionary signal_data;
                 signal_data["damage_amount"] = damage_amount;
 

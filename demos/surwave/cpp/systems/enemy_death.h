@@ -24,10 +24,12 @@ using Position2D = stagehand::transform::Position2D;
 using Velocity2D = stagehand::physics::Velocity2D;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
+    // clang-format off
     world.system<const Position2D, HitPoints, DeathTimer, MeleeDamage, MovementSpeed, Velocity2D>("Enemy Death")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::OnValidate)
         .run([](flecs::iter &it) {
+            // clang-format on
             const EnemyAnimationSettings *animation_settings = it.world().try_get<EnemyAnimationSettings>();
             if (animation_settings == nullptr) {
                 return;
@@ -44,13 +46,12 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                 flecs::field<MovementSpeed> movement_speed = it.field<MovementSpeed>(4);
                 flecs::field<Velocity2D> velocities = it.field<Velocity2D>(5);
 
-                const std::size_t entity_count = it.count();
-                for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
+                for (auto entity_index : it) {
                     if (hit_points[entity_index].value > godot::real_t(0.0)) {
                         continue;
                     }
 
-                    flecs::entity entity = it.entity(static_cast<std::int32_t>(entity_index));
+                    flecs::entity entity = it.entity(entity_index);
                     godot::Dictionary signal_data;
                     signal_data["enemy_type"] = enemy_type::from_entity_prefab(entity);
                     signal_data["enemy_position"] = positions[entity_index];

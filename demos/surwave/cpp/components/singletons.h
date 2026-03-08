@@ -11,12 +11,12 @@
 
 namespace stagehand_demos::surwave {
 
-    UINT32(EnemyCount).then([](auto component) { component.add(flecs::Singleton); });
-    GODOT_VARIANT(ProjectileData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
-    GODOT_VARIANT(ShockwaveData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
+    UINT32_(EnemyCount).then([](auto component) { component.add(flecs::Singleton); });
+    GODOT_VARIANT_(ProjectileData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
+    GODOT_VARIANT_(ShockwaveData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
 
-    GODOT_VARIANT(PlayerPosition, godot::Vector2).then([](auto component) { component.add(flecs::Singleton); });
-    FLOAT(PlayerDamageCooldown, 0.3f).then([](auto component) { component.add(flecs::Singleton); });
+    GODOT_VARIANT_(PlayerPosition, godot::Vector2).then([](auto component) { component.add(flecs::Singleton); });
+    FLOAT_(PlayerDamageCooldown, 0.3f).then([](auto component) { component.add(flecs::Singleton); });
 
     struct EnemyBoidMovementSettings {
         godot::real_t player_attraction_weight;
@@ -58,7 +58,7 @@ namespace stagehand_demos::surwave {
     };
 
     inline auto register_game_singletons = stagehand::Registry("stagehand_demos::surwave", [](flecs::world &world) {
-        world.component<EnemyBoidMovementSettings>("EnemyBoidMovementSettings")
+        world.component<EnemyBoidMovementSettings>()
             .member<godot::real_t>("player_attraction_weight")
             .member<godot::real_t>("player_engage_distance")
             .member<godot::real_t>("neighbor_radius")
@@ -87,7 +87,7 @@ namespace stagehand_demos::surwave {
                 godot::real_t(0.05)   // separation_noise_intensity
             });
 
-        world.component<EnemyAnimationSettings>("EnemyAnimationSettings")
+        world.component<EnemyAnimationSettings>()
             .member<godot::real_t>("animation_interval")
             .member<godot::real_t>("walk_animation_range")
             .member<godot::real_t>("death_animation_frame_count")
@@ -110,7 +110,7 @@ namespace stagehand_demos::surwave {
                 godot::real_t(0.1)   // hit_reaction_duration
             });
 
-        world.component<EnemyTakeDamageSettings>("EnemyTakeDamageSettings")
+        world.component<EnemyTakeDamageSettings>()
             .member<godot::real_t>("projectile_hit_cooldown")
             .member<godot::real_t>("shockwave_hit_cooldown")
             .member<godot::real_t>("projectile_damage")
@@ -123,7 +123,7 @@ namespace stagehand_demos::surwave {
                 godot::real_t(1.0)  // shockwave_damage
             });
 
-        world.component<PlayerTakeDamageSettings>("PlayerTakeDamageSettings")
+        world.component<PlayerTakeDamageSettings>()
             .member<godot::real_t>("damage_cooldown")
             .member<godot::real_t>("player_hit_radius")
             .add(flecs::Singleton)
