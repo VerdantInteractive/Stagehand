@@ -1,7 +1,13 @@
-[submodule "godot-cpp"]
-	path = godot-cpp
-	url = https://github.com/godotengine/godot-cpp
-	branch = 4.5
-[submodule "flecs"]
-	path = flecs
-	url = https://github.com/SanderMertens/flecs.git
+[submodule "dependencies/godot-cpp"]
+	path = dependencies/godot-cpp
+	url = https://github.com/VerdantInteractive/godot-cpp.git
+[submodule "dependencies/flecs"]
+	path = dependencies/flecs
+	url = https://github.com/VerdantInteractive/flecs.git
+[submodule "dependencies/googletest"]
+	path = dependencies/googletest
+	url = https://github.com/google/googletest.git
+	branch = v1.17.x
+[submodule "dependencies/pfr"]
+	path = dependencies/pfr
+	url = https://github.com/VerdantInteractive/pfr.git

@@ -1,0 +1,28 @@
+[gd_scene load_steps=4 format=3 uid="uid://b0rmafrd1wigo"]
+
+[ext_resource type="Script" uid="uid://bioijp0stjmhi" path="res://surwave/scenes/Gem/gem.gd" id="1_twb02"]
+[ext_resource type="Texture2D" uid="uid://gir2auuuqpg7" path="res://surwave/scenes/Gem/gem.png" id="2_twb02"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_1o8y3"]
+radius = 24.0
+
+[node name="Gem" type="Node2D" node_paths=PackedStringArray("timer")]
+script = ExtResource("1_twb02")
+timer = NodePath("ExpirationTimer")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = ExtResource("2_twb02")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Area2D"]
+shape = SubResource("CircleShape2D_1o8y3")
+
+[node name="ExpirationTimer" type="Timer" parent="."]
+wait_time = 20.0
+autostart = true
+
+[connection signal="body_entered" from="Area2D" to="." method="_on_area_entered"]
+[connection signal="timeout" from="ExpirationTimer" to="." method="_on_expiry"]

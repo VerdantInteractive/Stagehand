@@ -1,0 +1,9 @@
+module stagehand_demos.surwave
+
+prefab BugLarge : Enemy {
+	AnimationFrameOffset: {value: 48}
+	HitRadius: {value: 16}
+	HitPoints: {value: 8}
+	MeleeDamage: {value: 5}
+	MovementSpeed: {value: 11}
+}

@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/physics_body_lifecycle/physics_body_lifecycle.gd" id="1"]
+
+[node name="PhysicsBodyLifecycle" type="FlecsWorld"]
+script = ExtResource("1")

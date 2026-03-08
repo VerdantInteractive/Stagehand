@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://dq8qlbgcgavbj"]
+
+[ext_resource type="Script" uid="uid://cj0a2tc5d7cex" path="res://surwave/scenes/ui/credits_screen.gd" id="1_h6ve6"]
+[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://surwave/scenes/ui/images/background.png" id="2_0irp7"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="3_uklmw"]
+
+[node name="CreditsScreen" type="CanvasLayer" unique_id=1444305744]
+layer = 2
+script = ExtResource("1_h6ve6")
+
+[node name="BackgroundImage" type="TextureRect" parent="." unique_id=1786001426]
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("2_0irp7")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1973269652]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PanelContainer" type="PanelContainer" parent="MarginContainer" unique_id=546479047]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/PanelContainer" unique_id=1330457363]
+layout_mode = 2
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_right = 8
+theme_override_constants/margin_bottom = 8
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/PanelContainer/MarginContainer" unique_id=1036669600]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+theme_override_constants/separation = 16
+
+[node name="Label" type="Label" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=21218268]
+layout_mode = 2
+text = "
+CREDITS
+
+Created by Gokalp Ozcan (Verdant Interactive) for the Game Off 2025 jam
+
+SOFTWARE
+Godot Game Engine
+Flecs, a fast and lightweight Entity Component System
+Libresprite
+Paint.NET
+Audacity
+
+GRAPHICS ASSETS
+Free Roguelike Shoot ’em up Pixel Art Game Kit by Craftpix
+Free Desert Oasis Pixel Art Background Pack by Craftpix
+Tech Dungeon: Roguelite - Asset Pack (Demo version) by Pupkin Assets
+Audiowide font by Astigmatic
+KarenFat font by PaulSpades
+
+AUDIO ASSETS
+Wreckage Machinery - Long Gone by Esprit Records
+Sci-Fi SFX by rubberduck
+DAMAGE SOUNDS (Male) - Audio Pack by VoiceBosch
+Epic Amulet Item by CosmicD
+Gem ping by high_festiva
+Drop 47 by roboroo
+Fail Jingle Party Horn by qubodup
+Orchestral Victory Fanfare by Sheyvan
+Fire impact by ViRiX Dreamcore (David Mckee)
+Impact Sounds by Kenney
+Sci-fi Sounds by Kenney
+UI Audio by Kenney
+"
+horizontal_alignment = 1
+
+[node name="MarginContainer2" type="MarginContainer" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer" unique_id=1249055770]
+layout_mode = 2
+theme_override_constants/margin_top = 12
+
+[node name="BackButton" type="Button" parent="MarginContainer/PanelContainer/MarginContainer/VBoxContainer/MarginContainer2" unique_id=2114247979]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(60, 0)
+layout_mode = 2
+size_flags_horizontal = 0
+text = "Back"
+script = ExtResource("3_uklmw")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"

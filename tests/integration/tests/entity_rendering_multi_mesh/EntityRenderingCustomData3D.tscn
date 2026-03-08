@@ -1,0 +1,17 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://cylgf3rlrugey" path="res://tests/entity_rendering_multi_mesh/entity_rendering_custom_data_3d.gd" id="1_script"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_cd3d"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_cd3d"]
+transform_format = 1
+mesh = SubResource("BoxMesh_cd3d")
+use_custom_data = true
+
+[node name="EntityRenderingCustomData3D" type="FlecsWorld"]
+script = ExtResource("1_script")
+
+[node name="CustomDataRenderer3D" type="MultiMeshRenderer3D" parent="."]
+multimesh = SubResource("MultiMesh_cd3d")
+prefabs_rendered = PackedStringArray("stagehand_tests::CustomDataEntity3D")

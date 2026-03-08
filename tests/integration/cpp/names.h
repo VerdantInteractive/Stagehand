@@ -1,0 +1,61 @@
+#pragma once
+
+namespace stagehand_tests::names {
+
+#define NAMESPACE_STR "stagehand_tests"
+
+    constexpr const char *NAMESPACE = NAMESPACE_STR;
+
+    namespace components {
+        constexpr const char *UNIT_COLOR = NAMESPACE_STR "::UnitColor";
+    }
+
+    namespace prefabs {
+        constexpr const char *TEST_ENTITY_2D = NAMESPACE_STR "::TestEntity2D";
+        constexpr const char *TEST_ENTITY_3D = NAMESPACE_STR "::TestEntity3D";
+        constexpr const char *RENDERED_ENTITY_2D = NAMESPACE_STR "::RenderedEntity2D";
+        constexpr const char *RENDERED_ENTITY_3D = NAMESPACE_STR "::RenderedEntity3D";
+        constexpr const char *COLORED_ENTITY_2D = NAMESPACE_STR "::ColoredEntity2D";
+        constexpr const char *COLORED_ENTITY_3D = NAMESPACE_STR "::ColoredEntity3D";
+        constexpr const char *CUSTOM_DATA_ENTITY_2D = NAMESPACE_STR "::CustomDataEntity2D";
+        constexpr const char *CUSTOM_DATA_ENTITY_3D = NAMESPACE_STR "::CustomDataEntity3D";
+        constexpr const char *FULL_ENTITY_2D = NAMESPACE_STR "::FullEntity2D";
+        constexpr const char *FULL_ENTITY_3D = NAMESPACE_STR "::FullEntity3D";
+        constexpr const char *INSTANCED_ENTITY_3D = NAMESPACE_STR "::InstancedEntity3D";
+
+        // Physics test prefabs
+        constexpr const char *PHYSICS_STATIC_2D = NAMESPACE_STR "::PhysicsStatic2D";
+        constexpr const char *PHYSICS_KINEMATIC_2D = NAMESPACE_STR "::PhysicsKinematic2D";
+        constexpr const char *PHYSICS_RIGID_2D = NAMESPACE_STR "::PhysicsRigid2D";
+        constexpr const char *PHYSICS_STATIC_3D = NAMESPACE_STR "::PhysicsStatic3D";
+        constexpr const char *PHYSICS_KINEMATIC_3D = NAMESPACE_STR "::PhysicsKinematic3D";
+        constexpr const char *PHYSICS_RIGID_3D = NAMESPACE_STR "::PhysicsRigid3D";
+    } // namespace prefabs
+
+    namespace systems {
+        constexpr const char *TICK_COUNTER = NAMESPACE_STR "::Tick Counter";
+        constexpr const char *EMIT_TEST_SIGNAL = NAMESPACE_STR "::Emit Test Signal";
+        constexpr const char *READ_SCENE_CHILDREN = NAMESPACE_STR "::Read Scene Children";
+        constexpr const char *ACCUMULATOR = NAMESPACE_STR "::Accumulator";
+        constexpr const char *SUM_QUERY = NAMESPACE_STR "::Sum Query";
+        constexpr const char *TOGGLE_TAG = NAMESPACE_STR "::Toggle Tag";
+        constexpr const char *COUNT_RENDERED_ENTITIES = NAMESPACE_STR "::Count Rendered Entities";
+        constexpr const char *QUERY_ENTITY_TRANSFORMS = NAMESPACE_STR "::Query Entity Transforms";
+        constexpr const char *LOOKUP_ENTITIES = NAMESPACE_STR "::Lookup Entities";
+        constexpr const char *QUERY_INSTANCED_RENDERERS = NAMESPACE_STR "::Query Instanced Renderers";
+
+        // Physics test helper systems
+        constexpr const char *QUERY_PHYSICS_BODIES = NAMESPACE_STR "::Query Physics Bodies";
+        constexpr const char *QUERY_PHYSICS_BODY_STATE = NAMESPACE_STR "::Query Physics Body State";
+        constexpr const char *QUERY_PHYSICS_SPACES = NAMESPACE_STR "::Query Physics Spaces";
+        constexpr const char *UPDATE_ENTITY_PHYSICS = NAMESPACE_STR "::Update Entity Physics";
+
+        // Event emission test observers
+        constexpr const char *UNIVERSAL_EVENT_OBSERVER = NAMESPACE_STR "::Universal Event Observer";
+        constexpr const char *TEST_EVENT_A_OBSERVER = NAMESPACE_STR "::TestEventA Observer";
+        constexpr const char *TEST_EVENT_B_OBSERVER = NAMESPACE_STR "::TestEventB Observer";
+    } // namespace systems
+
+#undef NAMESPACE_STR
+
+} // namespace stagehand_tests::names

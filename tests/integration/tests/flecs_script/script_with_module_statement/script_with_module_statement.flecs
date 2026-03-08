@@ -1,0 +1,5 @@
+// This script should only be loaded if the world is configured to load the "foo::bar" module.
+
+module foo.bar
+
+ModuleLoadedEntity {}

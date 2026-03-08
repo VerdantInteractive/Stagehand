@@ -1,0 +1,5 @@
+// g comes after c in the alphapet, so grand_child.flecs will get loaded after child.flecs.
+// If this isn't the case, then we would get an error indicating that 'Child' isn't defined.
+GrandChild {
+    ChildOf, Child
+}

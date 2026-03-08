@@ -1,0 +1,100 @@
+[gd_resource type="Theme" format=3 uid="uid://dqjww1l3b8tt4"]
+
+[ext_resource type="Texture2D" uid="uid://twor16be32bn" path="res://surwave/scenes/ui/images/bulletpoint.png" id="1_ij8oi"]
+[ext_resource type="Texture2D" uid="uid://bgh5rsijk5sdh" path="res://surwave/scenes/ui/images/pamphlets.png" id="2_k6a2o"]
+[ext_resource type="FontFile" uid="uid://bts0yganv5ipq" path="res://surwave/resources/theme/KarenFat.ttf" id="3_ski75"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_orw62"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_j4h2o"]
+bg_color = Color(0.83137256, 0.39215687, 0.3254902, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8392157, 0.101960786, 0.53333336, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_tu17m"]
+bg_color = Color(0.6117647, 0.19607843, 0.2784314, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4117647, 0.09019608, 0.28627452, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_iwyt8"]
+bg_color = Color(0.9607843, 0.6313726, 0.3647059, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.25490198, 0.49019608, 1)
+corner_radius_top_left = 5
+corner_radius_top_right = 5
+corner_radius_bottom_right = 5
+corner_radius_bottom_left = 5
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_orw62"]
+bg_color = Color(0.9607843, 0.6313726, 0.3647059, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_56c54"]
+bg_color = Color(0.9607843, 0.6313726, 0.3647059, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.8, 0.8, 0.8, 0)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_65ii4"]
+content_margin_left = 2.0
+content_margin_top = 5.0
+content_margin_right = 2.0
+content_margin_bottom = 5.0
+bg_color = Color(0.83137256, 0.39215687, 0.3254902, 1)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_orw62"]
+texture = ExtResource("2_k6a2o")
+texture_margin_left = 4.0
+texture_margin_top = 6.0
+texture_margin_right = 4.0
+texture_margin_bottom = 3.0
+region_rect = Rect2(0, 0, 16, 16)
+
+[sub_resource type="StyleBoxTexture" id="StyleBoxTexture_8n3oo"]
+content_margin_left = 4.0
+content_margin_top = 4.0
+content_margin_right = 4.0
+content_margin_bottom = 4.0
+texture = ExtResource("2_k6a2o")
+texture_margin_left = 4.0
+texture_margin_top = 6.0
+texture_margin_right = 4.0
+texture_margin_bottom = 3.0
+region_rect = Rect2(16, 0, 16, 16)
+
+[resource]
+default_font = ExtResource("3_ski75")
+default_font_size = 16
+Button/colors/font_color = Color(0.9607843, 0.6313726, 0.3647059, 1)
+Button/colors/font_hover_color = Color(0.4117647, 0.09019608, 0.28627452, 1)
+Button/styles/focus = SubResource("StyleBoxEmpty_orw62")
+Button/styles/hover = SubResource("StyleBoxFlat_j4h2o")
+Button/styles/normal = SubResource("StyleBoxFlat_tu17m")
+Button/styles/pressed = SubResource("StyleBoxFlat_iwyt8")
+HSlider/icons/grabber = ExtResource("1_ij8oi")
+HSlider/icons/grabber_highlight = ExtResource("1_ij8oi")
+HSlider/styles/grabber_area = SubResource("StyleBoxFlat_orw62")
+HSlider/styles/grabber_area_highlight = SubResource("StyleBoxFlat_56c54")
+HSlider/styles/slider = SubResource("StyleBoxFlat_65ii4")
+Label/constants/line_spacing = 2
+PanelContainer/styles/panel = SubResource("StyleBoxTexture_orw62")
+PanelContainerAlternative/base_type = &"PanelContainer"
+PanelContainerAlternative/styles/panel = SubResource("StyleBoxTexture_8n3oo")

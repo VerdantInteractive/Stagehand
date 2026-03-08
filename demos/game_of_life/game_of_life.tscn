@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://bueq266njnou7"]
+
+[ext_resource type="Shader" uid="uid://c36aed2gi2sjl" path="res://game_of_life/grid_view.gdshader" id="2_h24yv"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_7cuuj"]
+shader = ExtResource("2_h24yv")
+shader_parameter/cell_color = Color(1, 1, 1, 1)
+
+[node name="World" type="FlecsWorld" unique_id=2109235363]
+world_configuration = Dictionary[String, Variant]({
+"initial_alive_percentage": 0.2,
+"population_scale": 1.0
+})
+modules_to_import = Array[String](["stagehand_demos::game_of_life::systems"])
+
+[node name="GridView" type="TextureRect" parent="." unique_id=1200100814]
+material = SubResource("ShaderMaterial_7cuuj")
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2

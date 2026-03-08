@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/world_configuration/core_behavior/core_behavior.gd" id="1"]
+
+[node name="CoreBehavior" type="FlecsWorld"]
+script = ExtResource("1")

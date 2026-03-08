@@ -1,12 +1,26 @@
-🚧 February 2026 update: Godot-Flecs is now Stagehand. It is now turning into a full-featured framework. Watch this space! 🚧
+# Stagehand: take Godot to a bigger stage.
 
-Old readme contents below.
+Stagehand brings Flecs, a modern, high-performance Entity Component System to Godot, enabling large-scale simulations, complex gameplay logic, and performance-critical systems that would otherwise be impractical or impossible.
 
-# Godot-Flecs
+## Features
 
-A basic demostration of how to integrate the [Flecs](https://www.flecs.dev/) [Entity Component System](https://en.wikipedia.org/wiki/Entity_component_system) as a Godot GDExtension.
+- An ECS world node to integrate seamlessly into a Godot scene
+- Entity and Component authoring workflows that leverage Godot Resources and/or Flecs Script for frictionless, data-oriented design.
+- Multiple integration paths for 3D/2D rendering: Instanced, MultiMesh and compute-shader based fully custom rendering pipelines.
 
-The demo project is an implementation of [Conway's Game of Life](https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life).
+## Requirements
+
+TBC
+
+## Usage
+
+Note: On Windows, symbolic links must be enabled both at OS and git configuration level for opening the demo project or running the integration tests.
+
+```
+git clone --recursive git@github.com:VerdantInteractive/Stagehand.git
+
+scons -C addons/stagehand
+```
 
 ## Flecs Explorer
 

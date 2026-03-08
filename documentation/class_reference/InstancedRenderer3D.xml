@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="InstancedRenderer3D" inherits="Node3D" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		A Node3D that renders ECS entities as individual RenderingServer geometry instances, with LOD support.
+	</brief_description>
+	<description>
+		[b]InstancedRenderer3D[/b] is a specialized 3D node that efficiently renders multiple ECS entities as individual RenderingServer geometry instances. It maps one or more Flecs prefabs to rendering instances, updating their transforms each frame.
+		Each InstancedRenderer3D can have multiple LOD (Level of Detail) levels configured, allowing for automatic mesh swapping at different distances for improved performance.
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="get_discovered_instance_uniforms">
+			<return type="PackedStringArray" />
+			<description>
+				Returns the list of instance-specific uniform names discovered from the material.
+			</description>
+		</method>
+		<method name="get_lod_levels">
+			<return type="TypedArray" />
+			<description>
+				Returns an array of [InstancedRenderer3DLODConfiguration] resources representing each LOD level.
+			</description>
+		</method>
+		<method name="get_material">
+			<return type="Material" />
+			<description>
+				Returns the material used for rendering all instances.
+			</description>
+		</method>
+		<method name="get_prefabs_rendered">
+			<return type="PackedStringArray" />
+			<description>
+				Returns the array of prefab names whose entities will be rendered by this renderer.
+			</description>
+		</method>
+		<method name="set_discovered_instance_uniforms">
+			<return type="void" />
+			<param index="0" name="uniforms" type="PackedStringArray" />
+			<description>
+				Sets the list of instance-specific uniform names from the material.
+			</description>
+		</method>
+		<method name="set_lod_levels">
+			<return type="void" />
+			<param index="0" name="lod_levels" type="TypedArray" />
+			<description>
+				Sets the LOD level configurations. Each element should be an [InstancedRenderer3DLODConfiguration] resource. Maximum [constant MAX_LOD_LEVELS] levels are supported.
+			</description>
+		</method>
+		<method name="set_material">
+			<return type="void" />
+			<param index="0" name="material" type="Material" />
+			<description>
+				Sets the material used for rendering all instances.
+			</description>
+		</method>
+		<method name="set_prefabs_rendered">
+			<return type="void" />
+			<param index="0" name="prefabs" type="PackedStringArray" />
+			<description>
+				Sets the array of prefab names whose entities will be rendered by this renderer.
+			</description>
+		</method>
+		<method name="validate_configuration">
+			<return type="bool" />
+			<description>
+				Returns [code]true[/code] if the renderer configuration is valid enough to begin rendering (has at least one LOD level with a mesh and a non-empty [member prefabs_rendered] list). Configuration issues are surfaced as warnings in the Scene dock via [method Node._get_configuration_warnings].
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="discovered_instance_uniforms" type="PackedStringArray" setter="set_discovered_instance_uniforms" getter="get_discovered_instance_uniforms" default="PackedStringArray()">
+			Read-only list of instance uniform component names discovered from the configured prefabs and material.
+		</member>
+		<member name="lod_levels" type="Array[InstancedRenderer3DLODConfiguration]" setter="set_lod_levels" getter="get_lod_levels" default="[]">
+			LOD level resources used to render instances at different visibility ranges.
+		</member>
+		<member name="material" type="Material" setter="set_material" getter="get_material">
+			The material used for all rendered instances.
+		</member>
+		<member name="prefabs_rendered" type="PackedStringArray" setter="set_prefabs_rendered" getter="get_prefabs_rendered" default="PackedStringArray()">
+			Prefab names whose entities are rendered by this node.
+		</member>
+	</members>
+	<constants>
+		<constant name="MAX_LOD_LEVELS" value="8">
+			Maximum number of LOD levels supported by an InstancedRenderer3D.
+		</constant>
+	</constants>
+</class>

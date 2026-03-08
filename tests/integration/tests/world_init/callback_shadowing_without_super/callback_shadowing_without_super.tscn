@@ -1,0 +1,74 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/world_init/callback_shadowing_without_super/callback_shadowing_without_super.gd" id="1_harness"]
+[ext_resource type="Script" path="res://tests/world_init/callback_shadowing_without_super/shadowed_world.gd" id="2_world_script"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod0"]
+radial_segments = 32
+rings = 32
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod1"]
+radial_segments = 16
+rings = 16
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod2"]
+radial_segments = 8
+rings = 8
+
+[sub_resource type="SphereMesh" id="SphereMesh_lod3"]
+radial_segments = 4
+rings = 4
+
+[sub_resource type="Shader" id="Shader_test"]
+code = "shader_type spatial;
+instance uniform vec4 UnitColor;
+void fragment() {
+    ALBEDO = UnitColor.rgb;
+}
+"
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_test"]
+shader = SubResource("Shader_test")
+
+[sub_resource type="InstancedRenderer3DLODConfiguration" id="LODResource_0"]
+mesh = SubResource("SphereMesh_lod0")
+visibility_range_begin = 0.0
+visibility_range_end = 50.0
+visibility_range_begin_margin = 0.0
+visibility_range_end_margin = 5.0
+visibility_range_fade_mode = 0
+
+[sub_resource type="InstancedRenderer3DLODConfiguration" id="LODResource_1"]
+mesh = SubResource("SphereMesh_lod1")
+visibility_range_begin = 50.0
+visibility_range_end = 100.0
+visibility_range_begin_margin = 5.0
+visibility_range_end_margin = 10.0
+visibility_range_fade_mode = 1
+
+[sub_resource type="InstancedRenderer3DLODConfiguration" id="LODResource_2"]
+mesh = SubResource("SphereMesh_lod2")
+visibility_range_begin = 100.0
+visibility_range_end = 200.0
+visibility_range_begin_margin = 10.0
+visibility_range_end_margin = 20.0
+visibility_range_fade_mode = 2
+
+[sub_resource type="InstancedRenderer3DLODConfiguration" id="LODResource_3"]
+mesh = SubResource("SphereMesh_lod3")
+visibility_range_begin = 200.0
+visibility_range_end = 500.0
+visibility_range_begin_margin = 20.0
+visibility_range_end_margin = 50.0
+visibility_range_fade_mode = 1
+
+[node name="CallbackShadowingWithoutSuper" type="Node"]
+script = ExtResource("1_harness")
+
+[node name="ShadowedWorld" type="FlecsWorld" parent="."]
+script = ExtResource("2_world_script")
+
+[node name="InstancedRenderer3D" type="InstancedRenderer3D" parent="ShadowedWorld"]
+prefabs_rendered = PackedStringArray("stagehand_tests::InstancedEntity3D")
+material = SubResource("ShaderMaterial_test")
+lod_levels = [SubResource("LODResource_0"), SubResource("LODResource_1"), SubResource("LODResource_2"), SubResource("LODResource_3")]
