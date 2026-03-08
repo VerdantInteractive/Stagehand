@@ -8,3 +8,6 @@
 	path = dependencies/googletest
 	url = https://github.com/google/googletest.git
 	branch = v1.17.x
+[submodule "dependencies/pfr"]
+	path = dependencies/pfr
+	url = https://github.com/VerdantInteractive/pfr.git

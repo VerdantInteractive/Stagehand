@@ -1,6 +1,11 @@
 #pragma once
 
 #include <cstdint>
+#include <pfr/core.hpp>
+#include <pfr/core_name.hpp>
+#include <pfr/tuple_size.hpp>
+#include <string>
+#include <utility>
 
 #include "stagehand/ecs/components/traits.h" // IWYU pragma: keep
 
@@ -233,3 +238,120 @@ using std::uint8_t;
 #define ARRAY(Name, ElementType, Size, ...)                                                                                                                    \
     STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, array, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
 #define ARRAY_(Name, ElementType, Size, ...) STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, array_no_change, , , __VA_ARGS__)
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// Struct component macros — PFR-based reflection for multi-field aggregates
+// ═══════════════════════════════════════════════════════════════════════════════
+
+namespace stagehand::internal {
+    /// Registers all members of an aggregate struct with Flecs using PFR reflection.
+    template <typename T> void register_pfr_members(flecs::world &world) {
+        T instance{};
+        flecs::component<T> comp = world.component<T>();
+        pfr::for_each_field_with_name(instance, [&comp](std::string_view name, const auto &field) {
+            using FieldType = std::remove_cvref_t<decltype(field)>;
+            const std::string name_str(name);
+            comp.template member<FieldType>(name_str.c_str());
+        });
+    }
+} // namespace stagehand::internal
+
+namespace stagehand {
+    /// Registers a PFR-reflectable struct as a Flecs component with member metadata
+    /// and Dictionary-based getter/setter for GDScript integration.
+    template <typename T> void register_struct_component(flecs::world &world, const char *fallback_name) {
+        internal::register_pfr_members<T>(world);
+
+        const flecs::component<T> component_handle = world.component<T>();
+        const flecs::entity_t comp_id = component_handle.id();
+
+        ComponentGetter getter = [](const flecs::world &w, flecs::entity_t eid) -> godot::Variant {
+            const T *data = nullptr;
+            if (eid == 0) {
+                data = w.try_get<T>();
+            } else {
+                if (!w.is_alive(eid)) {
+                    godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(eid) + " is not alive.");
+                    return godot::Variant();
+                }
+                data = flecs::entity(w, eid).try_get<T>();
+            }
+            if (data) {
+                godot::Dictionary dict;
+                pfr::for_each_field_with_name(
+                    *data, [&dict](std::string_view name, const auto &field) { dict[godot::String(std::string(name).c_str())] = godot::Variant(field); });
+                return godot::Variant(dict);
+            }
+            return godot::Variant(godot::Dictionary());
+        };
+
+        ComponentSetter setter = [component_name = std::string(fallback_name)](flecs::world &w, flecs::entity_t eid, const godot::Variant &v) {
+            if (v.get_type() != godot::Variant::DICTIONARY) {
+                godot::UtilityFunctions::push_warning(godot::String("Failed to set struct component '") + component_name.c_str() +
+                                                      "'. Expected Dictionary, got " + godot::Variant::get_type_name(v.get_type()));
+                return;
+            }
+            godot::Dictionary dict = v;
+            T new_value{};
+            pfr::for_each_field_with_name(new_value, [&dict](std::string_view name, auto &field) {
+                godot::String key(std::string(name).c_str());
+                if (dict.has(key)) {
+                    field = static_cast<std::remove_cvref_t<decltype(field)>>(godot::Variant(dict[key]));
+                }
+            });
+            if (eid == 0) {
+                w.set<T>(new_value);
+            } else {
+                if (!w.is_alive(eid)) {
+                    godot::UtilityFunctions::push_warning(godot::String("Set Component: Entity ") + godot::String::num_uint64(eid) + " is not alive.");
+                    return;
+                }
+                flecs::entity(w, eid).set<T>(new_value);
+            }
+        };
+
+        flecs::string component_path = component_handle.path();
+        std::string qualified_name = component_path.c_str() != nullptr ? std::string(component_path.c_str()) : std::string();
+        qualified_name = normalize_registered_component_name(std::move(qualified_name));
+        if (!qualified_name.empty()) {
+            auto &entry = get_component_registry()[qualified_name];
+            entry.getter = getter;
+            entry.setter = setter;
+            entry.data_type = "struct";
+            entry.entity_id = comp_id;
+        }
+
+        auto &entry = get_component_registry()[std::string(fallback_name)];
+        entry.getter = getter;
+        entry.setter = setter;
+        entry.data_type = "struct";
+        entry.entity_id = comp_id;
+    }
+} // namespace stagehand
+
+/// Macro that defines and registers a struct component with PFR-based reflection.
+/// All fields of the struct are automatically registered as Flecs members for
+/// web UI visibility. A Dictionary-based getter/setter is registered for GDScript.
+///
+/// STRUCT registers with change detection. STRUCT_ registers without change detection.
+///
+/// The struct must be an aggregate (no user-declared constructors, no virtual functions,
+/// no private/protected non-static data members).
+///
+/// Example:
+///   STRUCT_(PlayerSettings, {
+///       float speed = 5.0f;
+///       int health = 100;
+///   }).then([](auto c) { c.add(flecs::Singleton); });
+#define STRUCT(Name, ...)                                                                                                                                      \
+    struct Name __VA_ARGS__;                                                                                                                                   \
+    struct HasChanged##Name {};                                                                                                                                \
+    inline auto register_##Name##_struct = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
+        stagehand::register_struct_component<Name>(world, #Name);                                                                                              \
+        stagehand::internal::register_change_detection_for_component<Name, HasChanged##Name>(world);                                                           \
+    })
+
+#define STRUCT_(Name, ...)                                                                                                                                     \
+    struct Name __VA_ARGS__;                                                                                                                                   \
+    inline auto register_##Name##_struct_no_change =                                                                                                           \
+        stagehand::ComponentRegistrar<Name>([](flecs::world &world) { stagehand::register_struct_component<Name>(world, #Name); })

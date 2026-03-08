@@ -104,6 +104,36 @@ GODOT_VARIANT(Position2D, godot::Vector2);
 GODOT_VARIANT_(Position2DStatic, godot::Vector2);
 ```
 
+### Structs (Multi-Field Components)
+
+Use `STRUCT` / `STRUCT_` from `stagehand/ecs/components/macros.h` to define components with multiple named fields. Fields are automatically registered as Flecs members (visible in the Flecs web UI) using PFR-based compile-time reflection.
+
+```cpp
+// Defines a multi-field component with change tracking.
+// Also defines struct HasChangedPlayerSettings {};
+STRUCT(PlayerSettings, {
+    float damage_cooldown = 0.3f;
+    int player_hit_radius = 5;
+    double precision = 0.001;
+});
+```
+
+```cpp
+// No change-tracking. Supports .then() chaining for additional configuration.
+STRUCT_(GlobalConfig, {
+    float global_speed = 1.0f;
+    int32_t max_entities = 1000;
+}).then([](auto component) {
+    component.add(flecs::Singleton);
+});
+```
+
+Struct components support aggregate initialization:
+
+```cpp
+e.set<PlayerSettings>({0.5f, 10, 0.01});
+```
+
 ### Containers
 
 Use `VECTOR` or `ARRAY` for STL containers.

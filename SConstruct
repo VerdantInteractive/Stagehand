@@ -104,7 +104,7 @@ if PROJECT_DIRECTORY:
         project_cpp_sources = []
 
 # Configure include paths; only add the additional project include root if set.
-cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "."]
+cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "dependencies/pfr/include", "."]
 if PROJECT_DIRECTORY:
     cpplist.append(f"{PROJECT_DIRECTORY}")
 env.Append(CPPPATH=cpplist)
@@ -381,6 +381,7 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
     test_env.Prepend(CPPPATH=[
         tests_dir,
         project_root,
+        os.path.join(project_root, "dependencies", "pfr", "include"),
         os.path.join(gtest_dir, "include"),
         gtest_dir,
     ])
