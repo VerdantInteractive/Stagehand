@@ -74,8 +74,8 @@ namespace stagehand::rendering {
         /// Slots remain allocated so their RIDs can be reused across entity churn.
         std::vector<godot::RID> instance_rids;
         std::vector<ecs_entity_t> slot_entities;
-        std::vector<uint64_t> slot_generations;
-        std::vector<uint64_t> slot_created_generations;
+        std::vector<uint32_t> slot_generations;
+        std::vector<uint32_t> slot_created_generations;
         std::vector<uint32_t> free_slots;
         /// Direct lookup from the stripped Flecs entity id to a renderer slot.
         /// The slot is validated against slot_entities before use so recycled Flecs IDs cannot accidentally reuse a stale slot.
@@ -83,7 +83,7 @@ namespace stagehand::rendering {
 
         static constexpr uint32_t INVALID_SLOT = std::numeric_limits<uint32_t>::max();
 
-        uint64_t current_generation = 0;
+        uint32_t current_generation = 0;
         uint32_t active_entity_count = 0;
     };
 
