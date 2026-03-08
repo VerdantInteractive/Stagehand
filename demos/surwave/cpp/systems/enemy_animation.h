@@ -72,39 +72,35 @@ namespace enemy_animation {
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
     world
-        .system<const HitPoints, const Velocity2D, const MovementSpeed, const AnimationFrameOffset, const DeathTimer, const HitReactionTimer, HFlipTimer,
-                VFlipTimer, RenderingCustomData>("Enemy Animation")
+        .system<HFlipTimer, VFlipTimer, RenderingCustomData, const EnemyAnimationSettings, const HitPoints, const Velocity2D, const MovementSpeed, const AnimationFrameOffset, const DeathTimer, const HitReactionTimer>("Enemy Animation")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::PostUpdate)
         .run([](flecs::iter &it) {
             // clang-format on
-            const EnemyAnimationSettings *animation_settings = it.world().try_get<EnemyAnimationSettings>();
-            if (animation_settings == nullptr) {
-                return;
-            }
-
-            const godot::real_t animation_interval = animation_settings->animation_interval;
-            const godot::real_t animation_speed = animation_interval > 0.0 ? godot::real_t(1.0) / animation_interval : godot::real_t(0.0);
-            const godot::real_t animation_range = animation_settings->walk_animation_range;
-            const godot::real_t death_animation_frame_count = animation_settings->death_animation_frame_count;
-            const godot::real_t death_animation_range = death_animation_frame_count - godot::real_t(1.0);
-            const godot::real_t frame_interval = animation_interval > 0.0 ? animation_interval : godot::real_t(0.001);
-            const godot::real_t up_direction_frame_offset = animation_settings->up_direction_frame_offset;
-            const godot::real_t horizontal_flip_cooldown = godot::Math::max(animation_settings->horizontal_flip_cooldown, godot::real_t(0.0));
-            const godot::real_t vertical_flip_cooldown = godot::Math::max(animation_settings->vertical_flip_cooldown, godot::real_t(0.0));
-            const godot::real_t nominal_movement_speed = animation_settings->nominal_movement_speed;
-            const godot::real_t animation_offset_fraction_range = godot::Math::max(animation_settings->animation_offset_fraction_range, godot::real_t(0.0));
-
             while (it.next()) {
-                flecs::field<const HitPoints> hit_points = it.field<const HitPoints>(0);
-                flecs::field<const Velocity2D> velocities = it.field<const Velocity2D>(1);
-                flecs::field<const MovementSpeed> movement_speeds = it.field<const MovementSpeed>(2);
-                flecs::field<const AnimationFrameOffset> frame_offsets = it.field<const AnimationFrameOffset>(3);
-                flecs::field<const DeathTimer> death_timer = it.field<const DeathTimer>(4);
-                flecs::field<const HitReactionTimer> hit_reaction_timers = it.field<const HitReactionTimer>(5);
-                flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(6);
-                flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(7);
-                flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(8);
+                flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(0);
+                flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(1);
+                flecs::field<RenderingCustomData> custom_data_field = it.field<RenderingCustomData>(2);
+                flecs::field<const EnemyAnimationSettings> animation_settings_field = it.field<const EnemyAnimationSettings>(3);
+                flecs::field<const HitPoints> hit_points = it.field<const HitPoints>(4);
+                flecs::field<const Velocity2D> velocities = it.field<const Velocity2D>(5);
+                flecs::field<const MovementSpeed> movement_speeds = it.field<const MovementSpeed>(6);
+                flecs::field<const AnimationFrameOffset> frame_offsets = it.field<const AnimationFrameOffset>(7);
+                flecs::field<const DeathTimer> death_timer = it.field<const DeathTimer>(8);
+                flecs::field<const HitReactionTimer> hit_reaction_timers = it.field<const HitReactionTimer>(9);
+
+                const EnemyAnimationSettings *animation_settings = &animation_settings_field[0];
+                const godot::real_t animation_interval = animation_settings->animation_interval;
+                const godot::real_t animation_speed = animation_interval > 0.0 ? godot::real_t(1.0) / animation_interval : godot::real_t(0.0);
+                const godot::real_t animation_range = animation_settings->walk_animation_range;
+                const godot::real_t death_animation_frame_count = animation_settings->death_animation_frame_count;
+                const godot::real_t death_animation_range = death_animation_frame_count - godot::real_t(1.0);
+                const godot::real_t frame_interval = animation_interval > 0.0 ? animation_interval : godot::real_t(0.001);
+                const godot::real_t up_direction_frame_offset = animation_settings->up_direction_frame_offset;
+                const godot::real_t horizontal_flip_cooldown = godot::Math::max(animation_settings->horizontal_flip_cooldown, godot::real_t(0.0));
+                const godot::real_t vertical_flip_cooldown = godot::Math::max(animation_settings->vertical_flip_cooldown, godot::real_t(0.0));
+                const godot::real_t nominal_movement_speed = animation_settings->nominal_movement_speed;
+                const godot::real_t animation_offset_fraction_range = godot::Math::max(animation_settings->animation_offset_fraction_range, godot::real_t(0.0));
 
                 const size_t count = it.count();
                 for (size_t i = 0; i < count; ++i) {

@@ -14,17 +14,11 @@ using namespace stagehand_demos::surwave;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer>("Enemy Timer Tick")
+    world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer, const EnemyTakeDamageSettings>("Enemy Timer Tick")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::PreUpdate)
         .run([](flecs::iter &it) {
             // clang-format on
-            const EnemyTakeDamageSettings *take_damage_settings = it.world().try_get<EnemyTakeDamageSettings>();
-            const godot::real_t projectile_cooldown =
-                take_damage_settings != nullptr ? godot::Math::max(take_damage_settings->projectile_hit_cooldown, godot::real_t(0.0)) : godot::real_t(0.0);
-            const godot::real_t shockwave_cooldown =
-                take_damage_settings != nullptr ? godot::Math::max(take_damage_settings->shockwave_hit_cooldown, godot::real_t(0.0)) : godot::real_t(0.0);
-
             while (it.next()) {
                 const godot::real_t delta_time = godot::Math::max(static_cast<godot::real_t>(it.delta_time()), godot::real_t(0.0));
                 if (delta_time <= godot::real_t(0.0)) {
@@ -37,6 +31,13 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                 flecs::field<HitReactionTimer> hit_reaction_timers = it.field<HitReactionTimer>(3);
                 flecs::field<HFlipTimer> horizontal_flip_timers = it.field<HFlipTimer>(4);
                 flecs::field<VFlipTimer> vertical_flip_timers = it.field<VFlipTimer>(5);
+                flecs::field<const EnemyTakeDamageSettings> take_damage_settings_field = it.field<const EnemyTakeDamageSettings>(6);
+
+                const EnemyTakeDamageSettings *take_damage_settings = &take_damage_settings_field[0];
+                const godot::real_t projectile_cooldown =
+                    take_damage_settings != nullptr ? godot::Math::max(take_damage_settings->projectile_hit_cooldown, godot::real_t(0.0)) : godot::real_t(0.0);
+                const godot::real_t shockwave_cooldown =
+                    take_damage_settings != nullptr ? godot::Math::max(take_damage_settings->shockwave_hit_cooldown, godot::real_t(0.0)) : godot::real_t(0.0);
                 const std::size_t entity_count = it.count();
                 for (std::size_t entity_index = 0; entity_index < entity_count; ++entity_index) {
                     ProjectileHitTimeout &projectile_timeout = projectile_timeouts[entity_index];
@@ -70,28 +71,26 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
         });
 
     // clang-format off
-    world.system<>("Player Damage Timer Tick")
+    world.system<PlayerDamageCooldown, const PlayerTakeDamageSettings>("Player Damage Timer Tick")
         .kind(flecs::PreUpdate)
         .run([](flecs::iter &it) {
         // clang-format on
-        flecs::world stage_world = it.world();
-        const PlayerTakeDamageSettings *player_damage_settings = stage_world.try_get<PlayerTakeDamageSettings>();
-        PlayerDamageCooldown *player_damage_cooldown = stage_world.try_get_mut<PlayerDamageCooldown>();
-        if (player_damage_settings == nullptr || player_damage_cooldown == nullptr) {
-            return;
-        }
+        while (it.next()) {
+            flecs::field<PlayerDamageCooldown> player_damage_cooldown = it.field<PlayerDamageCooldown>(0);
+            flecs::field<const PlayerTakeDamageSettings> player_damage_settings = it.field<const PlayerTakeDamageSettings>(1);
 
-        const godot::real_t cooldown = godot::Math::max(player_damage_settings->damage_cooldown, godot::real_t(0.0));
-        if (cooldown <= godot::real_t(0.0)) {
-            player_damage_cooldown->value = cooldown;
-            return;
-        }
+            const godot::real_t cooldown = godot::Math::max(player_damage_settings->damage_cooldown, godot::real_t(0.0));
+            if (cooldown <= godot::real_t(0.0)) {
+                player_damage_cooldown->value = cooldown;
+                return;
+            }
 
-        const godot::real_t delta_time = godot::Math::max(static_cast<godot::real_t>(it.delta_time()), godot::real_t(0.0));
-        if (delta_time <= godot::real_t(0.0)) {
-            return;
-        }
+            const godot::real_t delta_time = godot::Math::max(static_cast<godot::real_t>(it.delta_time()), godot::real_t(0.0));
+            if (delta_time <= godot::real_t(0.0)) {
+                return;
+            }
 
-        player_damage_cooldown->value = godot::Math::min(player_damage_cooldown->value + delta_time, cooldown);
+            player_damage_cooldown->value = godot::Math::min(player_damage_cooldown->value + delta_time, cooldown);
+        }
     });
 });

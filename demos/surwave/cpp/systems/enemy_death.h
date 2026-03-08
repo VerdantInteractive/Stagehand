@@ -25,26 +25,23 @@ using Velocity2D = stagehand::physics::Velocity2D;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<const Position2D, HitPoints, DeathTimer, MeleeDamage, MovementSpeed, Velocity2D>("Enemy Death")
+    world.system<HitPoints, DeathTimer, MeleeDamage, MovementSpeed, Velocity2D, const EnemyAnimationSettings, const Position2D>("Enemy Death")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::OnValidate)
         .run([](flecs::iter &it) {
             // clang-format on
-            const EnemyAnimationSettings *animation_settings = it.world().try_get<EnemyAnimationSettings>();
-            if (animation_settings == nullptr) {
-                return;
-            }
-
-            const godot::real_t death_animation_duration = animation_settings->animation_interval * animation_settings->death_animation_frame_count;
-            const godot::real_t invulnerable_hit_points = kEnemyDeathInvulnerableHitPoints;
-
             while (it.next()) {
-                flecs::field<const Position2D> positions = it.field<const Position2D>(0);
-                flecs::field<HitPoints> hit_points = it.field<HitPoints>(1);
-                flecs::field<DeathTimer> death_timer = it.field<DeathTimer>(2);
-                flecs::field<MeleeDamage> melee_damage = it.field<MeleeDamage>(3);
-                flecs::field<MovementSpeed> movement_speed = it.field<MovementSpeed>(4);
-                flecs::field<Velocity2D> velocities = it.field<Velocity2D>(5);
+                flecs::field<HitPoints> hit_points = it.field<HitPoints>(0);
+                flecs::field<DeathTimer> death_timer = it.field<DeathTimer>(1);
+                flecs::field<MeleeDamage> melee_damage = it.field<MeleeDamage>(2);
+                flecs::field<MovementSpeed> movement_speed = it.field<MovementSpeed>(3);
+                flecs::field<Velocity2D> velocities = it.field<Velocity2D>(4);
+                flecs::field<const EnemyAnimationSettings> animation_settings_field = it.field<const EnemyAnimationSettings>(5);
+                flecs::field<const Position2D> positions = it.field<const Position2D>(6);
+
+                const EnemyAnimationSettings *animation_settings = &animation_settings_field[0];
+                const godot::real_t death_animation_duration = animation_settings->animation_interval * animation_settings->death_animation_frame_count;
+                const godot::real_t invulnerable_hit_points = kEnemyDeathInvulnerableHitPoints;
 
                 for (auto entity_index : it) {
                     if (hit_points[entity_index].value > godot::real_t(0.0)) {

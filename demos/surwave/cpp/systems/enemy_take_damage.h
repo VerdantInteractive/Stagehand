@@ -27,7 +27,7 @@ using Position2D = stagehand::transform::Position2D;
 namespace enemy_take_damage {
 
     struct DamageTargetAccessor {
-        Position2D *position;
+        const Position2D *position;
         HitPoints *hit_points;
         const HitRadius *hit_radius;
         ProjectileHitTimeout *projectile_hit_timeout;
@@ -78,17 +78,56 @@ namespace enemy_take_damage {
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<Position2D, HitPoints, const HitRadius, ProjectileHitTimeout, ShockwaveHitTimeout, HitReactionTimer>("Enemy Take Damage")
+    world.system<HitPoints, ProjectileHitTimeout, ShockwaveHitTimeout, HitReactionTimer, const ProjectileData, const EnemyBoidMovementSettings, const EnemyTakeDamageSettings, const EnemyAnimationSettings, const ShockwaveData, const PlayerPosition, const Position2D, const HitRadius>("Enemy Take Damage")
         .with(flecs::IsA, EnemyPrefab)
         .run([](flecs::iter &it) {
             // clang-format on
-            flecs::world stage_world = it.world();
-            const ProjectileData *projectile_data = stage_world.try_get<ProjectileData>();
-            const EnemyBoidMovementSettings *movement_settings = stage_world.try_get<EnemyBoidMovementSettings>();
-            const EnemyTakeDamageSettings *take_damage_settings = stage_world.try_get<EnemyTakeDamageSettings>();
-            const EnemyAnimationSettings *animation_settings = stage_world.try_get<EnemyAnimationSettings>();
-            const ShockwaveData *shockwave_data = stage_world.try_get<ShockwaveData>();
-            const PlayerPosition *player_position = stage_world.try_get<PlayerPosition>();
+            std::vector<enemy_take_damage::DamageTargetAccessor> targets;
+            targets.reserve(128U);
+            godot::real_t max_hit_radius = godot::real_t(0.0);
+
+            const ProjectileData *projectile_data = nullptr;
+            const EnemyBoidMovementSettings *movement_settings = nullptr;
+            const EnemyTakeDamageSettings *take_damage_settings = nullptr;
+            const EnemyAnimationSettings *animation_settings = nullptr;
+            const ShockwaveData *shockwave_data = nullptr;
+            const PlayerPosition *player_position = nullptr;
+
+            while (it.next()) {
+                flecs::field<HitPoints> hit_points = it.field<HitPoints>(0);
+                flecs::field<ProjectileHitTimeout> projectile_hit_timeouts = it.field<ProjectileHitTimeout>(1);
+                flecs::field<ShockwaveHitTimeout> shockwave_hit_timeouts = it.field<ShockwaveHitTimeout>(2);
+                flecs::field<HitReactionTimer> hit_reaction_timers = it.field<HitReactionTimer>(3);
+                flecs::field<const ProjectileData> projectile_data_field = it.field<const ProjectileData>(4);
+                flecs::field<const EnemyBoidMovementSettings> movement_settings_field = it.field<const EnemyBoidMovementSettings>(5);
+                flecs::field<const EnemyTakeDamageSettings> take_damage_settings_field = it.field<const EnemyTakeDamageSettings>(6);
+                flecs::field<const EnemyAnimationSettings> animation_settings_field = it.field<const EnemyAnimationSettings>(7);
+                flecs::field<const ShockwaveData> shockwave_data_field = it.field<const ShockwaveData>(8);
+                flecs::field<const PlayerPosition> player_position_field = it.field<const PlayerPosition>(9);
+                flecs::field<const Position2D> positions = it.field<const Position2D>(10);
+                flecs::field<const HitRadius> hit_radii = it.field<const HitRadius>(11);
+
+                projectile_data = &projectile_data_field[0];
+                movement_settings = &movement_settings_field[0];
+                take_damage_settings = &take_damage_settings_field[0];
+                animation_settings = &animation_settings_field[0];
+                shockwave_data = &shockwave_data_field[0];
+                player_position = &player_position_field[0];
+
+                const std::int32_t row_count = static_cast<std::int32_t>(it.count());
+                for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
+                    enemy_take_damage::DamageTargetAccessor accessor{&positions[static_cast<std::size_t>(row_index)],
+                                                                     &hit_points[static_cast<std::size_t>(row_index)],
+                                                                     &hit_radii[static_cast<std::size_t>(row_index)],
+                                                                     &projectile_hit_timeouts[static_cast<std::size_t>(row_index)],
+                                                                     &shockwave_hit_timeouts[static_cast<std::size_t>(row_index)],
+                                                                     &hit_reaction_timers[static_cast<std::size_t>(row_index)],
+                                                                     it.entity(row_index)};
+                    targets.push_back(accessor);
+                    max_hit_radius = godot::Math::max(max_hit_radius, hit_radii[static_cast<std::size_t>(row_index)].value);
+                }
+            }
+
             if (take_damage_settings == nullptr) {
                 return;
             }
@@ -118,31 +157,6 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
 
             if (!can_process_projectiles && !shockwave_active) {
                 return;
-            }
-
-            std::vector<enemy_take_damage::DamageTargetAccessor> targets;
-            targets.reserve(128U);
-            godot::real_t max_hit_radius = godot::real_t(0.0);
-
-            while (it.next()) {
-                flecs::field<Position2D> positions = it.field<Position2D>(0);
-                flecs::field<HitPoints> hit_points = it.field<HitPoints>(1);
-                flecs::field<const HitRadius> hit_radii = it.field<const HitRadius>(2);
-                flecs::field<ProjectileHitTimeout> projectile_hit_timeouts = it.field<ProjectileHitTimeout>(3);
-                flecs::field<ShockwaveHitTimeout> shockwave_hit_timeouts = it.field<ShockwaveHitTimeout>(4);
-                flecs::field<HitReactionTimer> hit_reaction_timers = it.field<HitReactionTimer>(5);
-                const std::int32_t row_count = static_cast<std::int32_t>(it.count());
-                for (std::int32_t row_index = 0; row_index < row_count; ++row_index) {
-                    enemy_take_damage::DamageTargetAccessor accessor{&positions[static_cast<std::size_t>(row_index)],
-                                                                     &hit_points[static_cast<std::size_t>(row_index)],
-                                                                     &hit_radii[static_cast<std::size_t>(row_index)],
-                                                                     &projectile_hit_timeouts[static_cast<std::size_t>(row_index)],
-                                                                     &shockwave_hit_timeouts[static_cast<std::size_t>(row_index)],
-                                                                     &hit_reaction_timers[static_cast<std::size_t>(row_index)],
-                                                                     it.entity(row_index)};
-                    targets.push_back(accessor);
-                    max_hit_radius = godot::Math::max(max_hit_radius, hit_radii[static_cast<std::size_t>(row_index)].value);
-                }
             }
 
             const std::int32_t enemy_count = static_cast<std::int32_t>(targets.size());
