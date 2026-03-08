@@ -2,29 +2,25 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Play (Windows, cppvsdbg)",
-            "type": "cppvsdbg",
+            "name": "Play (Windows, lldb)",
+            "type": "lldb",
             "request": "launch",
             "preLaunchTask": "Build (Debug)",
-            "symbolSearchPath": "${workspaceRoot}\\Game\\bin",
             "cwd": "${workspaceRoot}",
-            //
             "console": "internalConsole",
-            "program": "${userHome}\\Applications\\Godot\\Godot.exe",
+            "program": "${userHome}\\Applications\\Godot\\Godot_console.exe",
             "args": [
                 "--path",
                 "demos"
             ],
         },
         {
-            "name": "Editor (Windows, cppvsdbg)",
-            "type": "cppvsdbg",
+            "name": "Editor (Windows, lldb)",
+            "type": "lldb",
             "request": "launch",
             "preLaunchTask": "Build (Debug)",
-            "symbolSearchPath": "${workspaceRoot}\\Game\\bin",
             "cwd": "${workspaceRoot}",
-            //
-            "console": "newExternalWindow",
+            "console": "externalTerminal",
             "program": "${userHome}\\Applications\\Godot\\Godot_console.exe",
             "args": [
                 "demos\\project.godot"
