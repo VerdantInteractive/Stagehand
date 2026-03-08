@@ -325,14 +325,12 @@ func _delete_node(node: GraphNode) -> void:
 
 func _show_component_selector(graph_node: GraphNode, button: Button = null) -> void:
 	var component_list = {}
-	for path in ECS.BY_PATH:
-		var info = ECS.BY_PATH[path]
-		if not info.get("is_component", false):
-			continue
-		var ns = info.get("namespace", "")
-		if not component_list.has(ns):
-			component_list[ns] = []
-		component_list[ns].append(path)
+	for path in ECS.SCHEMA.components:
+		var info = ECS.SCHEMA.components[path]
+		var namespace = info.get("namespace", "")
+		if not component_list.has(namespace ):
+			component_list[ namespace ] = []
+		component_list[ namespace ].append(path)
 	
 	var popup = PopupMenu.new()
 	popup.name = "ComponentSelector"
@@ -343,13 +341,13 @@ func _show_component_selector(graph_node: GraphNode, button: Button = null) -> v
 	var namespaces = component_list.keys()
 	namespaces.sort()
 	
-	for ns in namespaces:
-		if not ns.is_empty():
-			popup.add_separator(ns)
+	for namespace in namespaces:
+		if not namespace.is_empty():
+			popup.add_separator(namespace )
 		else:
 			popup.add_separator("Global")
 			
-		var comps = component_list[ns]
+		var comps = component_list[ namespace ]
 		comps.sort()
 		if comps is PackedStringArray or comps is Array:
 			for comp_name in comps:

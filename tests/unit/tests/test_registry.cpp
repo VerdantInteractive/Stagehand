@@ -157,7 +157,7 @@ TEST_F(RegistryFixture, GeneratedEcsScriptHasExpectedFormatSuffixingAndTopLevelK
     EXPECT_NE(script.find("class components:"), std::string::npos);
     EXPECT_NE(script.find("class prefabs:"), std::string::npos);
     EXPECT_NE(script.find("class systems:"), std::string::npos);
-    EXPECT_NE(script.find("const BY_PATH := {"), std::string::npos);
+    EXPECT_NE(script.find("const SCHEMA := {"), std::string::npos);
 
     EXPECT_NE(script.find("const Transform3D_ = \"godot::Transform3D\""), std::string::npos);
     EXPECT_EQ(script.find("const Transform3D = \"godot::Transform3D\""), std::string::npos);

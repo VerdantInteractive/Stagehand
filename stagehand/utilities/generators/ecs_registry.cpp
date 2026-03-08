@@ -286,30 +286,47 @@ namespace {
         append_namespace_class("prefabs", prefabs);
         append_namespace_class("systems", systems);
 
-        output += "const BY_PATH := {\n";
-        for (const stagehand::RegisteredEntityInfo &entry : entries) {
-            output += "\t\"";
+        output += "const SCHEMA := {\n";
+        output += "\t\"components\": {\n";
+        for (const stagehand::RegisteredEntityInfo &entry : components) {
+            output += "\t\t\"";
             output += escape_gd_string(entry.path);
             output += "\": {\"name\": \"";
             output += escape_gd_string(entry.name);
             output += "\", \"namespace\": \"";
             output += escape_gd_string(entry.namespace_path);
-            output += "\", \"module\": \"";
-            output += escape_gd_string(entry.module_path);
-            output += "\", \"is_component\": ";
-            output += entry.is_component ? "true" : "false";
-            output += ", \"is_prefab\": ";
-            output += entry.is_prefab ? "true" : "false";
-            output += ", \"is_system\": ";
-            output += entry.is_system ? "true" : "false";
-            output += ", \"is_change_detection_tag\": ";
+            output += "\", \"data_type\": \"";
+            output += escape_gd_string(entry.path);
+            output += "\", \"is_change_detection_tag\": ";
             output += entry.is_change_detection_tag ? "true" : "false";
-            output += ", \"component_size\": ";
-            output += std::to_string(entry.component_size);
-            output += ", \"component_alignment\": ";
-            output += std::to_string(entry.component_alignment);
             output += "},\n";
         }
+        output += "\t},\n";
+
+        output += "\t\"prefabs\": {\n";
+        for (const stagehand::RegisteredEntityInfo &entry : prefabs) {
+            output += "\t\t\"";
+            output += escape_gd_string(entry.path);
+            output += "\": {\"name\": \"";
+            output += escape_gd_string(entry.name);
+            output += "\", \"namespace\": \"";
+            output += escape_gd_string(entry.namespace_path);
+            output += "\"},\n";
+        }
+        output += "\t},\n";
+
+        output += "\t\"systems\": {\n";
+        for (const stagehand::RegisteredEntityInfo &entry : systems) {
+            output += "\t\t\"";
+            output += escape_gd_string(entry.path);
+            output += "\": {\"name\": \"";
+            output += escape_gd_string(entry.name);
+            output += "\", \"namespace\": \"";
+            output += escape_gd_string(entry.namespace_path);
+            output += "\"},\n";
+        }
+        output += "\t},\n";
+
         output += "}\n";
 
         return output;
