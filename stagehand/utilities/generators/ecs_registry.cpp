@@ -296,7 +296,7 @@ namespace {
             output += "\", \"namespace\": \"";
             output += escape_gd_string(entry.namespace_path);
             output += "\", \"data_type\": \"";
-            output += escape_gd_string(entry.path);
+            output += escape_gd_string(entry.component_data_type);
             output += "\", \"is_change_detection_tag\": ";
             output += entry.is_change_detection_tag ? "true" : "false";
             output += "},\n";

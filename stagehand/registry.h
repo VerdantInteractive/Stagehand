@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstdint>
 #include <functional>
 #include <string>
 #include <type_traits>
@@ -96,6 +97,7 @@ namespace stagehand {
         ComponentGetter getter;
         ComponentSetter setter;
         flecs::entity_t entity_id = 0; ///< Populated by register_component_with_world_name
+        std::string data_type;         ///< C++ storage type used by setter/getter plumbing
     };
 
     /// Returns the global map of component functions, keyed by component name.
@@ -136,9 +138,34 @@ namespace stagehand {
         return name;
     }
 
+    template <typename T> inline std::string get_registered_cpp_type_name() {
+        using BareType = std::remove_cvref_t<T>;
+
+        if constexpr (std::is_same_v<BareType, std::int8_t>) {
+            return "int8_t";
+        } else if constexpr (std::is_same_v<BareType, std::int16_t>) {
+            return "int16_t";
+        } else if constexpr (std::is_same_v<BareType, std::int32_t>) {
+            return "int32_t";
+        } else if constexpr (std::is_same_v<BareType, std::int64_t>) {
+            return "int64_t";
+        } else if constexpr (std::is_same_v<BareType, std::uint8_t>) {
+            return "uint8_t";
+        } else if constexpr (std::is_same_v<BareType, std::uint16_t>) {
+            return "uint16_t";
+        } else if constexpr (std::is_same_v<BareType, std::uint32_t>) {
+            return "uint32_t";
+        } else if constexpr (std::is_same_v<BareType, std::uint64_t>) {
+            return "uint64_t";
+        } else {
+            return std::string(flecs::_::type_name<BareType>());
+        }
+    }
+
     /// Unified component registration for scalars, vectors, and arrays.
     template <typename T, typename StorageType = T> void register_component(const std::string &name) {
         auto &registry = get_component_registry()[name];
+        registry.data_type = get_registered_cpp_type_name<StorageType>();
 
         // Register Getter
         registry.getter = [component_name = name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
@@ -277,6 +304,7 @@ namespace stagehand {
         std::string path;
         std::string namespace_path;
         std::string module_path;
+        std::string component_data_type;
         bool is_component = false;
         bool is_prefab = false;
         bool is_system = false;

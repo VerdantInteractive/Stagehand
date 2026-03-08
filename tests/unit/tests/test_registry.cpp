@@ -270,6 +270,7 @@ TEST_F(RegistryFixture, CollectRegisteredEntitiesIncludesKindNamespaceAndHandleM
     EXPECT_FALSE(component->is_prefab);
     EXPECT_FALSE(component->is_system);
     EXPECT_EQ(component->namespace_path, "test_registry");
+    EXPECT_EQ(component->component_data_type, "struct");
     EXPECT_GT(component->component_size, 0u);
     EXPECT_GT(component->id, 0u);
 
@@ -288,6 +289,15 @@ TEST_F(RegistryFixture, CollectRegisteredEntitiesIncludesKindNamespaceAndHandleM
     EXPECT_FALSE(system->is_component);
     EXPECT_EQ(system->namespace_path, "test_registry");
     EXPECT_GT(system->id, 0u);
+}
+
+TEST_F(RegistryFixture, CollectRegisteredEntitiesIncludesRegisteredComponentCppDataType) {
+    const std::vector<stagehand::RegisteredEntityInfo> entries = stagehand::collect_registered_entities(world);
+    const stagehand::RegisteredEntityInfo *component = find_registered_entity(entries, "test_registry::RegistryProbe");
+
+    ASSERT_NE(component, nullptr);
+    EXPECT_TRUE(component->is_component);
+    EXPECT_EQ(component->component_data_type, "int32_t");
 }
 
 TEST_F(RegistryFixture, CollectRegisteredEntitiesPreservesModulePathForModuleScopedEntries) {

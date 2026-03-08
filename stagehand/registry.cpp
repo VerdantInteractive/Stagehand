@@ -159,6 +159,7 @@ namespace stagehand {
         entry["path"] = godot::String(info.path.c_str());
         entry["namespace"] = godot::String(info.namespace_path.c_str());
         entry["module"] = godot::String(info.module_path.c_str());
+        entry["data_type"] = godot::String(info.component_data_type.c_str());
 
         entry["is_component"] = info.is_component;
         entry["is_prefab"] = info.is_prefab;
@@ -185,6 +186,8 @@ namespace stagehand {
 
     std::vector<RegisteredEntityInfo> collect_registered_entities(flecs::world &world, const bool include_flecs_builtin) {
         std::unordered_map<flecs::entity_t, RegisteredEntityInfo> entries;
+        const std::unordered_map<std::string, ComponentFunctions> &component_registry = get_component_registry();
+
         const flecs::entity change_detection_tag_trait = world.lookup("stagehand::IsChangeDetectionTag");
 
         world.each<flecs::Component>([&entries, change_detection_tag_trait](flecs::entity entity, const flecs::Component &component_info) {
@@ -225,6 +228,24 @@ namespace stagehand {
             entry.name = entity.name().c_str() ? std::string(entity.name().c_str()) : entry.path;
             entry.namespace_path = get_namespace_from_path(entry.path);
             entry.module_path = find_module_path(entity);
+
+            if (entry.is_component) {
+                const auto by_path_it = component_registry.find(entry.path);
+                if (by_path_it != component_registry.end() && !by_path_it->second.data_type.empty()) {
+                    entry.component_data_type = by_path_it->second.data_type;
+                } else {
+                    const auto by_name_it = component_registry.find(entry.name);
+                    if (by_name_it != component_registry.end() && !by_name_it->second.data_type.empty()) {
+                        entry.component_data_type = by_name_it->second.data_type;
+                    } else {
+                        entry.component_data_type = "struct";
+                    }
+                }
+            }
+
+            if (entry.is_component && entry.component_data_type.empty()) {
+                entry.component_data_type = "struct";
+            }
 
             if (should_exclude_flecs_builtin(entry.path, entry.module_path, include_flecs_builtin)) {
                 continue;

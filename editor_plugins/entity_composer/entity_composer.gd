@@ -489,6 +489,7 @@ func _add_component_to_node(graph_node: GraphNode, component_name: String, focus
 	var display_name = component_name
 	if ECS.SCHEMA.components.has(component_name):
 		var info = ECS.SCHEMA.components[component_name]
+		hbox.tooltip_text = info.get("data_type", component_name)
 		var ns = info.get("namespace", "")
 		if not ns.is_empty():
 			display_name = display_name.substr(ns.length() + 2)
@@ -513,9 +514,9 @@ func _add_component_to_node(graph_node: GraphNode, component_name: String, focus
 			_undo_redo.commit_action()
 
 	if focus_edit:
-		name_control = _create_editable_edit(display_name, display_name, on_name_change)
+		name_control = _create_editable_edit(display_name, display_name, on_name_change, "main", true)
 	else:
-		name_control = _create_editable_label(display_name, on_name_change)
+		name_control = _create_editable_label(display_name, on_name_change, "main")
 	name_control.set_meta("is_component_name", true)
 	hbox.add_child(name_control)
 	
@@ -539,13 +540,24 @@ func _add_component_to_node(graph_node: GraphNode, component_name: String, focus
 		name_control.grab_focus()
 		name_control.select_all()
 
-func _create_editable_edit(text: String, revert_text: String, on_change: Callable = Callable()) -> LineEdit:
+func _create_editable_edit(text: String, revert_text: String, on_change: Callable = Callable(), font_style: String = "bold", restrict_alphanumeric: bool = false) -> LineEdit:
 	var name_edit = LineEdit.new()
 	name_edit.text = text
 	name_edit.max_length = TITLE_LENGTH_LIMIT
 	name_edit.size_flags_horizontal = Control.SIZE_EXPAND
-	name_edit.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("source", "EditorFonts"))
+	name_edit.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font(font_style, "EditorFonts"))
 	
+	if restrict_alphanumeric:
+		var regex = RegEx.new()
+		regex.compile("[^a-zA-Z0-9_]")
+		name_edit.text_changed.connect(func(new_text):
+			var filtered_text = regex.sub(new_text, "", true)
+			if new_text != filtered_text:
+				var caret = name_edit.caret_column
+				name_edit.text = filtered_text
+				name_edit.caret_column = min(caret, filtered_text.length())
+		)
+
 	var commit = func(new_text: String):
 		_replace_edit_with_label.call_deferred(name_edit, new_text, on_change)
 		if on_change.is_valid():
@@ -559,11 +571,11 @@ func _create_editable_edit(text: String, revert_text: String, on_change: Callabl
 	)
 	return name_edit
 
-func _create_editable_label(text: String, on_change: Callable = Callable()) -> Label:
+func _create_editable_label(text: String, on_change: Callable = Callable(), font_style: String = "bold") -> Label:
 	var label = Label.new()
 	label.text = text
 	label.size_flags_horizontal = Control.SIZE_EXPAND
-	label.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("source", "EditorFonts"))
+	label.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font(font_style, "EditorFonts"))
 	label.mouse_filter = Control.MOUSE_FILTER_STOP
 	label.gui_input.connect(func(event):
 		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
@@ -579,7 +591,11 @@ func _replace_label_with_edit(label: Label, on_change: Callable) -> void:
 	var text = label.text
 	var idx = label.get_index()
 	
-	var name_edit = _create_editable_edit(text, text, on_change)
+	var font_style = "bold"
+	if label.has_meta("is_component_name"):
+		font_style = "main"
+	
+	var name_edit = _create_editable_edit(text, text, on_change, font_style, label.has_meta("is_component_name") or label.has_meta("is_title"))
 	# Copy metadata if any (like is_title or is_component_name)
 	if label.has_meta("is_title"): name_edit.set_meta("is_title", true)
 	if label.has_meta("is_component_name"): name_edit.set_meta("is_component_name", true)
@@ -598,7 +614,11 @@ func _replace_edit_with_label(edit: LineEdit, text: String, on_change: Callable)
 	var parent = edit.get_parent()
 	if not parent: return
 	
-	var label = _create_editable_label(text, on_change)
+	var font_style = "bold"
+	if edit.has_meta("is_component_name"):
+		font_style = "main"
+	
+	var label = _create_editable_label(text, on_change, font_style)
 	# Copy metadata
 	if edit.has_meta("is_title"): label.set_meta("is_title", true)
 	if edit.has_meta("is_component_name"): label.set_meta("is_component_name", true)
@@ -721,6 +741,8 @@ func _set_node_title(node: GraphNode, new_title: String) -> void:
 func _set_component_name(hbox: HBoxContainer, new_name: String) -> void:
 	hbox.set_meta("component_name", new_name)
 	hbox.tooltip_text = new_name
+	if ECS.SCHEMA.components.has(new_name):
+		hbox.tooltip_text = ECS.SCHEMA.components[new_name].get("data_type", new_name)
 	for child in hbox.get_children():
 		if (child is Label or child is LineEdit) and child.has_meta("is_component_name"):
 			child.text = new_name
