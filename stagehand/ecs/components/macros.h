@@ -126,7 +126,7 @@ using std::uint8_t;
 #define TAG(Name)                                                                                                                                              \
     struct Name {};                                                                                                                                            \
     inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) { world.component<Name>(); })
-
+// Change detection doesn't apply to tags
 #define TAG_(Name) TAG(Name)
 
 /// Macro that defines an enum component wrapper.

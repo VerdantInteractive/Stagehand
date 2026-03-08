@@ -280,7 +280,7 @@ namespace stagehand {
         bool is_component = false;
         bool is_prefab = false;
         bool is_system = false;
-        bool is_tag = false;
+        bool is_change_detection_tag = false;
         size_t component_size = 0;
         size_t component_alignment = 0;
     };

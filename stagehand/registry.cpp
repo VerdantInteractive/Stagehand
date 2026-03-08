@@ -163,7 +163,7 @@ namespace stagehand {
         entry["is_component"] = info.is_component;
         entry["is_prefab"] = info.is_prefab;
         entry["is_system"] = info.is_system;
-        entry["is_tag"] = info.is_tag;
+        entry["is_change_detection_tag"] = info.is_change_detection_tag;
 
         entry["component_size"] = static_cast<uint64_t>(info.component_size);
         entry["component_alignment"] = static_cast<uint64_t>(info.component_alignment);
@@ -185,14 +185,15 @@ namespace stagehand {
 
     std::vector<RegisteredEntityInfo> collect_registered_entities(flecs::world &world, const bool include_flecs_builtin) {
         std::unordered_map<flecs::entity_t, RegisteredEntityInfo> entries;
+        const flecs::entity change_detection_tag_trait = world.lookup("stagehand::IsChangeDetectionTag");
 
-        world.each<flecs::Component>([&entries](flecs::entity entity, const flecs::Component &component_info) {
+        world.each<flecs::Component>([&entries, change_detection_tag_trait](flecs::entity entity, const flecs::Component &component_info) {
             RegisteredEntityInfo &entry = entries[entity.id()];
             entry.id = entity.id();
             entry.is_component = true;
             entry.component_size = component_info.size;
             entry.component_alignment = component_info.alignment;
-            entry.is_tag = component_info.size == 0;
+            entry.is_change_detection_tag = change_detection_tag_trait.is_valid() && entity.has(change_detection_tag_trait);
         });
 
         world.each(flecs::Prefab, [&entries](flecs::entity entity) {

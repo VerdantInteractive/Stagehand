@@ -302,8 +302,8 @@ namespace {
             output += entry.is_prefab ? "true" : "false";
             output += ", \"is_system\": ";
             output += entry.is_system ? "true" : "false";
-            output += ", \"is_tag\": ";
-            output += entry.is_tag ? "true" : "false";
+            output += ", \"is_change_detection_tag\": ";
+            output += entry.is_change_detection_tag ? "true" : "false";
             output += ", \"component_size\": ";
             output += std::to_string(entry.component_size);
             output += ", \"component_alignment\": ";

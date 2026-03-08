@@ -210,6 +210,12 @@ namespace {
         int value = 0;
     };
 
+    struct ChangeTrackedComponent {
+        int value = 0;
+    };
+
+    struct ChangeTrackedComponentTag {};
+
     const stagehand::RegisteredEntityInfo *find_registered_entity(const std::vector<stagehand::RegisteredEntityInfo> &entries, const char *path) {
         auto iterator = std::find_if(entries.begin(), entries.end(), [path](const stagehand::RegisteredEntityInfo &entry) { return entry.path == path; });
         if (iterator == entries.end()) {
@@ -299,6 +305,30 @@ TEST_F(RegistryFixture, CollectRegisteredEntitiesPreservesModulePathForModuleSco
     EXPECT_TRUE(component->is_component);
     EXPECT_EQ(component->module_path, "test_registry::module");
     EXPECT_EQ(component->namespace_path, "test_registry::module");
+}
+
+TEST_F(RegistryFixture, CollectRegisteredEntitiesSetsChangeDetectionTagMetadataFromTrait) {
+    stagehand::register_callback([](flecs::world &w) {
+        w.component<ChangeTrackedComponent>("test_registry::ChangeTrackedComponent").member<int>("value");
+        flecs::entity change_tracked_tag = w.component<ChangeTrackedComponentTag>("test_registry::ChangeTrackedComponentTag");
+
+        const flecs::entity trait = w.lookup("stagehand::IsChangeDetectionTag");
+        ASSERT_TRUE(trait.is_valid());
+        change_tracked_tag.add(trait);
+    });
+
+    flecs::world w2;
+    stagehand::register_components_and_systems_with_world(w2);
+
+    const std::vector<stagehand::RegisteredEntityInfo> entries = stagehand::collect_registered_entities(w2);
+
+    const stagehand::RegisteredEntityInfo *component = find_registered_entity(entries, "test_registry::ChangeTrackedComponent");
+    ASSERT_NE(component, nullptr);
+    EXPECT_FALSE(component->is_change_detection_tag);
+
+    const stagehand::RegisteredEntityInfo *change_tag_component = find_registered_entity(entries, "test_registry::ChangeTrackedComponentTag");
+    ASSERT_NE(change_tag_component, nullptr);
+    EXPECT_TRUE(change_tag_component->is_change_detection_tag);
 }
 
 TEST_F(RegistryFixture, ModuleCallbackMetadataApiReportsRegisteredModulesSortedAndUnique) {
