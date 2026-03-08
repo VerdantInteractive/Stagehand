@@ -15,10 +15,7 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="Stagehand Demos"
-config/description="Stagehand demos including Surwave game.
-Made for the Game Off 2025 jam. Surwave © 2025 Verdant Interactive
-"
-config/version="1.0.3"
+config/version="1.0.0"
 run/main_scene="uid://1f0s78v8ooax"
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0.23137255, 0.023529412, 0.22745098, 1)

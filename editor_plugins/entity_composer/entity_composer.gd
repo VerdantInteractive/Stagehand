@@ -351,7 +351,10 @@ func _show_component_selector(graph_node: GraphNode, button: Button = null) -> v
 		comps.sort()
 		if comps is PackedStringArray or comps is Array:
 			for comp_name in comps:
-				popup.add_item(comp_name, idx)
+				var display_name = comp_name
+				if not ns.is_empty() and display_name.begins_with(ns):
+					display_name = display_name.substr(ns.length() + 2)
+				popup.add_item(display_name, idx)
 				flat_list.append(comp_name)
 				idx += 1
 	
@@ -475,7 +478,13 @@ func _add_component_to_node(graph_node: GraphNode, component_name: String) -> vo
 	hbox.name = component_name
 	
 	var label = Label.new()
-	label.text = component_name
+	var display_name = component_name
+	if ECS.SCHEMA.components.has(component_name):
+		var info = ECS.SCHEMA.components[component_name]
+		var ns = info.get("namespace", "")
+		if not ns.is_empty():
+			display_name = display_name.substr(ns.length() + 2)
+	label.text = display_name
 	label.size_flags_horizontal = Control.SIZE_EXPAND
 	hbox.add_child(label)
 	
