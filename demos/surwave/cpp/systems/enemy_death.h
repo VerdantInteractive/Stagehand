@@ -40,11 +40,11 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                 flecs::field<const Position2D> positions = it.field<const Position2D>(6);
 
                 const EnemyAnimationSettings *animation_settings = &animation_settings_field[0];
-                const godot::real_t death_animation_duration = animation_settings->animation_interval * animation_settings->death_animation_frame_count;
-                const godot::real_t invulnerable_hit_points = kEnemyDeathInvulnerableHitPoints;
+                const float death_animation_duration = animation_settings->animation_interval * animation_settings->death_animation_frame_count;
+                const float invulnerable_hit_points = kEnemyDeathInvulnerableHitPoints;
 
                 for (auto entity_index : it) {
-                    if (hit_points[entity_index].value > godot::real_t(0.0)) {
+                    if (hit_points[entity_index].value > 0.0f) {
                         continue;
                     }
 
@@ -61,8 +61,8 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
 
                     hit_points[entity_index].value = invulnerable_hit_points;
                     death_timer[entity_index].value = death_animation_duration;
-                    melee_damage[entity_index].value = godot::real_t(0.0);
-                    movement_speed[entity_index].value = godot::real_t(0.0);
+                    melee_damage[entity_index].value = 0.0f;
+                    movement_speed[entity_index].value = 0.0f;
                     velocities[entity_index] = godot::Vector2(0.0f, 0.0f);
                 }
             }

@@ -14,13 +14,11 @@ namespace enemy_spatial_hash {
         std::int32_t x;
         std::int32_t y;
 
-        bool operator==(const GridCellKey& other) const {
-            return x == other.x && y == other.y;
-        }
+        bool operator==(const GridCellKey &other) const { return x == other.x && y == other.y; }
     };
 
     struct GridCellKeyHasher {
-        std::size_t operator()(const GridCellKey& key) const {
+        std::size_t operator()(const GridCellKey &key) const {
             const std::uint64_t packed_x = static_cast<std::uint64_t>(static_cast<std::uint32_t>(key.x));
             const std::uint64_t packed_y = static_cast<std::uint64_t>(static_cast<std::uint32_t>(key.y));
             return static_cast<std::size_t>((packed_x << 32U) ^ packed_y);
@@ -30,19 +28,18 @@ namespace enemy_spatial_hash {
     using CellOccupants = std::vector<std::int32_t>;
     using SpatialHash = std::unordered_map<GridCellKey, CellOccupants, GridCellKeyHasher>;
 
-    inline GridCellKey make_key(const godot::Vector2& position, godot::real_t cell_size) {
-        const godot::real_t cell_x = godot::Math::floor(position.x / cell_size);
-        const godot::real_t cell_y = godot::Math::floor(position.y / cell_size);
-        return GridCellKey{ static_cast<std::int32_t>(cell_x), static_cast<std::int32_t>(cell_y) };
+    inline GridCellKey make_key(const godot::Vector2 &position, float cell_size) {
+        const float cell_x = godot::Math::floor(position.x / cell_size);
+        const float cell_y = godot::Math::floor(position.y / cell_size);
+        return GridCellKey{static_cast<std::int32_t>(cell_x), static_cast<std::int32_t>(cell_y)};
     }
 
     template <typename PositionAccessor>
-    inline void populate_spatial_hash(
-        std::int32_t entity_count,
-        godot::real_t cell_size,
-        const PositionAccessor& position_accessor,
-        std::vector<GridCellKey>& entity_cells,
-        SpatialHash& spatial_hash) {
+    inline void populate_spatial_hash(std::int32_t entity_count,
+                                      float cell_size,
+                                      const PositionAccessor &position_accessor,
+                                      std::vector<GridCellKey> &entity_cells,
+                                      SpatialHash &spatial_hash) {
 
         const std::size_t required_size = static_cast<std::size_t>(entity_count);
         entity_cells.clear();

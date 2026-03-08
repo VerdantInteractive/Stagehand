@@ -5,5 +5,5 @@
 #include <godot_cpp/core/math_defs.hpp>
 
 namespace stagehand_demos::surwave {
-    inline constexpr godot::real_t kEnemyDeathInvulnerableHitPoints = std::numeric_limits<godot::real_t>::max();
+    inline constexpr float kEnemyDeathInvulnerableHitPoints = std::numeric_limits<float>::max();
 }

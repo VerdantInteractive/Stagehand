@@ -15,16 +15,16 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
     EnemyPrefab = world.prefab("Enemy")
                       .is_a(Character2DPrefab)
-                      .set<HitPoints>({godot::real_t(10.0)})
-                      .set<HitRadius>({godot::real_t(14.0)})
-                      .set<MeleeDamage>({godot::real_t(10.0)})
-                      .set<MovementSpeed>({godot::real_t(9.0)})
-                      .set<AnimationFrameOffset>({godot::real_t(0.0)})
-                      .set<DeathTimer>({godot::real_t(0.0)})
-                      .set<HitReactionTimer>({godot::real_t(0.0)})
-                      .set<HFlipTimer>({godot::real_t(0.5)})
-                      .set<VFlipTimer>({godot::real_t(0.5)})
-                      .set<ProjectileHitTimeout>({godot::real_t(0.0)})
-                      .set<ShockwaveHitTimeout>({godot::real_t(0.0)});
+                      .set<HitPoints>({10.0f})
+                      .set<HitRadius>({14.0f})
+                      .set<MeleeDamage>({10.0f})
+                      .set<MovementSpeed>({9.0f})
+                      .set<AnimationFrameOffset>({0.0f})
+                      .set<DeathTimer>({0.0f})
+                      .set<HitReactionTimer>({0.0f})
+                      .set<HFlipTimer>({0.5f})
+                      .set<VFlipTimer>({0.5f})
+                      .set<ProjectileHitTimeout>({0.0f})
+                      .set<ShockwaveHitTimeout>({0.0f});
     // clang-format on
 });

@@ -19,36 +19,33 @@ using RenderingCustomData = stagehand::rendering::CustomData;
 
 namespace enemy_animation {
 
-    inline bool try_get_previous_walk_orientation(const RenderingCustomData &custom_data,
-                                                  godot::real_t base_offset,
-                                                  godot::real_t walk_animation_range,
-                                                  godot::real_t up_direction_frame_offset,
-                                                  bool &is_facing_up) {
-        const godot::real_t stored_walk_animation_range = godot::Math::floor(godot::Math::abs(custom_data.y));
+    inline bool try_get_previous_walk_orientation(
+        const RenderingCustomData &custom_data, float base_offset, float walk_animation_range, float up_direction_frame_offset, bool &is_facing_up) {
+        const float stored_walk_animation_range = godot::Math::floor(godot::Math::abs(custom_data.y));
         if (!godot::Math::is_equal_approx(stored_walk_animation_range, walk_animation_range)) {
             return false;
         }
 
-        if (up_direction_frame_offset <= godot::real_t(0.0)) {
+        if (up_direction_frame_offset <= 0.0f) {
             is_facing_up = false;
             return true;
         }
 
-        const godot::real_t stored_walk_offset = static_cast<godot::real_t>(custom_data.x) - base_offset - godot::real_t(12.0);
-        const godot::real_t threshold = up_direction_frame_offset * godot::real_t(0.5);
+        const float stored_walk_offset = static_cast<float>(custom_data.x) - base_offset - 12.0f;
+        const float threshold = up_direction_frame_offset * 0.5f;
         is_facing_up = stored_walk_offset > threshold;
         return true;
     }
 
-    inline godot::real_t compute_entity_animation_offset_fraction(flecs::entity entity_handle, godot::real_t offset_range) {
-        if (offset_range <= godot::real_t(0.0)) {
-            return godot::real_t(0.0);
+    inline float compute_entity_animation_offset_fraction(flecs::entity entity_handle, float offset_range) {
+        if (offset_range <= 0.0f) {
+            return 0.0f;
         }
 
         const std::uint64_t entity_identifier = entity_handle.id();
         std::uint32_t seeded_value = static_cast<std::uint32_t>(entity_identifier) ^ static_cast<std::uint32_t>(entity_identifier >> 32U);
         seeded_value = seeded_value * 1664525U + 1013904223U;
-        const godot::real_t normalized_value = static_cast<godot::real_t>(seeded_value & 0x00FFFFFFU) / static_cast<godot::real_t>(16777215.0);
+        const float normalized_value = static_cast<float>(seeded_value & 0x00FFFFFFU) / static_cast<float>(16777215.0);
         return (normalized_value * 2.0f - 1.0f) * offset_range;
     }
 
@@ -90,36 +87,36 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                 flecs::field<const HitReactionTimer> hit_reaction_timers = it.field<const HitReactionTimer>(9);
 
                 const EnemyAnimationSettings *animation_settings = &animation_settings_field[0];
-                const godot::real_t animation_interval = animation_settings->animation_interval;
-                const godot::real_t animation_speed = animation_interval > 0.0 ? godot::real_t(1.0) / animation_interval : godot::real_t(0.0);
-                const godot::real_t animation_range = animation_settings->walk_animation_range;
-                const godot::real_t death_animation_frame_count = animation_settings->death_animation_frame_count;
-                const godot::real_t death_animation_range = death_animation_frame_count - godot::real_t(1.0);
-                const godot::real_t frame_interval = animation_interval > 0.0 ? animation_interval : godot::real_t(0.001);
-                const godot::real_t up_direction_frame_offset = animation_settings->up_direction_frame_offset;
-                const godot::real_t horizontal_flip_cooldown = godot::Math::max(animation_settings->horizontal_flip_cooldown, godot::real_t(0.0));
-                const godot::real_t vertical_flip_cooldown = godot::Math::max(animation_settings->vertical_flip_cooldown, godot::real_t(0.0));
-                const godot::real_t nominal_movement_speed = animation_settings->nominal_movement_speed;
-                const godot::real_t animation_offset_fraction_range = godot::Math::max(animation_settings->animation_offset_fraction_range, godot::real_t(0.0));
+                const float animation_interval = animation_settings->animation_interval;
+                const float animation_speed = animation_interval > 0.0f ? 1.0f / animation_interval : 0.0f;
+                const float animation_range = animation_settings->walk_animation_range;
+                const float death_animation_frame_count = animation_settings->death_animation_frame_count;
+                const float death_animation_range = death_animation_frame_count - 1.0f;
+                const float frame_interval = animation_interval > 0.0f ? animation_interval : 0.001f;
+                const float up_direction_frame_offset = animation_settings->up_direction_frame_offset;
+                const float horizontal_flip_cooldown = godot::Math::max(animation_settings->horizontal_flip_cooldown, 0.0f);
+                const float vertical_flip_cooldown = godot::Math::max(animation_settings->vertical_flip_cooldown, 0.0f);
+                const float nominal_movement_speed = animation_settings->nominal_movement_speed;
+                const float animation_offset_fraction_range = godot::Math::max(animation_settings->animation_offset_fraction_range, 0.0f);
 
                 const size_t count = it.count();
                 for (size_t i = 0; i < count; ++i) {
                     const godot::Vector2 velocity_value = velocities[i];
-                    const bool wants_vertical_up = velocity_value.y < godot::real_t(0.0);
-                    const bool wants_horizontal_flip = velocity_value.x < godot::real_t(0.0);
-                    const godot::real_t movement_speed_value = movement_speeds[i].value;
-                    const godot::real_t speed_scale = nominal_movement_speed > 0.0 ? movement_speed_value / nominal_movement_speed : godot::real_t(0.0);
-                    const bool has_positive_speed_scale = speed_scale > godot::real_t(0.0);
-                    const godot::real_t scaled_animation_speed = has_positive_speed_scale ? animation_speed * speed_scale : godot::real_t(0.0);
-                    const godot::real_t scaled_frame_interval = has_positive_speed_scale ? frame_interval / speed_scale : frame_interval;
+                    const bool wants_vertical_up = velocity_value.y < 0.0f;
+                    const bool wants_horizontal_flip = velocity_value.x < 0.0f;
+                    const float movement_speed_value = movement_speeds[i].value;
+                    const float speed_scale = nominal_movement_speed > 0.0f ? movement_speed_value / nominal_movement_speed : 0.0f;
+                    const bool has_positive_speed_scale = speed_scale > 0.0f;
+                    const float scaled_animation_speed = has_positive_speed_scale ? animation_speed * speed_scale : 0.0f;
+                    const float scaled_frame_interval = has_positive_speed_scale ? frame_interval / speed_scale : frame_interval;
 
-                    const godot::real_t death_timer_value = death_timer[i].value;
-                    const godot::real_t hit_points_value = hit_points[i].value;
-                    const godot::real_t base_offset = frame_offsets[i].value;
+                    const float death_timer_value = death_timer[i].value;
+                    const float hit_points_value = hit_points[i].value;
+                    const float base_offset = frame_offsets[i].value;
                     const bool has_invulnerable_hit_points = hit_points_value >= kEnemyDeathInvulnerableHitPoints;
-                    const bool is_dying_state = death_timer_value > godot::real_t(0.0) || has_invulnerable_hit_points;
-                    const godot::real_t hit_reaction_time_remaining = hit_reaction_timers[i].value;
-                    const bool is_hit_reacting = !is_dying_state && hit_reaction_time_remaining > godot::real_t(0.0);
+                    const bool is_dying_state = death_timer_value > 0.0f || has_invulnerable_hit_points;
+                    const float hit_reaction_time_remaining = hit_reaction_timers[i].value;
+                    const bool is_hit_reacting = !is_dying_state && hit_reaction_time_remaining > 0.0f;
 
                     RenderingCustomData &custom_data = custom_data_field[i];
                     HFlipTimer &horizontal_timer = horizontal_flip_timers[i];
@@ -128,12 +125,12 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                     uint32_t animation_flags = static_cast<uint32_t>(custom_data.w);
                     bool current_horizontal_flip = (animation_flags & 1U) != 0U;
 
-                    if (horizontal_flip_cooldown <= godot::real_t(0.0)) {
+                    if (horizontal_flip_cooldown <= 0.0f) {
                         current_horizontal_flip = wants_horizontal_flip;
-                        horizontal_timer.value = godot::real_t(0.0);
+                        horizontal_timer.value = 0.0f;
                     } else if (wants_horizontal_flip != current_horizontal_flip && horizontal_timer.value >= horizontal_flip_cooldown) {
                         current_horizontal_flip = wants_horizontal_flip;
-                        horizontal_timer.value = godot::real_t(0.0);
+                        horizontal_timer.value = 0.0f;
                     }
 
                     bool resolved_vertical_up = wants_vertical_up;
@@ -145,40 +142,39 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                         }
 
                         resolved_vertical_up = previous_vertical_up;
-                        if (vertical_flip_cooldown <= godot::real_t(0.0)) {
+                        if (vertical_flip_cooldown <= 0.0f) {
                             resolved_vertical_up = wants_vertical_up;
-                            vertical_timer.value = godot::real_t(0.0);
+                            vertical_timer.value = 0.0f;
                         } else if (wants_vertical_up != previous_vertical_up && vertical_timer.value >= vertical_flip_cooldown) {
                             resolved_vertical_up = wants_vertical_up;
-                            vertical_timer.value = godot::real_t(0.0);
+                            vertical_timer.value = 0.0f;
                         }
                     }
 
-                    const godot::real_t walk_directional_offset =
-                        (resolved_vertical_up ? godot::real_t(1.0) : godot::real_t(0.0)) * up_direction_frame_offset + godot::real_t(12.0);
-                    const godot::real_t death_directional_offset = (resolved_vertical_up ? godot::real_t(1.0) : godot::real_t(0.0)) * up_direction_frame_offset;
+                    const float walk_directional_offset = (resolved_vertical_up ? 1.0f : 0.0f) * up_direction_frame_offset + 12.0f;
+                    const float death_directional_offset = (resolved_vertical_up ? 1.0f : 0.0f) * up_direction_frame_offset;
 
                     if (is_hit_reacting) {
                         custom_data.x = static_cast<float>(base_offset + death_directional_offset);
                         custom_data.y = 0.0f;
                         custom_data.z = 0.0f;
                     } else if (is_dying_state) {
-                        const godot::real_t timer_for_frame_selection = godot::Math::max(death_timer_value, godot::real_t(0.0));
-                        const godot::real_t frames_remaining = godot::Math::ceil(timer_for_frame_selection / scaled_frame_interval);
-                        const godot::real_t frames_elapsed = death_animation_frame_count - frames_remaining;
-                        const godot::real_t clamped_frames_elapsed = godot::Math::clamp(frames_elapsed, godot::real_t(0.0), death_animation_range);
-                        const godot::real_t clamped_frame_offset = godot::Math::floor(clamped_frames_elapsed);
+                        const float timer_for_frame_selection = godot::Math::max(death_timer_value, 0.0f);
+                        const float frames_remaining = godot::Math::ceil(timer_for_frame_selection / scaled_frame_interval);
+                        const float frames_elapsed = death_animation_frame_count - frames_remaining;
+                        const float clamped_frames_elapsed = godot::Math::clamp(frames_elapsed, 0.0f, death_animation_range);
+                        const float clamped_frame_offset = godot::Math::floor(clamped_frames_elapsed);
                         custom_data.x = static_cast<float>(base_offset + death_directional_offset + clamped_frame_offset);
                         custom_data.y = 0.0f;
                         custom_data.z = 0.0f;
                     } else {
-                        godot::real_t animation_time_offset_fraction = godot::real_t(0.0);
-                        if (animation_offset_fraction_range > godot::real_t(0.0)) {
+                        float animation_time_offset_fraction = 0.0f;
+                        if (animation_offset_fraction_range > 0.0f) {
                             const flecs::entity entity_handle = it.entity(static_cast<std::int32_t>(i));
                             animation_time_offset_fraction =
                                 enemy_animation::compute_entity_animation_offset_fraction(entity_handle, animation_offset_fraction_range);
                         }
-                        const godot::real_t encoded_animation_range = animation_time_offset_fraction < godot::real_t(0.0) ? -animation_range : animation_range;
+                        const float encoded_animation_range = animation_time_offset_fraction < 0.0f ? -animation_range : animation_range;
                         custom_data.x = static_cast<float>(base_offset + walk_directional_offset);
                         custom_data.y = static_cast<float>(encoded_animation_range + animation_time_offset_fraction);
                         custom_data.z = static_cast<float>(scaled_animation_speed);

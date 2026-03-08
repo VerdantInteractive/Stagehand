@@ -36,26 +36,26 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                 const PlayerPosition *player_position = &player_position_field[0];
                 const PlayerTakeDamageSettings *damage_settings = &damage_settings_field[0];
 
-                const godot::real_t cooldown = godot::Math::max(damage_settings->damage_cooldown, godot::real_t(0.0));
-                const bool can_take_damage = cooldown <= godot::real_t(0.0) || player_damage_cooldown->value >= cooldown;
+                const float cooldown = godot::Math::max(damage_settings->damage_cooldown, 0.0f);
+                const bool can_take_damage = cooldown <= 0.0f || player_damage_cooldown->value >= cooldown;
                 if (!can_take_damage) {
                     return;
                 }
 
-                const godot::real_t player_hit_radius = godot::Math::max(damage_settings->player_hit_radius, godot::real_t(1.0));
+                const float player_hit_radius = godot::Math::max(damage_settings->player_hit_radius, 1.0f);
                 const godot::Vector2 player_position_value = *player_position;
                 for (auto entity_index : it) {
                     const godot::Vector2 enemy_position = positions[entity_index];
                     const godot::Vector2 delta = player_position_value - enemy_position;
-                    const godot::real_t distance_squared = delta.length_squared();
-                    const godot::real_t contact_radius = player_hit_radius;
-                    const godot::real_t contact_radius_squared = contact_radius * contact_radius;
+                    const float distance_squared = delta.length_squared();
+                    const float contact_radius = player_hit_radius;
+                    const float contact_radius_squared = contact_radius * contact_radius;
                     if (distance_squared > contact_radius_squared) {
                         continue;
                     }
 
-                    const godot::real_t damage_amount = godot::Math::max(melee_damages[entity_index].value, godot::real_t(0.0));
-                    if (damage_amount <= godot::real_t(0.0)) {
+                    const float damage_amount = godot::Math::max(melee_damages[entity_index].value, 0.0f);
+                    if (damage_amount <= 0.0f) {
                         continue;
                     }
 
@@ -69,7 +69,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                     payload.data = signal_data;
                     stagehand::emit_signal(it, entity_index, payload);
 
-                    player_damage_cooldown->value = godot::real_t(0.0);
+                    player_damage_cooldown->value = 0.0f;
                     return;
                 }
             }

@@ -28,7 +28,7 @@ namespace enemy_movement {
         flecs::entity_t entity_id;
         godot::Vector2 *position;
         godot::Vector2 *velocity;
-        godot::real_t max_speed;
+        float max_speed;
     };
 
     struct KdTreeCache {
@@ -44,8 +44,8 @@ namespace enemy_movement {
         return cache;
     }
 
-    inline godot::Vector2 steer_towards(const godot::Vector2 &desired_direction, const godot::Vector2 &current_velocity, godot::real_t max_speed) {
-        const godot::real_t desired_length_sq = desired_direction.length_squared();
+    inline godot::Vector2 steer_towards(const godot::Vector2 &desired_direction, const godot::Vector2 &current_velocity, float max_speed) {
+        const float desired_length_sq = desired_direction.length_squared();
         if (desired_length_sq == 0.0f) {
             return godot::Vector2(0.0f, 0.0f);
         }
@@ -54,12 +54,12 @@ namespace enemy_movement {
         return desired_velocity - current_velocity;
     }
 
-    inline godot::Vector2 limit_vector_squared(const godot::Vector2 &value, godot::real_t max_length_sq) {
+    inline godot::Vector2 limit_vector_squared(const godot::Vector2 &value, float max_length_sq) {
         if (max_length_sq <= 0.0f) {
             return godot::Vector2(0.0f, 0.0f);
         }
 
-        const godot::real_t current_length_sq = value.length_squared();
+        const float current_length_sq = value.length_squared();
         if (current_length_sq <= max_length_sq) {
             return value;
         }
@@ -85,7 +85,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
             const std::size_t suggested_capacity = kd_cache.cached_count > 0 ? kd_cache.cached_count : static_cast<std::size_t>(256U);
             boids.reserve(suggested_capacity);
 
-            godot::real_t delta_time = 0.0f;
+            float delta_time = 0.0f;
             bool delta_time_initialized = false;
             const PlayerPosition *player_position = nullptr;
             const EnemyBoidMovementSettings *movement_settings = nullptr;
@@ -105,7 +105,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
 
                 player_position = &player_position_field[0];
                 movement_settings = &movement_settings_field[0];
-                const godot::real_t max_speed_multiplier = movement_settings->max_speed_multiplier;
+                const float max_speed_multiplier = movement_settings->max_speed_multiplier;
 
                 for (size_t row_index = 0; row_index < it.count(); ++row_index) {
                     if (death_timers[row_index].value > 0.0f) {
@@ -130,14 +130,13 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
             std::sort(boids.begin(), boids.end(),
                       [](const enemy_movement::BoidAccessor &lhs, const enemy_movement::BoidAccessor &rhs) { return lhs.entity_id < rhs.entity_id; });
 
-            const godot::real_t player_engage_radius = movement_settings->player_engage_radius;
-            const godot::real_t player_engage_radius_sq = player_engage_radius * player_engage_radius;
-            const godot::real_t neighbor_radius_sq = movement_settings->neighbor_radius * movement_settings->neighbor_radius;
-            const godot::real_t separation_radius_sq = movement_settings->separation_radius * movement_settings->separation_radius;
-            const godot::real_t max_force = movement_settings->max_force;
-            const std::int32_t neighbor_sample_limit = movement_settings->max_neighbor_sample_count <= godot::real_t(0.0)
-                                                           ? -1
-                                                           : static_cast<std::int32_t>(movement_settings->max_neighbor_sample_count);
+            const float player_engage_radius = movement_settings->player_engage_radius;
+            const float player_engage_radius_sq = player_engage_radius * player_engage_radius;
+            const float neighbor_radius_sq = movement_settings->neighbor_radius * movement_settings->neighbor_radius;
+            const float separation_radius_sq = movement_settings->separation_radius * movement_settings->separation_radius;
+            const float max_force = movement_settings->max_force;
+            const std::int32_t neighbor_sample_limit =
+                movement_settings->max_neighbor_sample_count <= 0.0f ? -1 : static_cast<std::int32_t>(movement_settings->max_neighbor_sample_count);
 
             struct BoidPositionAccessor {
                 const std::vector<enemy_movement::BoidAccessor> *boid_array;
@@ -150,11 +149,10 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
 
             BoidPositionAccessor position_accessor{&boids};
 
-            const godot::real_t rebuild_distance = godot::Math::max(movement_settings->kd_tree_rebuild_distance, godot::real_t(0.0));
-            const godot::real_t rebuild_distance_sq = rebuild_distance * rebuild_distance;
-            const std::uint32_t stale_frame_limit = movement_settings->kd_tree_max_stale_frames <= godot::real_t(0.0)
-                                                        ? 0U
-                                                        : static_cast<std::uint32_t>(movement_settings->kd_tree_max_stale_frames);
+            const float rebuild_distance = godot::Math::max(movement_settings->kd_tree_rebuild_distance, 0.0f);
+            const float rebuild_distance_sq = rebuild_distance * rebuild_distance;
+            const std::uint32_t stale_frame_limit =
+                movement_settings->kd_tree_max_stale_frames <= 0.0f ? 0U : static_cast<std::uint32_t>(movement_settings->kd_tree_max_stale_frames);
 
             bool force_rebuild = kd_cache.tree.empty();
             force_rebuild = force_rebuild || kd_cache.cached_count != enemy_count;
@@ -170,8 +168,8 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                 }
             }
 
-            if (!force_rebuild && rebuild_distance_sq > godot::real_t(0.0) && !kd_cache.cached_positions.empty()) {
-                godot::real_t max_displacement_sq = godot::real_t(0.0);
+            if (!force_rebuild && rebuild_distance_sq > 0.0f && !kd_cache.cached_positions.empty()) {
+                float max_displacement_sq = 0.0f;
                 for (size_t index = 0; index < enemy_count; ++index) {
                     const godot::Vector2 delta = *boids[index].position - kd_cache.cached_positions[index];
                     max_displacement_sq = godot::Math::max(max_displacement_sq, delta.length_squared());
@@ -205,7 +203,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
             for (size_t entity_index = 0; entity_index < enemy_count; ++entity_index) {
                 const godot::Vector2 position_value = *boids[entity_index].position;
                 const godot::Vector2 current_velocity = *boids[entity_index].velocity;
-                const godot::real_t max_speed = boids[entity_index].max_speed;
+                const float max_speed = boids[entity_index].max_speed;
 
                 godot::Vector2 separation_sum = godot::Vector2(0.0f, 0.0f);
                 std::int32_t separation_count = 0;
@@ -214,11 +212,11 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                     const std::vector<enemy_movement::BoidAccessor> *boid_array;
                     const godot::Vector2 &origin;
                     std::size_t self_index;
-                    godot::real_t separation_radius_squared;
+                    float separation_radius_squared;
                     godot::Vector2 &separation_sum_ref;
                     std::int32_t &separation_count_ref;
 
-                    void operator()(std::int32_t other_index, const godot::Vector2 &other_position, godot::real_t distance_squared) const {
+                    void operator()(std::int32_t other_index, const godot::Vector2 &other_position, float distance_squared) const {
                         const std::size_t other_offset = static_cast<std::size_t>(other_index);
                         if (other_offset == self_index || distance_squared == 0.0f) {
                             return;
@@ -238,7 +236,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
 
                 godot::Vector2 separation_force = godot::Vector2(0.0f, 0.0f);
                 if (separation_count > 0) {
-                    const godot::Vector2 average_push = separation_sum / static_cast<godot::real_t>(separation_count);
+                    const godot::Vector2 average_push = separation_sum / static_cast<float>(separation_count);
 
                     // Add noise to break up rows/columns
                     const double noise_intensity = static_cast<double>(movement_settings->separation_noise_intensity);
@@ -250,11 +248,11 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
 
                 const godot::Vector2 player_offset = *player_position - position_value;
                 godot::Vector2 player_force = enemy_movement::steer_towards(player_offset, current_velocity, max_speed);
-                const godot::real_t distance_to_player_sq = player_offset.length_squared();
+                const float distance_to_player_sq = player_offset.length_squared();
                 if (distance_to_player_sq < player_engage_radius_sq && player_engage_radius_sq > 0.0f) {
-                    const godot::real_t distance_to_player = godot::Math::sqrt(distance_to_player_sq);
-                    const godot::real_t normalized_distance = distance_to_player / player_engage_radius;
-                    const godot::real_t slowdown_factor = godot::Math::clamp(normalized_distance, 0.2f, 1.0f);
+                    const float distance_to_player = godot::Math::sqrt(distance_to_player_sq);
+                    const float normalized_distance = distance_to_player / player_engage_radius;
+                    const float slowdown_factor = godot::Math::clamp(normalized_distance, 0.2f, 1.0f);
                     player_force *= slowdown_factor;
                 }
 
