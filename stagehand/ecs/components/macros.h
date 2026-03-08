@@ -1,8 +1,13 @@
 #pragma once
 
 #include <cstdint>
+#include <string>
+#include <type_traits>
+#include <utility>
 
 #include "stagehand/ecs/components/traits.h" // IWYU pragma: keep
+
+#include "dependencies/pfr/include/pfr.hpp"
 
 using std::int16_t;
 using std::int32_t;
@@ -10,6 +15,34 @@ using std::int8_t;
 using std::uint16_t;
 using std::uint32_t;
 using std::uint8_t;
+
+namespace stagehand::internal {
+    template <typename ComponentType, typename MemberType>
+    concept has_flecs_member_registration =
+        requires(flecs::component<ComponentType> component, const char *member_name) { component.template member<MemberType>(member_name); };
+
+    template <typename ComponentType, std::size_t Index> inline void register_reflected_struct_member_with_pfr(flecs::component<ComponentType> component) {
+        using MemberType = std::remove_cvref_t<pfr::tuple_element_t<Index, ComponentType>>;
+        if constexpr (has_flecs_member_registration<ComponentType, MemberType>) {
+            constexpr auto member_name_view = pfr::get_name<Index, ComponentType>();
+            const std::string member_name(member_name_view.data(), member_name_view.size());
+            component.template member<MemberType>(member_name.c_str());
+        }
+    }
+
+    template <typename ComponentType, std::size_t... Indices>
+    inline void register_reflected_struct_members_with_pfr_impl(flecs::component<ComponentType> component, std::index_sequence<Indices...>) {
+        // Expand over field indices so each member retains its concrete type for Flecs registration.
+        (register_reflected_struct_member_with_pfr<ComponentType, Indices>(component), ...);
+    }
+
+    template <typename ComponentType> inline void register_reflected_struct_members_with_pfr(flecs::component<ComponentType> component) {
+        if constexpr (std::is_aggregate_v<ComponentType>) {
+            constexpr std::size_t field_count = pfr::tuple_size_v<ComponentType>;
+            register_reflected_struct_members_with_pfr_impl<ComponentType>(component, std::make_index_sequence<field_count>{});
+        }
+    }
+} // namespace stagehand::internal
 
 /// Macro that defines common operators for numeric component wrappers.
 #define NUMERIC_COMPONENT_OPERATORS(Name, Type)                                                                                                                \
@@ -154,6 +187,48 @@ using std::uint8_t;
 #define ENUM__2(Name, Type) ENUM_IMPL_(Name, Type)
 #define GET_ENUM_MACRO_(_1, _2, NAME, ...) NAME
 #define ENUM_(...) GET_ENUM_MACRO_(__VA_ARGS__, ENUM__2, ENUM__1)(__VA_ARGS__)
+
+/// Macro that defines a component using an already-declared struct type.
+///
+/// Usage:
+///   struct Foo {
+///       float bar = 0.2f;
+///       int baz = -3;
+///   };
+///   STRUCT(Foo); // tracked
+///
+/// For no-change-detection components, use STRUCT_(...).
+///
+/// Notes:
+/// - Defaults are owned by the struct definition via in-struct initializers.
+/// - Aggregate fields are automatically reflected with member names via pfr.
+/// - For payload types without Godot Variant conversion support, script-facing
+///   getter/setter calls are registered but treated as opaque and emit warnings.
+#define STAGEHAND_STRUCT_COMPONENT_IMPL(Name, RegisterSuffix, ChangeTagDecl, ChangeTagAlias)                                                                   \
+    ChangeTagDecl ChangeTagAlias static_assert(std::is_object_v<Name>, "STRUCT target must be an object type");                                                \
+    static_assert(std::is_default_constructible_v<Name>, "STRUCT target must be default-constructible");                                                       \
+    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
+        e.set<Name>(value);                                                                                                                                    \
+        stagehand::internal::mark_component_changed_if_needed<Name>(e);                                                                                        \
+        return e;                                                                                                                                              \
+    }                                                                                                                                                          \
+    inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
+        flecs::component<Name> component = world.component<Name>();                                                                                            \
+        component.on_add([](Name &value) { value = Name{}; });                                                                                                 \
+        stagehand::internal::register_reflected_struct_members_with_pfr(component);                                                                            \
+        stagehand::register_component_with_world_name<Name, Name>(world, #Name);                                                                               \
+        stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
+    })
+
+#define STRUCT(Name, ...)                                                                                                                                      \
+    __VA_OPT__(struct Name __VA_ARGS__;)                                                                                                                       \
+    STAGEHAND_STRUCT_COMPONENT_IMPL(                                                                                                                           \
+        Name, struct_component, struct HasChanged##Name{};                                                                                                     \
+        , template <> struct stagehand::internal::component_change_tag<Name> { using type = HasChanged##Name; };)
+
+#define STRUCT_(Name, ...)                                                                                                                                     \
+    __VA_OPT__(struct Name __VA_ARGS__;)                                                                                                                       \
+    STAGEHAND_STRUCT_COMPONENT_IMPL(Name, struct_component_no_change, , )
 
 /// Macros that wrap various std:: container types
 /// The components work fully with Flecs ECS operations (add, remove, get, queries, systems).

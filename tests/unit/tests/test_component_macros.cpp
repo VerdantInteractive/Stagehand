@@ -81,6 +81,19 @@ namespace test_macros {
     ARRAY(TestArrayFloat, float, 3);
     ARRAY(TestArrayInt, int, 5, {10, 20, 30, 40, 50});
     ARRAY(TestArrayDouble, double, 2);
+
+    struct TestStructStats {
+        int hp = 100;
+        float speed = 1.0f;
+    };
+
+    struct TestStructStatsDefault {
+        int hp = 150;
+        float speed = 3.5f;
+    };
+
+    STRUCT(TestStructStats);
+    STRUCT(TestStructStatsDefault);
 } // namespace test_macros
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -143,6 +156,52 @@ TEST_F(MacroFixture, FloatSetterIsRegistered) {
     auto it = registry.find("TestFloat");
     ASSERT_NE(it, registry.end());
     ASSERT_TRUE((bool)it->second.setter);
+}
+
+TEST(MacrosStruct, DefaultConstructsPayload) {
+    test_macros::TestStructStats s;
+    ASSERT_EQ(s.hp, 100);
+    ASSERT_FLOAT_EQ(s.speed, 1.0f);
+}
+
+TEST(MacrosStruct, SupportsCustomDefaultInitializer) {
+    const test_macros::TestStructStatsDefault s;
+    ASSERT_EQ(s.hp, 150);
+    ASSERT_FLOAT_EQ(s.speed, 3.5f);
+}
+
+TEST(MacrosStruct, SupportsDirectFieldAssignment) {
+    test_macros::TestStructStats s;
+    s.hp = 75;
+    s.speed = 2.25f;
+    ASSERT_EQ(s.hp, 75);
+    ASSERT_FLOAT_EQ(s.speed, 2.25f);
+}
+
+TEST_F(MacroFixture, StructComponentIsRegisteredInFlecs) {
+    auto c = world.component<test_macros::TestStructStats>();
+    ASSERT_TRUE(c.id() != 0);
+}
+
+TEST_F(MacroFixture, StructComponentRegistersGetterAndSetter) {
+    auto &registry = stagehand::get_component_registry();
+    auto it = registry.find("TestStructStats");
+    ASSERT_NE(it, registry.end());
+    ASSERT_TRUE(static_cast<bool>(it->second.getter));
+    ASSERT_TRUE(static_cast<bool>(it->second.setter));
+}
+
+TEST_F(MacroFixture, StructComponentRegistersReflectedMemberMetadata) {
+    test_macros::TestStructStats value{};
+    flecs::cursor cursor = world.cursor<test_macros::TestStructStats>(&value);
+
+    ASSERT_EQ(cursor.push(), 0);
+    ASSERT_EQ(cursor.member("hp"), 0);
+    ASSERT_STREQ(cursor.get_member().c_str(), "hp");
+    ASSERT_EQ(cursor.member("speed"), 0);
+    ASSERT_STREQ(cursor.get_member().c_str(), "speed");
+    ASSERT_NE(cursor.member("not_a_member"), 0);
+    ASSERT_EQ(cursor.pop(), 0);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

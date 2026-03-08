@@ -12,7 +12,6 @@
 #include "stagehand/entity.h"
 #include "stagehand/registry.h"
 
-
 namespace test_no_change_detection {
     FLOAT_(NoTrackFloat, 1.5f);
     UINT16_(NoTrackUint16, 123);
@@ -34,8 +33,21 @@ namespace test_no_change_detection {
 
     GODOT_VARIANT_(NoTrackVector3, godot::Vector3, 1.0f, 2.0f, 3.0f);
 
+    struct NoTrackStruct {
+        int hp = 12;
+        float speed = 1.25f;
+    };
+
+    STRUCT_(NoTrackStruct);
+
+    struct TrackedStruct {
+        int hp = 20;
+        float speed = 2.5f;
+    };
+
     FLOAT(TrackedFloat, 0.0f);
     GODOT_VARIANT(TrackedVector3, godot::Vector3);
+    STRUCT(TrackedStruct);
 
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackFloat>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackUint16>);
@@ -44,9 +56,11 @@ namespace test_no_change_detection {
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackVectorInt>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackArrayFloat>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackVector3>);
+    static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackStruct>);
 
     static_assert(stagehand::internal::component_has_change_tag_v<TrackedFloat>);
     static_assert(stagehand::internal::component_has_change_tag_v<TrackedVector3>);
+    static_assert(stagehand::internal::component_has_change_tag_v<TrackedStruct>);
 } // namespace test_no_change_detection
 
 namespace {
@@ -91,11 +105,13 @@ TEST_F(NoChangeDetectionFixture, OptOutComponentsDoNotRegisterChangeDetectionRel
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackArrayFloat>()));
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackVector3>()));
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackEnum>()));
+    ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackStruct>()));
 }
 
 TEST_F(NoChangeDetectionFixture, TrackedComponentsStillRegisterChangeDetectionRelations) {
     ASSERT_TRUE(component_has_change_detection_relation(world.component<test_no_change_detection::TrackedFloat>()));
     ASSERT_TRUE(component_has_change_detection_relation(world.component<test_no_change_detection::TrackedVector3>()));
+    ASSERT_TRUE(component_has_change_detection_relation(world.component<test_no_change_detection::TrackedStruct>()));
 }
 
 TEST_F(NoChangeDetectionFixture, StagehandEntitySetDoesNotEnableChangeTagForOptOutComponents) {
@@ -118,11 +134,21 @@ TEST_F(NoChangeDetectionFixture, ShiftOperatorRespectsOptOutBehavior) {
     ASSERT_TRUE(entity_has_any_change_detection_tag(tracked_entity));
 }
 
+TEST_F(NoChangeDetectionFixture, StructShiftOperatorRespectsOptOutBehavior) {
+    stagehand::entity no_track_entity = world.entity();
+    no_track_entity << test_no_change_detection::NoTrackStruct{33, 3.0f};
+    ASSERT_FALSE(entity_has_any_change_detection_tag(no_track_entity));
+
+    stagehand::entity tracked_entity = world.entity();
+    tracked_entity << test_no_change_detection::TrackedStruct{44, 4.0f};
+    ASSERT_TRUE(entity_has_any_change_detection_tag(tracked_entity));
+}
+
 TEST_F(NoChangeDetectionFixture, OptOutComponentsStillRegisterGetterSetterFunctions) {
     std::unordered_map<std::string, stagehand::ComponentFunctions> &registry = stagehand::get_component_registry();
 
-    for (const std::string &component_name :
-         {"NoTrackFloat", "NoTrackUint16", "NoTrackInt8", "NoTrackPointer", "NoTrackVectorInt", "NoTrackArrayFloat", "NoTrackVector3", "NoTrackEnum"}) {
+    for (const std::string &component_name : {"NoTrackFloat", "NoTrackUint16", "NoTrackInt8", "NoTrackPointer", "NoTrackVectorInt", "NoTrackArrayFloat",
+                                              "NoTrackVector3", "NoTrackEnum", "NoTrackStruct"}) {
         auto it = registry.find(component_name);
         ASSERT_NE(it, registry.end()) << component_name;
         ASSERT_TRUE(static_cast<bool>(it->second.getter)) << component_name;

@@ -10,6 +10,7 @@
 #include <vector>
 
 #include <godot_cpp/core/type_info.hpp>
+#include <godot_cpp/variant/array.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 #include <godot_cpp/variant/variant.hpp>
@@ -109,6 +110,22 @@ namespace stagehand {
 
         template <typename T> struct is_array : std::false_type {};
         template <typename T, std::size_t N> struct is_array<std::array<T, N>> : std::true_type {};
+
+        template <typename T, typename = void> struct has_godot_variant_type_info : std::false_type {};
+
+        template <typename T>
+        struct has_godot_variant_type_info<T, std::void_t<decltype(godot::GetTypeInfo<std::remove_cvref_t<T>>::VARIANT_TYPE)>> : std::true_type {};
+
+        template <typename T> inline constexpr bool has_godot_variant_type_info_v = has_godot_variant_type_info<T>::value;
+
+        inline godot::String make_opaque_component_warning(const char *operation,
+                                                           const std::string &component_name,
+                                                           const std::string &component_cpp_type_name,
+                                                           const std::string &payload_cpp_type_name,
+                                                           const char *detail) {
+            return godot::String("[Stagehand][OpaqueComponent][") + operation + "] component='" + component_name.c_str() + "' component_cpp_type='" +
+                   component_cpp_type_name.c_str() + "' payload_cpp_type='" + payload_cpp_type_name.c_str() + "' detail='" + detail + "'";
+        }
     } // namespace internal
 
     template <typename T>
@@ -165,10 +182,13 @@ namespace stagehand {
     /// Unified component registration for scalars, vectors, and arrays.
     template <typename T, typename StorageType = T> void register_component(const std::string &name) {
         auto &registry = get_component_registry()[name];
+        const std::string component_cpp_type_name = get_registered_cpp_type_name<T>();
+        const std::string payload_cpp_type_name = get_registered_cpp_type_name<StorageType>();
         registry.data_type = get_registered_cpp_type_name<StorageType>();
 
         // Register Getter
-        registry.getter = [component_name = name](const flecs::world &world, flecs::entity_t entity_id) -> godot::Variant {
+        registry.getter = [component_name = name, component_cpp_type_name, payload_cpp_type_name](const flecs::world &world,
+                                                                                                  flecs::entity_t entity_id) -> godot::Variant {
             const T *data = nullptr;
             if (entity_id == 0) {
                 data = world.try_get<T>();
@@ -188,8 +208,12 @@ namespace stagehand {
                         arr.push_back(godot::Variant(elem));
                     }
                     return godot::Variant(arr);
-                } else {
+                } else if constexpr (internal::has_godot_variant_type_info_v<StorageType>) {
                     return godot::Variant(static_cast<StorageType>(*data));
+                } else {
+                    godot::UtilityFunctions::push_warning(internal::make_opaque_component_warning(
+                        "get", component_name, component_cpp_type_name, payload_cpp_type_name, "Payload type does not support Variant conversion."));
+                    return godot::Variant();
                 }
             }
             godot::UtilityFunctions::push_warning(godot::String("Get Component: Entity ") + godot::String::num_uint64(entity_id) +
@@ -201,7 +225,8 @@ namespace stagehand {
         };
 
         // Register Setter
-        registry.setter = [component_name = name](flecs::world &world, flecs::entity_t entity_id, const godot::Variant &v) {
+        registry.setter = [component_name = name, component_cpp_type_name, payload_cpp_type_name](flecs::world &world, flecs::entity_t entity_id,
+                                                                                                  const godot::Variant &v) {
             if constexpr (HasVectorValue<T>) {
                 if (v.get_type() != godot::Variant::ARRAY) {
                     godot::UtilityFunctions::push_warning(godot::String("Failed to set component '") + component_name.c_str() + "'. Expected Array, got " +
@@ -257,7 +282,7 @@ namespace stagehand {
                     }
                     flecs::entity(world, entity_id).set<T>(T(std::move(array)));
                 }
-            } else {
+            } else if constexpr (internal::has_godot_variant_type_info_v<StorageType>) {
                 const auto expected_type = static_cast<godot::Variant::Type>(godot::GetTypeInfo<StorageType>::VARIANT_TYPE);
                 if (godot::Variant::can_convert(v.get_type(), expected_type)) {
                     if (entity_id == 0) {
@@ -276,6 +301,9 @@ namespace stagehand {
                     godot::UtilityFunctions::push_warning(warning_message.format(
                         godot::Array::make(component_name.c_str(), godot::Variant::get_type_name(v.get_type()), godot::Variant::get_type_name(expected_type))));
                 }
+            } else {
+                godot::UtilityFunctions::push_warning(internal::make_opaque_component_warning(
+                    "set", component_name, component_cpp_type_name, payload_cpp_type_name, "Payload type does not support automatic Variant conversion."));
             }
         };
     }
