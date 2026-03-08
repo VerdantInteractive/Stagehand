@@ -13,10 +13,10 @@ namespace stagehand_demos::game_of_life {
     TAG(IsInActiveNeighbourhood);
 
     /// Component to track a cell's position in the grid.
-    GODOT_VARIANT(GridPosition, Vector2i);
+    GODOT_VARIANT_(GridPosition, Vector2i);
 
     /// Component that stores references to a cell's eight neighbouring grid cells as an array of ecs_entity_t.
-    ARRAY(GridNeighbours, ecs_entity_t, 8);
+    ARRAY_(GridNeighbours, ecs_entity_t, 8);
 
-    UINT8(AliveNeighbourCount, 0);
+    UINT8_(AliveNeighbourCount, 0);
 } // namespace stagehand_demos::game_of_life
