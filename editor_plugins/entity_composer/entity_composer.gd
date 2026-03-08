@@ -1,9 +1,9 @@
 @tool
 extends GraphEdit
 
+# TODO: Custom icon https://docs.godotengine.org/en/stable/classes/class_editorplugin.html#class-editorplugin-private-method-get-plugin-icon
+
 var _node_counter: int = 0
-var _rename_edit: LineEdit
-var _editing_node: GraphNode
 
 var _copy_buffer: Array = []
 var _node_popup: PopupMenu
@@ -26,7 +26,6 @@ func _ready() -> void:
 	connection_to_empty.connect(_on_connection_to_empty)
 	connection_from_empty.connect(_on_connection_from_empty)
 	gui_input.connect(_on_gui_input)
-	scroll_offset_changed.connect(func(_off): _finish_renaming(_rename_edit.text))
 	
 	var toolbar = get_menu_hbox()
 	
@@ -63,16 +62,6 @@ func _ready() -> void:
 	add_node_btn.pressed.connect(_on_add_node_btn_pressed)
 	toolbar.add_child(add_node_btn)
 	
-	# Rename Edit
-	_rename_edit = LineEdit.new()
-	_rename_edit.visible = false
-	_rename_edit.max_length = TITLE_LENGTH_LIMIT
-	_rename_edit.alignment = HORIZONTAL_ALIGNMENT_CENTER
-	_rename_edit.top_level = true
-	_rename_edit.focus_exited.connect(_on_rename_focus_exited)
-	_rename_edit.text_submitted.connect(_on_rename_text_submitted)
-	_rename_edit.gui_input.connect(_on_rename_edit_gui_input)
-	add_child(_rename_edit)
 	
 	# Context Menus
 	_node_popup = PopupMenu.new()
@@ -167,14 +156,14 @@ func _on_add_node_btn_pressed() -> void:
 	var spawn_pos = (scroll_offset + (size / 2)) / zoom
 	spawn_pos -= NOMINAL_NODE_SIZE / 2
 	var node = _add_prefab_node(spawn_pos)
-	call_deferred("_start_renaming", node)
+	call_deferred("_start_editing_node_title", node)
 
 func _create_base_node(title_text: String, position: Vector2) -> GraphNode:
 	var unique_title = title_text
 	while true:
 		var collision = false
 		for child in get_children():
-			if child is GraphNode and child.title == unique_title:
+			if child is GraphNode and child.get_meta("title", child.title) == unique_title:
 				collision = true
 				break
 		if not collision:
@@ -183,7 +172,8 @@ func _create_base_node(title_text: String, position: Vector2) -> GraphNode:
 
 	var final_pos = _get_non_overlapping_position(position)
 	var node = GraphNode.new()
-	node.title = unique_title
+	node.title = ""
+	node.set_meta("title", unique_title)
 	node.name = "PrefabNode_" + str(_node_counter)
 	node.position_offset = final_pos
 	node.resizable = true
@@ -192,27 +182,37 @@ func _create_base_node(title_text: String, position: Vector2) -> GraphNode:
 	
 	# Row 0: Ports and Labels
 	var header_hbox = HBoxContainer.new()
+	header_hbox.add_theme_constant_override("separation", 0)
 	var label_in = Label.new()
 	label_in.text = "Parent"
+	label_in.add_theme_font_size_override("font_size", 16)
+	
+	var spacer = Control.new()
+	spacer.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	spacer.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
 	var label_out = Label.new()
 	label_out.text = "Child"
-	label_out.size_flags_horizontal = Control.SIZE_EXPAND | Control.SIZE_SHRINK_END
-	label_out.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
+	label_out.add_theme_font_size_override("font_size", 16)
 	
 	header_hbox.add_child(label_in)
+	header_hbox.add_child(spacer)
 	header_hbox.add_child(label_out)
 	node.add_child(header_hbox)
 
 	# Add a rename and close button to the GraphNode title bar using get_titlebar_hbox()
 	var title_hbox: HBoxContainer = node.get_titlebar_hbox()
 
-	var rename_btn = Button.new()
-	rename_btn.text = "R"
-	rename_btn.flat = true
-	rename_btn.pressed.connect(func(): _start_renaming(node))
-	title_hbox.add_child(rename_btn)
-	# Move the rename button to the left edge of the title bar
-	title_hbox.move_child(rename_btn, 0)
+	var title_label = _create_editable_label(unique_title, func(new_text):
+		if node.get_meta("title") != new_text:
+			_undo_redo.create_action("Rename Node", UndoRedo.MERGE_DISABLE, self )
+			_undo_redo.add_do_method(self , "_set_node_title", node, new_text)
+			_undo_redo.add_undo_method(self , "_set_node_title", node, node.get_meta("title"))
+			_undo_redo.commit_action()
+	)
+	title_label.set_meta("is_title", true)
+	title_hbox.add_child(title_label)
+	title_hbox.move_child(title_label, 0)
 
 	var _spacer = Control.new()
 	_spacer.size_flags_horizontal = Control.SIZE_EXPAND
@@ -258,7 +258,7 @@ func _add_prefab_node(position: Vector2) -> GraphNode:
 	return node
 
 func _create_node_from_data(data: Dictionary, position: Vector2) -> GraphNode:
-	var node = _create_base_node(data.get("title", "Pasted Node"), position)
+	var node = _create_base_node(data.get("title", data.get("name", "Pasted Node")), position)
 	node.size = data.get("size", Vector2.ZERO)
 	
 	# Add components from data
@@ -327,6 +327,8 @@ func _show_component_selector(graph_node: GraphNode, button: Button = null) -> v
 	var component_list = {}
 	for path in ECS.SCHEMA.components:
 		var info = ECS.SCHEMA.components[path]
+		if info.get("is_change_detection_tag", false):
+			continue
 		var ns = info.get("namespace", "") # 'namespace' is a reserved keywork in GDScript, so we use 'ns'
 		if not component_list.has(ns):
 			component_list[ns] = []
@@ -360,7 +362,7 @@ func _show_component_selector(graph_node: GraphNode, button: Button = null) -> v
 	
 	popup.id_pressed.connect(func(id):
 		if id < flat_list.size():
-			_add_component_to_node(graph_node, flat_list[id])
+			_add_component_to_node(graph_node, flat_list[id], true)
 		popup.queue_free()
 	)
 	
@@ -424,7 +426,7 @@ func _on_graph_popup_id_pressed(id: int) -> void:
 		0: # Add Node
 			var spawn_pos = (scroll_offset + _right_click_pos) / zoom
 			var node = _add_prefab_node(spawn_pos)
-			call_deferred("_start_renaming", node)
+			call_deferred("_start_editing_node_title", node)
 		1: # Paste
 			_paste_nodes()
 		2: # Clear Copy Buffer
@@ -456,10 +458,13 @@ func _copy_nodes(nodes: Array[GraphNode]) -> Vector2:
 		var components = []
 		if components_container:
 			for comp_child in components_container.get_children():
-				components.append(comp_child.name)
+				if comp_child.has_meta("component_name"):
+					components.append(comp_child.get_meta("component_name"))
+				else:
+					components.append(comp_child.name)
 		
 		var node_data = {
-			"title": node.title,
+			"title": node.get_meta("title", node.title),
 			"relative_pos": node.position_offset - top_left_pos,
 			"components": components,
 			"size": node.size,
@@ -467,26 +472,52 @@ func _copy_nodes(nodes: Array[GraphNode]) -> Vector2:
 		_copy_buffer.append(node_data)
 	return top_left_pos
 
-func _add_component_to_node(graph_node: GraphNode, component_name: String) -> void:
+func _add_component_to_node(graph_node: GraphNode, component_name: String, focus_edit: bool = false) -> void:
 	var container = graph_node.get_node("Components")
 	
+	var node_name = component_name.replace(":", "_").replace("/", "_")
+	
 	# Check if already exists
-	if container.has_node(component_name):
+	if container.has_node(node_name):
 		return
 		
 	var hbox = HBoxContainer.new()
-	hbox.name = component_name
+	hbox.name = node_name
+	hbox.set_meta("component_name", component_name)
+	hbox.tooltip_text = component_name
 	
-	var label = Label.new()
 	var display_name = component_name
 	if ECS.SCHEMA.components.has(component_name):
 		var info = ECS.SCHEMA.components[component_name]
 		var ns = info.get("namespace", "")
 		if not ns.is_empty():
 			display_name = display_name.substr(ns.length() + 2)
-	label.text = display_name
-	label.size_flags_horizontal = Control.SIZE_EXPAND
-	hbox.add_child(label)
+
+		var type_name = info.get("type", "")
+		if type_name.is_empty():
+			type_name = display_name
+
+		if type_name and EditorInterface.get_editor_theme().has_icon(type_name, "EditorIcons"):
+			var icon = EditorInterface.get_editor_theme().get_icon(type_name, "EditorIcons")
+			var icon_rect = TextureRect.new()
+			icon_rect.texture = icon
+			icon_rect.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
+			hbox.add_child(icon_rect)
+
+	var name_control: Control
+	var on_name_change = func(new_text):
+		if hbox.get_meta("component_name") != new_text:
+			_undo_redo.create_action("Rename Component", UndoRedo.MERGE_DISABLE, self )
+			_undo_redo.add_do_method(self , "_set_component_name", hbox, new_text)
+			_undo_redo.add_undo_method(self , "_set_component_name", hbox, hbox.get_meta("component_name"))
+			_undo_redo.commit_action()
+
+	if focus_edit:
+		name_control = _create_editable_edit(display_name, display_name, on_name_change)
+	else:
+		name_control = _create_editable_label(display_name, on_name_change)
+	name_control.set_meta("is_component_name", true)
+	hbox.add_child(name_control)
 	
 	# Get default value
 	var default_val = "-" # Default value not available in ECS registry
@@ -503,6 +534,81 @@ func _add_component_to_node(graph_node: GraphNode, component_name: String) -> vo
 	hbox.add_child(del_btn)
 	
 	container.add_child(hbox)
+
+	if focus_edit and name_control is LineEdit:
+		name_control.grab_focus()
+		name_control.select_all()
+
+func _create_editable_edit(text: String, revert_text: String, on_change: Callable = Callable()) -> LineEdit:
+	var name_edit = LineEdit.new()
+	name_edit.text = text
+	name_edit.max_length = TITLE_LENGTH_LIMIT
+	name_edit.size_flags_horizontal = Control.SIZE_EXPAND
+	name_edit.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("source", "EditorFonts"))
+	
+	var commit = func(new_text: String):
+		_replace_edit_with_label.call_deferred(name_edit, new_text, on_change)
+		if on_change.is_valid():
+			on_change.call(new_text)
+
+	name_edit.focus_exited.connect(func(): commit.call(name_edit.text))
+	name_edit.text_submitted.connect(commit)
+	name_edit.gui_input.connect(func(event):
+		if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
+			_replace_edit_with_label.call_deferred(name_edit, revert_text, on_change)
+	)
+	return name_edit
+
+func _create_editable_label(text: String, on_change: Callable = Callable()) -> Label:
+	var label = Label.new()
+	label.text = text
+	label.size_flags_horizontal = Control.SIZE_EXPAND
+	label.add_theme_font_override("font", EditorInterface.get_editor_theme().get_font("source", "EditorFonts"))
+	label.mouse_filter = Control.MOUSE_FILTER_STOP
+	label.gui_input.connect(func(event):
+		if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.pressed:
+			_replace_label_with_edit.call_deferred(label, on_change)
+	)
+	return label
+
+func _replace_label_with_edit(label: Label, on_change: Callable) -> void:
+	if not is_instance_valid(label): return
+	var parent = label.get_parent()
+	if not parent: return
+	
+	var text = label.text
+	var idx = label.get_index()
+	
+	var name_edit = _create_editable_edit(text, text, on_change)
+	# Copy metadata if any (like is_title or is_component_name)
+	if label.has_meta("is_title"): name_edit.set_meta("is_title", true)
+	if label.has_meta("is_component_name"): name_edit.set_meta("is_component_name", true)
+	
+	parent.remove_child(label)
+	label.queue_free()
+	
+	parent.add_child(name_edit)
+	parent.move_child(name_edit, idx)
+	
+	name_edit.grab_focus()
+	name_edit.select_all()
+
+func _replace_edit_with_label(edit: LineEdit, text: String, on_change: Callable) -> void:
+	if not is_instance_valid(edit): return
+	var parent = edit.get_parent()
+	if not parent: return
+	
+	var label = _create_editable_label(text, on_change)
+	# Copy metadata
+	if edit.has_meta("is_title"): label.set_meta("is_title", true)
+	if edit.has_meta("is_component_name"): label.set_meta("is_component_name", true)
+	
+	var idx = edit.get_index()
+	parent.remove_child(edit)
+	edit.queue_free()
+	
+	parent.add_child(label)
+	parent.move_child(label, idx)
 
 func _paste_nodes(position: Vector2 = Vector2(INF, INF)) -> void:
 	if _copy_buffer.is_empty():
@@ -559,7 +665,7 @@ func _on_connection_to_empty(from_node: StringName, from_port: int, release_posi
 	_undo_redo.add_undo_method(self , "disconnect_node", from_node, from_port, new_node.name, 0)
 	_undo_redo.commit_action()
 	
-	call_deferred("_start_renaming", new_node)
+	call_deferred("_start_editing_node_title", new_node)
 
 func _on_connection_from_empty(to_node: StringName, to_port: int, release_position: Vector2) -> void:
 	var spawn_pos = (release_position + scroll_offset) / zoom
@@ -574,7 +680,7 @@ func _on_connection_from_empty(to_node: StringName, to_port: int, release_positi
 	_undo_redo.add_undo_method(self , "disconnect_node", new_node.name, 0, to_node, to_port)
 	_undo_redo.commit_action()
 	
-	call_deferred("_start_renaming", new_node)
+	call_deferred("_start_editing_node_title", new_node)
 
 func _on_disconnection_request(from_node: StringName, from_port: int, to_node: StringName, to_port: int) -> void:
 	_undo_redo.create_action("Disconnect", UndoRedo.MERGE_DISABLE, self )
@@ -590,43 +696,35 @@ func _on_delete_nodes_request(nodes: Array[StringName]) -> void:
 			_add_delete_node_to_action(node)
 	_undo_redo.commit_action()
 
+func _start_editing_node_title(node: GraphNode) -> void:
+	var hbox = node.get_titlebar_hbox()
+	for child in hbox.get_children():
+		if child is Label and child.has_meta("is_title"):
+			# Simulate click to start editing
+			_replace_label_with_edit(child, func(new_text):
+				if node.get_meta("title") != new_text:
+					_undo_redo.create_action("Rename Node", UndoRedo.MERGE_DISABLE, self )
+					_undo_redo.add_do_method(self , "_set_node_title", node, new_text)
+					_undo_redo.add_undo_method(self , "_set_node_title", node, node.get_meta("title"))
+					_undo_redo.commit_action()
+			)
+			break
 
-func _start_renaming(node: GraphNode) -> void:
-	_editing_node = node
-	_rename_edit.text = node.title
-	
-	_rename_edit.global_position = node.global_position
-	_rename_edit.size = Vector2(node.size.x, 32)
-	_rename_edit.scale = Vector2(zoom, zoom)
-	
-	_rename_edit.visible = true
-	_rename_edit.grab_focus()
-	_rename_edit.select_all()
+func _set_node_title(node: GraphNode, new_title: String) -> void:
+	node.set_meta("title", new_title)
+	var hbox = node.get_titlebar_hbox()
+	for child in hbox.get_children():
+		if (child is Label or child is LineEdit) and child.has_meta("is_title"):
+			child.text = new_title
+			break
 
-func _on_rename_text_submitted(new_text: String) -> void:
-	_finish_renaming(new_text)
-
-func _on_rename_focus_exited() -> void:
-	_finish_renaming(_rename_edit.text)
-
-func _on_rename_edit_gui_input(event: InputEvent) -> void:
-	if event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
-		_editing_node = null
-		_rename_edit.visible = false
-
-func _finish_renaming(text: String) -> void:
-	if _editing_node:
-		if _editing_node.title != text:
-			_undo_redo.create_action("Rename Node", UndoRedo.MERGE_DISABLE, self )
-			_undo_redo.add_do_property(_editing_node, "title", text)
-			_undo_redo.add_do_property(_editing_node, "size", Vector2.ZERO)
-			_undo_redo.add_undo_property(_editing_node, "title", _editing_node.title)
-			_undo_redo.add_undo_property(_editing_node, "size", _editing_node.size)
-			_undo_redo.commit_action()
-		else:
-			_editing_node.size = Vector2.ZERO
-	_rename_edit.visible = false
-	_editing_node = null
+func _set_component_name(hbox: HBoxContainer, new_name: String) -> void:
+	hbox.set_meta("component_name", new_name)
+	hbox.tooltip_text = new_name
+	for child in hbox.get_children():
+		if (child is Label or child is LineEdit) and child.has_meta("is_component_name"):
+			child.text = new_name
+			break
 
 func _get_selected_nodes() -> Array[GraphNode]:
 	var selected: Array[GraphNode] = []
