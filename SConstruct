@@ -269,12 +269,9 @@ def run_ecs_registry_generator(target, source, env):
     return result.returncode
 
 
-godot_lib_name = "libgodot-cpp" + env["suffix"] + env["LIBSUFFIX"]
-godotcpp_lib_path = os.path.join("dependencies", "godot-cpp", "bin", godot_lib_name)
-
 ecs_registry_generator = project_env.Program(
     target=os.path.join(BUILD_DIR, "tools", "ecs_registry_generator"),
-    source=stagehand_objs + [flecs_c_obj, os.path.join("stagehand", "utilities", "generators", "ecs_registry.cpp"), godotcpp_lib_path],
+    source=stagehand_objs + [flecs_c_obj, os.path.join("stagehand", "utilities", "generators", "ecs_registry.cpp")],
     CXXFLAGS=project_env["CXXFLAGS"] + cxx_flags,
 )
 
@@ -371,10 +368,6 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
             stagehand_suffix = stagehand_suffix[: -len(ext)]
             break
 
-    # Use the suffix from the godot-cpp build environment directly to ensure consistency with how godot-cpp names its static library.
-    godot_lib_name = "libgodot-cpp" + root_env["suffix"] + root_env["LIBSUFFIX"]
-    godotcpp_lib_path = os.path.join(godotcpp_dir, "bin", godot_lib_name)
-
     test_sources = find_source_files(tests_dir)
     gtest_source = os.path.join(gtest_dir, "src", "gtest-all.cc")
 
@@ -418,11 +411,9 @@ def build_unit_tests(root_env, project_root, flecs_opts, cxx_flags, tests_root=N
         rel = os.path.relpath(src, project_root)
         obj_path = os.path.join(tests_build_dir, rel.replace(".cpp", ""))
         test_objs.append(test_env.SharedObject(target=obj_path, source=src))
-
-    godotcpp_lib = File(godotcpp_lib_path)
     
     # Combine test objects with reused stagehand/flecs objects from main build
-    all_objs = test_objs + [gtest_obj, godotcpp_lib]
+    all_objs = test_objs + [gtest_obj]
     if flecs_c_obj is not None:
         all_objs.insert(0, flecs_c_obj)
     if stagehand_objs is not None:
