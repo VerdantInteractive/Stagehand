@@ -46,6 +46,10 @@ window/stretch/mode="viewport"
 
 project/assembly_name="Stagehand Demos"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/stagehand/editor_plugins/entity_composer/plugin.cfg")
+
 [global_group]
 
 Players="root nodes of Player scenes belong to this group"

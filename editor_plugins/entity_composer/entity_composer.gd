@@ -327,10 +327,10 @@ func _show_component_selector(graph_node: GraphNode, button: Button = null) -> v
 	var component_list = {}
 	for path in ECS.SCHEMA.components:
 		var info = ECS.SCHEMA.components[path]
-		var namespace = info.get("namespace", "")
-		if not component_list.has(namespace ):
-			component_list[ namespace ] = []
-		component_list[ namespace ].append(path)
+		var ns = info.get("namespace", "") # 'namespace' is a reserved keywork in GDScript, so we use 'ns'
+		if not component_list.has(ns):
+			component_list[ns] = []
+		component_list[ns].append(path)
 	
 	var popup = PopupMenu.new()
 	popup.name = "ComponentSelector"
@@ -341,13 +341,13 @@ func _show_component_selector(graph_node: GraphNode, button: Button = null) -> v
 	var namespaces = component_list.keys()
 	namespaces.sort()
 	
-	for namespace in namespaces:
-		if not namespace.is_empty():
-			popup.add_separator(namespace )
+	for ns in namespaces:
+		if not ns.is_empty():
+			popup.add_separator(ns)
 		else:
 			popup.add_separator("Global")
 			
-		var comps = component_list[ namespace ]
+		var comps = component_list[ns]
 		comps.sort()
 		if comps is PackedStringArray or comps is Array:
 			for comp_name in comps:
