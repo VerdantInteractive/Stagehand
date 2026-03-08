@@ -35,7 +35,7 @@ namespace stagehand::rendering {
     inline flecs::system EntityRenderingMultiMesh;
 
     template <typename TransformType> void update_renderer_for_prefab(godot::RenderingServer *rendering_server, const MultiMeshRendererConfig &renderer) {
-        size_t floats_per_instance = 0;
+        uint32_t floats_per_instance = 0;
         if (renderer.transform_format == godot::MultiMesh::TRANSFORM_2D) {
             floats_per_instance = 8;
         } else { // TRANSFORM_3D
@@ -44,9 +44,9 @@ namespace stagehand::rendering {
 
         floats_per_instance += (renderer.use_colors ? 4 : 0) + (renderer.use_custom_data ? 4 : 0);
 
-        size_t total_matches = 0;
+        uint32_t total_matches = 0;
         for (const auto &q : renderer.queries) {
-            total_matches += static_cast<size_t>(q.count());
+            total_matches += static_cast<uint32_t>(q.count());
         }
 
         if (total_matches == 0 && renderer.instance_count == 0) {
@@ -54,17 +54,17 @@ namespace stagehand::rendering {
             return;
         }
 
-        size_t instance_capacity_required = std::max(renderer.instance_count, total_matches);
+        uint32_t instance_capacity_required = std::max(renderer.instance_count, total_matches);
 
         // Use a growth strategy (next power of 2) to avoid frequent reallocations when the instance count fluctuates.
-        size_t instance_capacity = 16;
+        uint32_t instance_capacity = 16;
         while (instance_capacity < instance_capacity_required) {
             instance_capacity *= 2;
         }
 
         godot::PackedFloat32Array &buffer = g_multimesh_buffer_cache[renderer.rid];
 
-        size_t required_size = instance_capacity * floats_per_instance;
+        uint32_t required_size = instance_capacity * floats_per_instance;
 
         if (buffer.size() < required_size || buffer.size() > (required_size * 2)) {
             godot::RenderingServer::MultimeshTransformFormat transform_format = renderer.transform_format == godot::MultiMesh::TRANSFORM_2D
@@ -82,7 +82,7 @@ namespace stagehand::rendering {
         }
 
         float *buffer_ptr = buffer.ptrw();
-        size_t instance_count = 0;
+        uint32_t instance_count = 0;
 
         for (const auto &q : renderer.queries) {
             q.run([&](flecs::iter &it) {
@@ -94,7 +94,7 @@ namespace stagehand::rendering {
                             break;
                         }
 
-                        size_t buffer_cursor = instance_count * floats_per_instance;
+                        uint32_t buffer_cursor = instance_count * floats_per_instance;
                         const TransformType &transform = transform_field[i];
 
                         if constexpr (std::is_same_v<TransformType, Transform2D>) {

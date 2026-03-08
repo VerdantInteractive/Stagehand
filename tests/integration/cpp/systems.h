@@ -321,8 +321,11 @@ namespace stagehand_tests {
 
                     int valid_rids = 0;
                     const size_t lod_count = renderer.lod_configs.size();
-                    for (const auto &[entity_id, slot_index] : renderer.entity_to_slot) {
-                        (void)entity_id;
+                    for (size_t slot_index = 0; slot_index < renderer.slot_entities.size(); ++slot_index) {
+                        if (renderer.slot_entities[slot_index] == 0) {
+                            continue;
+                        }
+
                         const size_t slot_offset = slot_index * lod_count;
                         for (size_t lod_index = 0; lod_index < lod_count; ++lod_index) {
                             if (renderer.instance_rids[slot_offset + lod_index].is_valid()) {

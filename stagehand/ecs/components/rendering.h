@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <limits>
 #include <unordered_map>
 #include <vector>
 
@@ -31,8 +32,8 @@ namespace stagehand::rendering {
         godot::MultiMesh::TransformFormat transform_format;
         bool use_colors;
         bool use_custom_data;
-        size_t instance_count;
-        size_t visible_instance_count;
+        uint32_t instance_count;
+        uint32_t visible_instance_count;
     };
 
     // ── Instanced Renderer Types ─────────────────────────────────────────────
@@ -75,11 +76,15 @@ namespace stagehand::rendering {
         std::vector<ecs_entity_t> slot_entities;
         std::vector<uint64_t> slot_generations;
         std::vector<uint64_t> slot_created_generations;
-        std::vector<size_t> free_slots;
-        std::unordered_map<ecs_entity_t, size_t> entity_to_slot;
+        std::vector<uint32_t> free_slots;
+        /// Direct lookup from the stripped Flecs entity id to a renderer slot.
+        /// The slot is validated against slot_entities before use so recycled Flecs IDs cannot accidentally reuse a stale slot.
+        std::vector<uint32_t> slot_by_entity_id;
+
+        static constexpr uint32_t INVALID_SLOT = std::numeric_limits<uint32_t>::max();
 
         uint64_t current_generation = 0;
-        size_t active_entity_count = 0;
+        uint32_t active_entity_count = 0;
     };
 
     /// A trait that can be added to components to indicate that they are used as instance uniform parameters in the InstancedRenderer3D

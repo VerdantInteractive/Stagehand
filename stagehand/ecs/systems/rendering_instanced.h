@@ -12,7 +12,52 @@
 namespace stagehand::rendering {
     inline flecs::system EntityRenderingInstanced;
 
-    inline void ensure_instanced_slot_capacity(InstancedRendererConfig &renderer, size_t required_slot_count, size_t lod_count) {
+    // Flecs entity ids are versioned. We use the stable low bits as the direct lookup index and then validate the full id at the slot to reject stale entries
+    // after entity recycling.
+    inline size_t get_entity_lookup_index(ecs_entity_t entity_id) { return static_cast<size_t>(ecs_strip_generation(entity_id)); }
+
+    inline void ensure_entity_slot_lookup_capacity(InstancedRendererConfig &renderer, ecs_entity_t entity_id) {
+        const size_t lookup_index = get_entity_lookup_index(entity_id);
+        if (lookup_index < renderer.slot_by_entity_id.size()) {
+            return;
+        }
+
+        size_t new_capacity = renderer.slot_by_entity_id.empty() ? 64 : renderer.slot_by_entity_id.size();
+        while (new_capacity <= lookup_index) {
+            new_capacity *= 2;
+        }
+
+        renderer.slot_by_entity_id.resize(new_capacity, InstancedRendererConfig::INVALID_SLOT);
+    }
+
+    inline uint32_t try_get_entity_slot(const InstancedRendererConfig &renderer, ecs_entity_t entity_id) {
+        const size_t lookup_index = get_entity_lookup_index(entity_id);
+        if (lookup_index >= renderer.slot_by_entity_id.size()) {
+            return InstancedRendererConfig::INVALID_SLOT;
+        }
+
+        const uint32_t slot_index = renderer.slot_by_entity_id[lookup_index];
+        if (slot_index == InstancedRendererConfig::INVALID_SLOT || slot_index >= renderer.slot_entities.size()) {
+            return InstancedRendererConfig::INVALID_SLOT;
+        }
+
+        // Compare against the full Flecs id, including generation/version, so a recycled entity record cannot resolve to the previous occupant.
+        return renderer.slot_entities[slot_index] == entity_id ? slot_index : InstancedRendererConfig::INVALID_SLOT;
+    }
+
+    inline void assign_entity_slot(InstancedRendererConfig &renderer, ecs_entity_t entity_id, uint32_t slot_index) {
+        ensure_entity_slot_lookup_capacity(renderer, entity_id);
+        renderer.slot_by_entity_id[get_entity_lookup_index(entity_id)] = slot_index;
+    }
+
+    inline void clear_entity_slot(InstancedRendererConfig &renderer, ecs_entity_t entity_id, uint32_t slot_index) {
+        const size_t lookup_index = get_entity_lookup_index(entity_id);
+        if (lookup_index < renderer.slot_by_entity_id.size() && renderer.slot_by_entity_id[lookup_index] == slot_index) {
+            renderer.slot_by_entity_id[lookup_index] = InstancedRendererConfig::INVALID_SLOT;
+        }
+    }
+
+    inline void ensure_instanced_slot_capacity(InstancedRendererConfig &renderer, uint32_t required_slot_count, size_t lod_count) {
         size_t current_capacity = renderer.slot_entities.size();
         if (current_capacity >= required_slot_count) {
             return;
@@ -29,7 +74,7 @@ namespace stagehand::rendering {
         renderer.instance_rids.resize(new_capacity * lod_count);
     }
 
-    inline void ensure_slot_instances(InstancedRendererConfig &renderer, size_t slot_index, godot::RenderingServer *rendering_server) {
+    inline void ensure_slot_instances(InstancedRendererConfig &renderer, uint32_t slot_index, godot::RenderingServer *rendering_server) {
         const size_t lod_count = renderer.lod_configs.size();
         const size_t slot_offset = slot_index * lod_count;
 
@@ -51,7 +96,7 @@ namespace stagehand::rendering {
         }
     }
 
-    inline void set_slot_visibility(const InstancedRendererConfig &renderer, size_t slot_index, bool visible, godot::RenderingServer *rendering_server) {
+    inline void set_slot_visibility(const InstancedRendererConfig &renderer, uint32_t slot_index, bool visible, godot::RenderingServer *rendering_server) {
         const size_t lod_count = renderer.lod_configs.size();
         const size_t slot_offset = slot_index * lod_count;
 
@@ -64,7 +109,7 @@ namespace stagehand::rendering {
     }
 
     inline void set_slot_transform(const InstancedRendererConfig &renderer,
-                                   size_t slot_index,
+                                   uint32_t slot_index,
                                    const stagehand::transform::Transform3D &transform,
                                    godot::RenderingServer *rendering_server) {
         const size_t lod_count = renderer.lod_configs.size();
@@ -79,7 +124,7 @@ namespace stagehand::rendering {
     }
 
     inline void set_slot_uniform(const InstancedRendererConfig &renderer,
-                                 size_t slot_index,
+                                 uint32_t slot_index,
                                  const godot::StringName &parameter_name,
                                  const godot::Vector4 &value,
                                  godot::RenderingServer *rendering_server) {
@@ -128,6 +173,7 @@ namespace stagehand::rendering {
                         renderer.current_generation = 1;
                     }
 
+                    // Reconcile (Mark): Iterates all relevant entities to establish liveness.
                     renderer.reconcile_query.run([&](flecs::iter &query_it) {
                         while (query_it.next()) {
                             auto transform_field = query_it.field<const stagehand::transform::Transform3D>(0);
@@ -136,9 +182,9 @@ namespace stagehand::rendering {
                                 const ecs_entity_t entity_id = query_it.entity(i).id();
                                 const stagehand::transform::Transform3D &transform = transform_field[i];
 
-                                auto existing_slot = renderer.entity_to_slot.find(entity_id);
-                                if (existing_slot != renderer.entity_to_slot.end()) {
-                                    renderer.slot_generations[existing_slot->second] = renderer.current_generation;
+                                const uint32_t existing_slot = try_get_entity_slot(renderer, entity_id);
+                                if (existing_slot != InstancedRendererConfig::INVALID_SLOT) {
+                                    renderer.slot_generations[existing_slot] = renderer.current_generation;
                                     continue;
                                 }
 
@@ -146,7 +192,7 @@ namespace stagehand::rendering {
                                     ensure_instanced_slot_capacity(renderer, renderer.active_entity_count + 1, lod_count);
                                 }
 
-                                size_t slot_index = 0;
+                                uint32_t slot_index = 0;
                                 if (!renderer.free_slots.empty()) {
                                     slot_index = renderer.free_slots.back();
                                     renderer.free_slots.pop_back();
@@ -154,7 +200,7 @@ namespace stagehand::rendering {
                                     slot_index = renderer.active_entity_count;
                                 }
 
-                                renderer.entity_to_slot[entity_id] = slot_index;
+                                assign_entity_slot(renderer, entity_id, slot_index);
                                 renderer.slot_entities[slot_index] = entity_id;
                                 renderer.slot_generations[slot_index] = renderer.current_generation;
                                 renderer.slot_created_generations[slot_index] = renderer.current_generation;
@@ -179,20 +225,24 @@ namespace stagehand::rendering {
                         }
                     });
 
-                    for (auto slot_it = renderer.entity_to_slot.begin(); slot_it != renderer.entity_to_slot.end();) {
-                        const size_t slot_index = slot_it->second;
+                    // This stays as an indexed loop because slot_index is the key that ties slot_entities, instance_rids and the generation arrays together.
+                    for (uint32_t slot_index = 0; slot_index < renderer.slot_entities.size(); ++slot_index) {
+                        const ecs_entity_t entity_id = renderer.slot_entities[slot_index];
+                        if (entity_id == 0) {
+                            continue;
+                        }
+
                         if (renderer.slot_generations[slot_index] == renderer.current_generation) {
-                            ++slot_it;
                             continue;
                         }
 
                         set_slot_visibility(renderer, slot_index, false, rendering_server);
+                        clear_entity_slot(renderer, entity_id, slot_index);
                         renderer.slot_entities[slot_index] = 0;
                         renderer.slot_generations[slot_index] = 0;
                         renderer.slot_created_generations[slot_index] = 0;
                         renderer.free_slots.push_back(slot_index);
                         renderer.active_entity_count -= 1;
-                        slot_it = renderer.entity_to_slot.erase(slot_it);
                     }
 
                     renderer.transform_update_query.run([&](flecs::iter &query_it) {
@@ -200,12 +250,11 @@ namespace stagehand::rendering {
                             auto transform_field = query_it.field<const stagehand::transform::Transform3D>(0);
                             for (auto i : query_it) {
                                 const ecs_entity_t entity_id = query_it.entity(i).id();
-                                const auto slot_it = renderer.entity_to_slot.find(entity_id);
-                                if (slot_it == renderer.entity_to_slot.end()) {
+                                const uint32_t slot_index = try_get_entity_slot(renderer, entity_id);
+                                if (slot_index == InstancedRendererConfig::INVALID_SLOT) {
                                     continue;
                                 }
 
-                                const size_t slot_index = slot_it->second;
                                 if (renderer.slot_created_generations[slot_index] == renderer.current_generation) {
                                     continue;
                                 }
@@ -223,12 +272,11 @@ namespace stagehand::rendering {
 
                                 for (auto i : query_it) {
                                     const ecs_entity_t entity_id = query_it.entity(i).id();
-                                    const auto slot_it = renderer.entity_to_slot.find(entity_id);
-                                    if (slot_it == renderer.entity_to_slot.end()) {
+                                    const uint32_t slot_index = try_get_entity_slot(renderer, entity_id);
+                                    if (slot_index == InstancedRendererConfig::INVALID_SLOT) {
                                         continue;
                                     }
 
-                                    const size_t slot_index = slot_it->second;
                                     if (renderer.slot_created_generations[slot_index] == renderer.current_generation) {
                                         continue;
                                     }
