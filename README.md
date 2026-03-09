@@ -30,13 +30,17 @@ Change into your Godot project directory and then run the following commands
 # you can also manually place the contents of the Stagehand repository into addons/stagehand
 git clone --recursive git@github.com:VerdantInteractive/Stagehand.git addons/stagehand
 
-# Build it. `scripts/build_debug.sh` also works
+# Build it. `addons/stagehand/scripts/build_debug.sh` also works
 scons -C addons/stagehand
 ```
 
 ## Usage
 
 TBC
+
+### Upgrading Stagehand
+
+Simply run `git git submodule update  --remote --recursive addons/stagehand` to pull in the latest version along with the updated dependencies (if any).
 
 ## Flecs Explorer
 

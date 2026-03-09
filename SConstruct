@@ -204,7 +204,8 @@ else:
 # Build stagehand sources into shared build directory
 stagehand_objs = []
 for src in stagehand_cpp_sources:
-    obj_target = os.path.join(BUILD_DIR, "stagehand", os.path.splitext(os.path.basename(src))[0])
+    relative_path = os.path.relpath(src)
+    obj_target = os.path.join(BUILD_DIR, os.path.splitext(relative_path)[0])
     stagehand_objs.extend(project_env.SharedObject(
         target=obj_target,
         source=src,
@@ -213,8 +214,8 @@ for src in stagehand_cpp_sources:
 
 project_cpp_objs = []
 for src in project_cpp_sources:
-    rel_path = os.path.relpath(src, PROJECT_DIRECTORY)
-    obj_target = os.path.join(BUILD_DIR, os.path.splitext(rel_path)[0])
+    relative_path = os.path.relpath(src, PROJECT_DIRECTORY)
+    obj_target = os.path.join(BUILD_DIR, os.path.splitext(relative_path)[0])
     project_cpp_objs.extend(project_env.SharedObject(
         target=obj_target,
         source=src,
