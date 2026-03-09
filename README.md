@@ -28,10 +28,22 @@ Note: On Windows, symbolic links must be enabled both at OS and git configuratio
 Change into your Godot project directory and then run the following commands
 ```
 # you can also manually place the contents of the Stagehand repository into addons/stagehand
-git clone --recursive git@github.com:VerdantInteractive/Stagehand.git addons/stagehand
+git submodule add git@github.com:VerdantInteractive/Stagehand.git addons/stagehand
+git submodule update --init --recursive addons/stagehand
+```
 
-# Build it. `addons/stagehand/scripts/build_debug.sh` also works
+### Build it
+
+During development iteration, perform a debug build:
+```
+# `addons/stagehand/scripts/build_debug.sh` also works
 scons -C addons/stagehand
+```
+
+To generate optimised binaries for a release, use:
+```
+# `scons -C addons/stagehand target=template_release production=yes optimize=speed lto=full` also works
+addons/stagehand/scripts/build_release.sh
 ```
 
 ## Usage
@@ -40,7 +52,7 @@ TBC
 
 ### Upgrading Stagehand
 
-Simply run `git git submodule update  --remote --recursive addons/stagehand` to pull in the latest version along with the updated dependencies (if any).
+Simply run `git submodule update  --remote --recursive addons/stagehand` to pull in the latest version along with the updated dependencies (if any).
 
 ## Flecs Explorer
 
