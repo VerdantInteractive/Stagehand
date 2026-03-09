@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://b0m0y6aoexp4a"]
+[gd_scene format=3 uid="uid://b0m0y6aoexp4a"]
 
 [ext_resource type="Script" uid="uid://cmpnatk18fbnv" path="res://surwave/scenes/ui/upgrade_screen.gd" id="1_clnow"]
 [ext_resource type="PackedScene" uid="uid://dg3fliufon0m4" path="res://surwave/scenes/ui/upgrade_card.tscn" id="2_eg2gl"]
@@ -72,17 +72,15 @@ _data = {
 &"out": SubResource("Animation_xpnye")
 }
 
-[node name="UpgradeScreen" type="CanvasLayer"]
+[node name="UpgradeScreen" type="CanvasLayer" unique_id=2043737500]
 process_mode = 3
 script = ExtResource("1_clnow")
 upgrade_card_scene = ExtResource("2_eg2gl")
 
-[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
-libraries = {
-&"": SubResource("AnimationLibrary_xpnye")
-}
+[node name="AnimationPlayer" type="AnimationPlayer" parent="." unique_id=2056635119]
+libraries/ = SubResource("AnimationLibrary_xpnye")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=82452639]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -90,34 +88,30 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.22352941, 0.16078432, 0.27450982, 1)
 
-[node name="TopRightMargin" type="MarginContainer" parent="."]
-anchors_preset = 10
-anchor_left = 1.0
-anchor_right = 1.0
-offset_left = -96.0
-offset_top = 12.0
-offset_right = -12.0
-offset_bottom = 43.0
-grow_horizontal = 0
-
-[node name="BackButton" type="Button" parent="TopRightMargin"]
-unique_name_in_owner = true
-layout_mode = 2
-custom_minimum_size = Vector2(84, 0)
-text = "Back"
-script = ExtResource("3_rw4n6")
-metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
-
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=1654652747]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="CardContainer" type="HBoxContainer" parent="MarginContainer"]
+[node name="CardContainer" type="HBoxContainer" parent="MarginContainer" unique_id=1161571357]
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 4
 theme_override_constants/separation = 20
+
+[node name="TopRightMargin" type="MarginContainer" parent="." unique_id=1462190135]
+offset_right = 84.0
+offset_bottom = 31.0
+theme_override_constants/margin_left = 20
+theme_override_constants/margin_top = 16
+
+[node name="BackButton" type="Button" parent="TopRightMargin" unique_id=195214195]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(120, 40)
+layout_mode = 2
+text = "Back"
+script = ExtResource("3_rw4n6")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"

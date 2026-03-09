@@ -100,7 +100,7 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not visible: return
 	if purchase_in_progress: return
 	if event.is_action_pressed("menu"):
-		_cancel_selection()
+		hide_screen()
 		get_viewport().set_input_as_handled()
 
 	if event.is_action_pressed("directional_controller_input"):
@@ -110,14 +110,10 @@ func _unhandled_input(event: InputEvent) -> void:
 			get_viewport().set_input_as_handled()
 
 
-func _cancel_selection() -> void:
-	hide_screen()
-
-
 func _on_back_button_pressed() -> void:
 	if purchase_in_progress:
 		return
-	_cancel_selection()
+	hide_screen()
 
 
 func _ensure_upgrade_manager(player_body: Node = null) -> bool:
