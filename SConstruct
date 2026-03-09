@@ -57,12 +57,6 @@ env = SConscript("dependencies/godot-cpp/SConstruct")
 # Shared build directory for object files
 BUILD_DIR = "build/obj"
 
-# When building a downstream project, place downstream project object files in the project's ecs/ directory
-if is_downstream_project and PROJECT_DIRECTORY:
-    PROJECT_BUILD_DIR = os.path.join(PROJECT_DIRECTORY, "ecs", "build", "obj")
-else:
-    PROJECT_BUILD_DIR = BUILD_DIR
-
 # Optimize for modern CPUs, including BMI2 instructions for the heightmap
 if env["arch"] == "x86_64":
     if env.get("is_msvc", False):
@@ -210,7 +204,10 @@ else:
 # Build stagehand sources into shared build directory
 stagehand_objs = []
 for src in stagehand_cpp_sources:
-    relative_path = os.path.relpath(src)
+    if is_downstream_project and os.path.isabs(src):
+        relative_path = os.path.relpath(src, PROJECT_DIRECTORY)
+    else:
+        relative_path = os.path.relpath(src)
     obj_target = os.path.join(BUILD_DIR, os.path.splitext(relative_path)[0])
     stagehand_objs.extend(project_env.SharedObject(
         target=obj_target,
@@ -220,8 +217,8 @@ for src in stagehand_cpp_sources:
 
 project_cpp_objs = []
 for src in project_cpp_sources:
-    relative_path = os.path.relpath(src, os.path.join(PROJECT_DIRECTORY, "ecs"))
-    obj_target = os.path.join(PROJECT_BUILD_DIR, os.path.splitext(relative_path)[0])
+    relative_path = os.path.relpath(src, f"{PROJECT_DIRECTORY}/ecs")
+    obj_target = os.path.join(BUILD_DIR, os.path.splitext(relative_path)[0])
     project_cpp_objs.extend(project_env.SharedObject(
         target=obj_target,
         source=src,
