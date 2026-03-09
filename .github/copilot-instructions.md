@@ -5,7 +5,7 @@
 - Use explicit type names instead of `auto` unless the type names are extremely long.
 - Add code comments only when the code is not self-explanatory.
 - Keep the tests up to date with code changes. If you add new features, add new tests for them. Maintain high test coverage for the project.
-- Keep the files in documentation/class_reference up to date with code changes.
+- Keep the files in documentation/ up to date with code changes.
 - Don't clean build files.
 - Don't make any git commits.
 
