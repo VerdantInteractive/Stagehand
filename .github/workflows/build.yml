@@ -28,7 +28,7 @@ jobs:
       - name: Install LLVM and Clang
         uses: KyleMayes/install-llvm-action@v2
         with:
-          version: "22"
+          version: "17"
 
       - name: Configure Clang toolchain
         shell: bash
