@@ -19,9 +19,7 @@ config/version="1.0.0"
 run/main_scene="uid://1f0s78v8ooax"
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0.23137255, 0.023529412, 0.22745098, 1)
-boot_splash/stretch_mode=0
-boot_splash/use_filter=false
-boot_splash/image="uid://d0bs3fs7eqtc5"
+config/icon="uid://b6pfyvvrox4jw"
 
 [audio]
 
