@@ -18,26 +18,24 @@ using Position2D = stagehand::transform::Position2D;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<const PlayerDamageCooldown, const PlayerPosition, const PlayerTakeDamageSettings, const Position2D, const MeleeDamage>("Enemy Hit Player")
+    world.system<const PlayerPosition, const PlayerTakeDamageSettings, const Position2D, const MeleeDamage>("Enemy Hit Player")
+        .with<PlayerDamageCooldown>().inout()
         .with(flecs::IsA, EnemyPrefab)
         .run([](flecs::iter &it) {
             // clang-format on
             while (it.next()) {
-                flecs::field<const PlayerDamageCooldown> player_damage_cooldown_field = it.field<const PlayerDamageCooldown>(0);
-                flecs::field<const PlayerPosition> player_position_field = it.field<const PlayerPosition>(1);
-                flecs::field<const PlayerTakeDamageSettings> damage_settings_field = it.field<const PlayerTakeDamageSettings>(2);
-                flecs::field<const Position2D> positions = it.field<const Position2D>(3);
-                flecs::field<const MeleeDamage> melee_damages = it.field<const MeleeDamage>(4);
+                flecs::field<const PlayerPosition> player_position_field = it.field<const PlayerPosition>(0);
+                flecs::field<const PlayerTakeDamageSettings> damage_settings_field = it.field<const PlayerTakeDamageSettings>(1);
+                flecs::field<const Position2D> positions = it.field<const Position2D>(2);
+                flecs::field<const MeleeDamage> melee_damages = it.field<const MeleeDamage>(3);
+                flecs::field<PlayerDamageCooldown> player_damage_cooldown_field = it.field<PlayerDamageCooldown>(4);
 
-                PlayerDamageCooldown *player_damage_cooldown = it.world().try_get_mut<PlayerDamageCooldown>();
-                if (player_damage_cooldown == nullptr) {
-                    return;
-                }
+                PlayerDamageCooldown &player_damage_cooldown = player_damage_cooldown_field[0];
                 const PlayerPosition *player_position = &player_position_field[0];
                 const PlayerTakeDamageSettings *damage_settings = &damage_settings_field[0];
 
                 const float cooldown = godot::Math::max(damage_settings->damage_cooldown, 0.0f);
-                const bool can_take_damage = cooldown <= 0.0f || player_damage_cooldown->value >= cooldown;
+                const bool can_take_damage = cooldown <= 0.0f || player_damage_cooldown.value >= cooldown;
                 if (!can_take_damage) {
                     return;
                 }
@@ -69,7 +67,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                     payload.data = signal_data;
                     stagehand::emit_signal(it, entity_index, payload);
 
-                    player_damage_cooldown->value = 0.0f;
+                    player_damage_cooldown.value = 0.0f;
                     return;
                 }
             }
