@@ -78,7 +78,20 @@ namespace enemy_take_damage {
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<HitPoints, ProjectileHitTimeout, ShockwaveHitTimeout, HitReactionTimer, const ProjectileData, const EnemyBoidMovementSettings, const EnemyTakeDamageSettings, const EnemyAnimationSettings, const ShockwaveData, const PlayerPosition, const Position2D, const HitRadius>("Enemy Take Damage")
+    world.system<
+        HitPoints,
+        ProjectileHitTimeout,
+        ShockwaveHitTimeout,
+        HitReactionTimer,
+        const ProjectileData,
+        const EnemyBoidMovementSettings,
+        const EnemyTakeDamageSettings,
+        const EnemyAnimationSettings,
+        const ShockwaveData,
+        const PlayerPosition,
+        const Position2D,
+        const HitRadius
+    >("Enemy Take Damage")
         .with(flecs::IsA, EnemyPrefab)
         .run([](flecs::iter &it) {
             // clang-format on

@@ -14,7 +14,15 @@ using namespace stagehand_demos::surwave;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<ProjectileHitTimeout, ShockwaveHitTimeout, DeathTimer, HitReactionTimer, HFlipTimer, VFlipTimer, const EnemyTakeDamageSettings>("Enemy Timer Tick")
+    world.system<
+        ProjectileHitTimeout,
+        ShockwaveHitTimeout,
+        DeathTimer,
+        HitReactionTimer,
+        HFlipTimer,
+        VFlipTimer,
+        const EnemyTakeDamageSettings
+    >("Enemy Timer Tick")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::PreUpdate)
         .run([](flecs::iter &it) {

@@ -25,7 +25,15 @@ using Velocity2D = stagehand::physics::Velocity2D;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<HitPoints, DeathTimer, MeleeDamage, MovementSpeed, Velocity2D, const EnemyAnimationSettings, const Position2D>("Enemy Death")
+    world.system<
+        HitPoints,
+        DeathTimer,
+        MeleeDamage,
+        MovementSpeed,
+        Velocity2D,
+        const EnemyAnimationSettings,
+        const Position2D
+    >("Enemy Death")
         .with(flecs::IsA, EnemyPrefab)
         .kind(flecs::OnValidate)
         .run([](flecs::iter &it) {

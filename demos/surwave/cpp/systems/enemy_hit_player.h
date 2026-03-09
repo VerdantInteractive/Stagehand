@@ -18,7 +18,12 @@ using Position2D = stagehand::transform::Position2D;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<const PlayerPosition, const PlayerTakeDamageSettings, const Position2D, const MeleeDamage>("Enemy Hit Player")
+    world.system<
+        const PlayerPosition,
+        const PlayerTakeDamageSettings,
+        const Position2D,
+        const MeleeDamage
+    >("Enemy Hit Player")
         .with<PlayerDamageCooldown>().inout()
         .with(flecs::IsA, EnemyPrefab)
         .run([](flecs::iter &it) {

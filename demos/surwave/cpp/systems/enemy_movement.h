@@ -75,7 +75,14 @@ namespace enemy_movement {
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<Position2D, Velocity2D, const PlayerPosition, const EnemyBoidMovementSettings, const MovementSpeed, const DeathTimer>("Enemy Movement")
+    world.system<
+        Position2D,
+        Velocity2D,
+        const PlayerPosition,
+        const EnemyBoidMovementSettings,
+        const MovementSpeed,
+        const DeathTimer
+    >("Enemy Movement")
         .with(flecs::IsA, EnemyPrefab)
         .run([](flecs::iter &it) {
             // clang-format on
