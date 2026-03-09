@@ -46,6 +46,16 @@ To generate optimised binaries for a release, use:
 addons/stagehand/scripts/build_release.sh
 ```
 
+### VSCode IDE integration
+
+#### Task & Launch Configuration
+
+First, make sure the following extensions are installed:
+- [clangd](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd)
+- [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
+
+Then, copy the`tasks.json` and `launch.json` files from `addons/stagehand/.vscode/` into the `.vscode/` directory at the project root, creating it if necessary. Edit `launch.json` and replace the occurences of `demos` with `.`. Now you can launch the editor or the main scene of your Godot project with the debugger attached using the appropriate shortcuts in the "Run and Debug" section of VSCode.
+
 ## Usage
 
 Place your project's C++ ECS code into the `ecs` subdirectory under your Godot project's root. You can use any file/subdirectory hierarchy within `ecs/`, but the `ecs` directory itself must be at the project root with this exact name to be picked up by the build system.
