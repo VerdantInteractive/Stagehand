@@ -48,7 +48,7 @@ addons/stagehand/scripts/build_release.sh
 
 ## Usage
 
-Place your project's C++ ECS code into the `ecs` subdirectory under the project root. You can use any file/subdirectory hierarchy within `ecs/`, but the `ecs` directory itself must be at the project root with that exact name to be picked up by the build system.
+Place your project's C++ ECS code into the `ecs` subdirectory under your Godot project's root. You can use any file/subdirectory hierarchy within `ecs/`, but the `ecs` directory itself must be at the project root with this exact name to be picked up by the build system.
 
 ### Upgrading Stagehand
 

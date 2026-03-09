@@ -42,10 +42,6 @@ class components:
 		const Vector4_ = "godot::Vector4"
 		const Vector4i_ = "godot::Vector4i"
 
-	class instanced_renderer:
-		const HasChangedInstanceColour = "instanced_renderer::HasChangedInstanceColour"
-		const InstanceColour = "instanced_renderer::InstanceColour"
-
 	class stagehand:
 		class physics:
 			const AngularVelocity2D = "stagehand::physics::AngularVelocity2D"
@@ -131,9 +127,6 @@ class components:
 
 
 class prefabs:
-	class instanced_renderer:
-		const TestInstance = "instanced_renderer::TestInstance"
-
 	class stagehand:
 		const Entity2D = "stagehand::Entity2D"
 		const Entity3D = "stagehand::Entity3D"
@@ -149,9 +142,6 @@ class prefabs:
 
 
 class systems:
-	class instanced_renderer:
-		const Movement = "instanced_renderer::Movement"
-
 	class stagehand:
 		class physics:
 			const Body_Space_Assignment_2D = "stagehand::physics::Body Space Assignment (2D)"
@@ -245,8 +235,6 @@ const SCHEMA := {
 		"godot::Vector3i": {"name": "Vector3i", "namespace": "godot", "data_type": "godot::Vector3i", "is_change_detection_tag": false},
 		"godot::Vector4": {"name": "Vector4", "namespace": "godot", "data_type": "godot::Vector4", "is_change_detection_tag": false},
 		"godot::Vector4i": {"name": "Vector4i", "namespace": "godot", "data_type": "godot::Vector4i", "is_change_detection_tag": false},
-		"instanced_renderer::HasChangedInstanceColour": {"name": "HasChangedInstanceColour", "namespace": "instanced_renderer", "data_type": "struct", "is_change_detection_tag": true},
-		"instanced_renderer::InstanceColour": {"name": "InstanceColour", "namespace": "instanced_renderer", "data_type": "godot::Vector4", "is_change_detection_tag": false},
 		"stagehand::EventPayload": {"name": "EventPayload", "namespace": "stagehand", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand::HasChangedWorldConfiguration": {"name": "HasChangedWorldConfiguration", "namespace": "stagehand", "data_type": "struct", "is_change_detection_tag": true},
 		"stagehand::IsChangeDetectionTag": {"name": "IsChangeDetectionTag", "namespace": "stagehand", "data_type": "struct", "is_change_detection_tag": false},
@@ -318,7 +306,6 @@ const SCHEMA := {
 		"stagehand_demos::surwave::VFlipTimer": {"name": "VFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
 	},
 	"prefabs": {
-		"instanced_renderer::TestInstance": {"name": "TestInstance", "namespace": "instanced_renderer"},
 		"stagehand::Entity2D": {"name": "Entity2D", "namespace": "stagehand"},
 		"stagehand::Entity3D": {"name": "Entity3D", "namespace": "stagehand"},
 		"stagehand_demos::game_of_life::Cell": {"name": "Cell", "namespace": "stagehand_demos::game_of_life"},
@@ -326,7 +313,6 @@ const SCHEMA := {
 		"stagehand_demos::surwave::Enemy": {"name": "Enemy", "namespace": "stagehand_demos::surwave"},
 	},
 	"systems": {
-		"instanced_renderer::Movement": {"name": "Movement", "namespace": "instanced_renderer"},
 		"stagehand::Tag Reset (Change Detection)": {"name": "Tag Reset (Change Detection)", "namespace": "stagehand"},
 		"stagehand::physics::Body Space Assignment (2D)": {"name": "Body Space Assignment (2D)", "namespace": "stagehand::physics"},
 		"stagehand::physics::Body Space Assignment (3D)": {"name": "Body Space Assignment (3D)", "namespace": "stagehand::physics"},

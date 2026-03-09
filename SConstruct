@@ -83,10 +83,10 @@ stagehand_cpp_sources = [s for s in stagehand_cpp_sources if not s.startswith(ge
 # Also include demo translation units in the main library so demo REGISTER_IN_MODULE callbacks are linked
 # into the extension and available at runtime unless when building as a downstream project (addons/stagehand).
 if os.path.isdir("demos") and not is_downstream_project:
-    stagehand_cpp_sources.extend(find_source_files("demos"))
+    stagehand_cpp_sources.extend(find_source_files("demos/ecs"))
 project_cpp_sources = []
 if PROJECT_DIRECTORY:
-    project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}")
+    project_cpp_sources = find_source_files(os.path.join(PROJECT_DIRECTORY, "ecs"))
     # Exclude repository integration test cpp sources when requested. Use forward-slash
     # normalized paths for comparison since find_source_files returns forward-slash paths.
     if bool(is_downstream_project):
