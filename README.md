@@ -15,9 +15,11 @@ Stagehand brings Flecs, a modern, high-performance Entity Component System to Go
 You'll need some development tools installed on the system that you'll build your project:
 
 - A Godot 4 executable
-- A C++ compiler. LLVM-Clang is recommended as it is the officially tested compiler on all platforms.
-- SCons as a build tool
-- A command-line or graphical `git` client
+- A C++ compiler. The build system and the rest of this document assumes that you have LLVM-Clang installed.
+- SCons as a build tool - install via `pip install SCons`.
+- A command-line or graphical `git` client.
+
+If not using LLVM-Clang, you will need to edit the `build_*.sh` scripts (and remember to explicitly pass if running `scons` directly) and set `use_llvm=no`.
 
 Stagehand is a [C++ GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/cpp/about_godot_cpp.html), and a more comprehensive set of instructions can be found in its [Getting Started section](https://docs.godotengine.org/en/stable/tutorials/scripting/cpp/gdextension_cpp_example.html) if needed.
 
@@ -48,13 +50,17 @@ addons/stagehand/scripts/build_release.sh
 
 ### VSCode IDE integration
 
-#### Task & Launch Configuration
-
-First, make sure the following extensions are installed:
-- [clangd](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd)
+Make sure the following extensions are installed:
+- [clangd extension](https://marketplace.visualstudio.com/items?itemName=llvm-vs-code-extensions.vscode-clangd)
 - [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
 
-Then, copy the`tasks.json` and `launch.json` files from `addons/stagehand/.vscode/` into the `.vscode/` directory at the project root, creating it if necessary. Edit `launch.json` and replace the occurences of `demos` with `.`. Now you can launch the editor or the main scene of your Godot project with the debugger attached using the appropriate shortcuts in the "Run and Debug" section of VSCode.
+#### Task & Launch Configuration
+
+1. copy the`tasks.json` and `launch.json` files from `addons/stagehand/.vscode/` into the `.vscode/` directory at the project root, creating it if necessary.
+2. Edit `launch.json` and replace the occurences of `demos` with `.`.
+3. Edit `tasks.json` and prefix the `command` field of the "Build (Debug)" task with `addons/stagehand`, so it becomes `"command": "addons/stagehand/scripts/build_debug.sh"`.
+
+Now you can launch the editor or the default scene of your Godot project with the debugger attached using the appropriate shortcuts in the "Run and Debug" section of VSCode.
 
 ## Usage
 
@@ -66,8 +72,4 @@ Simply run `git submodule update  --remote --recursive addons/stagehand` to pull
 
 ## Flecs Explorer
 
-Flecs' built-in visualisation and statistics interface Flecs Explorer is enabled and can be viewed at [this URL](https://www.flecs.dev/explorer/?page=stats&host=localhost) whilst the simulation is running.
-
-## Demo Video
-
-https://github.com/user-attachments/assets/c3863c63-0730-4891-a293-2de0180505e2
+Flecs' built-in visualisation and statistics interface Flecs Explorer is enabled in debug builds and can be viewed at [this URL](https://www.flecs.dev/explorer/?page=stats&host=localhost) when a Godot scene with a `FlecsWorld` node is loaded.
