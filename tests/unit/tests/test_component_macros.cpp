@@ -26,6 +26,10 @@ namespace test_macros {
     INT32(TestInt32Default, 42);
     UINT32(TestUint32);
     UINT32(TestUint32Default, 100u);
+    INT64(TestInt64);
+    INT64(TestInt64Default, static_cast<int64_t>(-9000000000LL));
+    UINT64(TestUint64);
+    UINT64(TestUint64Default, static_cast<uint64_t>(18000000000ULL));
     INT16(TestInt16);
     INT16(TestInt16Default, -500);
     UINT16(TestUint16);
@@ -232,6 +236,46 @@ TEST(MacrosUint32, ConstructAndConvert) {
     test_macros::TestUint32 u(0xDEADBEEF);
     uint32_t v = u;
     ASSERT_EQ(v, 0xDEADBEEF);
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// INT64 macro tests
+// ═══════════════════════════════════════════════════════════════════════════════
+
+TEST(MacrosInt64, DefaultValueIsZero) {
+    test_macros::TestInt64 i;
+    ASSERT_EQ(i.value, 0);
+}
+
+TEST(MacrosInt64, CustomDefaultValue) {
+    test_macros::TestInt64Default i;
+    ASSERT_EQ(i.value, static_cast<int64_t>(-9000000000LL));
+}
+
+TEST(MacrosInt64, ConstructAndConvert) {
+    test_macros::TestInt64 i(static_cast<int64_t>(-9223372036854775807LL));
+    int64_t v = i;
+    ASSERT_EQ(v, static_cast<int64_t>(-9223372036854775807LL));
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// UINT64 macro tests
+// ═══════════════════════════════════════════════════════════════════════════════
+
+TEST(MacrosUint64, DefaultValueIsZero) {
+    test_macros::TestUint64 u;
+    ASSERT_EQ(u.value, 0u);
+}
+
+TEST(MacrosUint64, CustomDefaultValue) {
+    test_macros::TestUint64Default u;
+    ASSERT_EQ(u.value, static_cast<uint64_t>(18000000000ULL));
+}
+
+TEST(MacrosUint64, ConstructAndConvert) {
+    test_macros::TestUint64 u(static_cast<uint64_t>(18446744073709551615ULL));
+    uint64_t v = u;
+    ASSERT_EQ(v, static_cast<uint64_t>(18446744073709551615ULL));
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

@@ -17,6 +17,8 @@ namespace test_no_change_detection {
     FLOAT_(NoTrackFloat, 1.5f);
     UINT16_(NoTrackUint16, 123);
     INT8_(NoTrackInt8, -2);
+    INT64_(NoTrackInt64, static_cast<int64_t>(-1234567890123LL));
+    UINT64_(NoTrackUint64, static_cast<uint64_t>(1234567890123ULL));
 
     struct PointerTarget {
         int value = 0;
@@ -40,6 +42,8 @@ namespace test_no_change_detection {
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackFloat>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackUint16>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackInt8>);
+    static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackInt64>);
+    static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackUint64>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackPointer>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackVectorInt>);
     static_assert(!stagehand::internal::component_has_change_tag_v<NoTrackArrayFloat>);
@@ -86,6 +90,8 @@ TEST_F(NoChangeDetectionFixture, OptOutComponentsDoNotRegisterChangeDetectionRel
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackFloat>()));
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackUint16>()));
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackInt8>()));
+    ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackInt64>()));
+    ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackUint64>()));
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackPointer>()));
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackVectorInt>()));
     ASSERT_FALSE(component_has_change_detection_relation(world.component<test_no_change_detection::NoTrackArrayFloat>()));
@@ -122,12 +128,28 @@ TEST_F(NoChangeDetectionFixture, OptOutComponentsStillRegisterGetterSetterFuncti
     std::unordered_map<std::string, stagehand::ComponentFunctions> &registry = stagehand::get_component_registry();
 
     for (const std::string &component_name :
-         {"NoTrackFloat", "NoTrackUint16", "NoTrackInt8", "NoTrackPointer", "NoTrackVectorInt", "NoTrackArrayFloat", "NoTrackVector3", "NoTrackEnum"}) {
+         {"NoTrackFloat", "NoTrackUint16", "NoTrackInt8", "NoTrackInt64", "NoTrackUint64", "NoTrackPointer", "NoTrackVectorInt", "NoTrackArrayFloat", "NoTrackVector3", "NoTrackEnum"}) {
         auto it = registry.find(component_name);
         ASSERT_NE(it, registry.end()) << component_name;
         ASSERT_TRUE(static_cast<bool>(it->second.getter)) << component_name;
         ASSERT_TRUE(static_cast<bool>(it->second.setter)) << component_name;
     }
+}
+
+TEST_F(NoChangeDetectionFixture, OptOutInt64AndUint64RoundtripCorrectly) {
+    stagehand::entity entity = world.entity();
+
+    entity.set<test_no_change_detection::NoTrackInt64>({static_cast<int64_t>(-998877665544LL)});
+    entity.set<test_no_change_detection::NoTrackUint64>({static_cast<uint64_t>(998877665544ULL)});
+
+    const test_no_change_detection::NoTrackInt64 *int_component = entity.try_get<test_no_change_detection::NoTrackInt64>();
+    const test_no_change_detection::NoTrackUint64 *uint_component = entity.try_get<test_no_change_detection::NoTrackUint64>();
+
+    ASSERT_NE(int_component, nullptr);
+    ASSERT_NE(uint_component, nullptr);
+    ASSERT_EQ(int_component->value, static_cast<int64_t>(-998877665544LL));
+    ASSERT_EQ(uint_component->value, static_cast<uint64_t>(998877665544ULL));
+    ASSERT_FALSE(entity_has_any_change_detection_tag(entity));
 }
 
 TEST_F(NoChangeDetectionFixture, OptOutContainersAndPointersRoundtripCorrectly) {

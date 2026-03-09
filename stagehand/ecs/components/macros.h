@@ -9,12 +9,14 @@
 
 #include "stagehand/ecs/components/traits.h" // IWYU pragma: keep
 
+using std::int8_t;
 using std::int16_t;
 using std::int32_t;
-using std::int8_t;
+using std::int64_t;
+using std::uint8_t;
 using std::uint16_t;
 using std::uint32_t;
-using std::uint8_t;
+using std::uint64_t;
 
 /// Macro that defines common operators for numeric component wrappers.
 #define NUMERIC_COMPONENT_OPERATORS(Name, Type)                                                                                                                \
@@ -71,13 +73,13 @@ using std::uint8_t;
 #define DOUBLE(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, double, double, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
 #define DOUBLE_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, double, double_no_change, , , __VA_ARGS__)
 
-/// Macro that defines a component wrapping a signed 32-bit integer.
-#define INT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int32_t, int32, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define INT32_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int32_t, int32_no_change, , , __VA_ARGS__)
+/// Macro that defines a component wrapping a signed 8-bit integer (-128 to 127).
+#define INT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int8_t, int8, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+#define INT8_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int8_t, int8_no_change, , , __VA_ARGS__)
 
-/// Macro that defines a component wrapping an unsigned 32-bit integer.
-#define UINT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint32_t, uint32, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define UINT32_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint32_t, uint32_no_change, , , __VA_ARGS__)
+/// Macro that defines a component wrapping an unsigned 8-bit integer (0 to 255).
+#define UINT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint8_t, uint8, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+#define UINT8_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint8_t, uint8_no_change, , , __VA_ARGS__)
 
 /// Macro that defines a component wrapping a signed 16-bit integer (-32,768 to 32,767).
 #define INT16(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int16_t, int16, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
@@ -87,13 +89,21 @@ using std::uint8_t;
 #define UINT16(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint16_t, uint16, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
 #define UINT16_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint16_t, uint16_no_change, , , __VA_ARGS__)
 
-/// Macro that defines a component wrapping a signed 8-bit integer (-128 to 127).
-#define INT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int8_t, int8, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define INT8_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int8_t, int8_no_change, , , __VA_ARGS__)
+/// Macro that defines a component wrapping a signed 32-bit integer.
+#define INT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int32_t, int32, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+#define INT32_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int32_t, int32_no_change, , , __VA_ARGS__)
 
-/// Macro that defines a component wrapping an unsigned 8-bit integer (0 to 255).
-#define UINT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint8_t, uint8, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define UINT8_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint8_t, uint8_no_change, , , __VA_ARGS__)
+/// Macro that defines a component wrapping an unsigned 32-bit integer.
+#define UINT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint32_t, uint32, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+#define UINT32_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint32_t, uint32_no_change, , , __VA_ARGS__)
+
+/// Macro that defines a component wrapping a signed 64-bit integer.
+#define INT64(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int64_t, int64, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+#define INT64_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int64_t, int64_no_change, , , __VA_ARGS__)
+
+/// Macro that defines a component wrapping an unsigned 64-bit integer.
+#define UINT64(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint64_t, uint64, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+#define UINT64_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint64_t, uint64_no_change, , , __VA_ARGS__)
 
 /// Macro that defines a component wrapping a pointer type.
 #define STAGEHAND_POINTER_COMPONENT_IMPL(Name, Type, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                       \
