@@ -1,8 +1,8 @@
-[gd_scene load_steps=9 format=3 uid="uid://cou2i7rmir1yd"]
+[gd_scene format=3 uid="uid://cou2i7rmir1yd"]
 
-[ext_resource type="Shader" uid="uid://dd8jm7x8qubxf" path="res://shaders/minimap.gdshader" id="1_ub6rh"]
-[ext_resource type="Texture2D" uid="uid://ca4ojb4ufv384" path="res://surwave/scenes/ui/images/gem_icon.png" id="2_qrj4e"]
-[ext_resource type="Script" uid="uid://bah00d831oowu" path="res://surwave/scenes/ui/status_overlay.gd" id="3_v8pcf"]
+[ext_resource type="Shader" uid="uid://dd8jm7x8qubxf" path="res://Surwave/shaders/minimap.gdshader" id="1_ub6rh"]
+[ext_resource type="Texture2D" uid="uid://ca4ojb4ufv384" path="res://Surwave/scenes/ui/images/gem_icon.png" id="2_qrj4e"]
+[ext_resource type="Script" uid="uid://bah00d831oowu" path="res://Surwave/scenes/ui/status_overlay.gd" id="3_v8pcf"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_ubp3b"]
 bg_color = Color(0.6, 0.6, 0.6, 0)

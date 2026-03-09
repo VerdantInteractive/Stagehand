@@ -1,7 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://dkdadcjwcxrw3"]
+[gd_scene format=3 uid="uid://dkdadcjwcxrw3"]
 
-[ext_resource type="Shader" uid="uid://bee5x32x3tytx" path="res://shaders/screen_transition.gdshader" id="1_f40s0"]
-[ext_resource type="Script" uid="uid://cyiahvj8kfg0l" path="res://surwave/scenes/ui/screen_transition.gd" id="1_ird54"]
+[ext_resource type="Shader" uid="uid://bee5x32x3tytx" path="res://Surwave/shaders/screen_transition.gdshader" id="1_f40s0"]
+[ext_resource type="Script" uid="uid://cyiahvj8kfg0l" path="res://Surwave/scenes/ui/screen_transition.gd" id="1_ird54"]
 
 [sub_resource type="Animation" id="Animation_f40s0"]
 resource_name = "transition"

@@ -65,7 +65,7 @@ if env["arch"] == "x86_64":
         env.Append(CCFLAGS=["-march=x86-64-v3"])
 
 def find_source_files(base_dir):
-    """Recursively find .cpp files under a base directory."""
+    """Recursively find C++ source files under a base directory."""
     cpp_files = []
     for root, dirs, files in os.walk(base_dir):
         if root == base_dir and "addons" in dirs:
@@ -104,7 +104,7 @@ if PROJECT_DIRECTORY:
         project_cpp_sources = []
 
 # Configure include paths; only add the additional project include root if set.
-cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "dependencies/pfr/include", "."]
+cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "dependencies/pfr/include", ".", f"{PROJECT_DIRECTORY}/ecs"]
 if PROJECT_DIRECTORY:
     cpplist.append(f"{PROJECT_DIRECTORY}")
 env.Append(CPPPATH=cpplist)
@@ -214,7 +214,7 @@ for src in stagehand_cpp_sources:
 
 project_cpp_objs = []
 for src in project_cpp_sources:
-    relative_path = os.path.relpath(src, PROJECT_DIRECTORY)
+    relative_path = os.path.relpath(src, f"{PROJECT_DIRECTORY}/ecs")
     obj_target = os.path.join(BUILD_DIR, os.path.splitext(relative_path)[0])
     project_cpp_objs.extend(project_env.SharedObject(
         target=obj_target,

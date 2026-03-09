@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bvpfv61mqo3mk"
-path="res://.godot/imported/vi-logo.png-ce7d9b0088847828c13e5df979bc9bb3.ctex"
+path="res://.godot/imported/vi-logo.png-e6e0dead7dc27bd2e4234094c7c56130.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/ui/images/vi-logo.png"
-dest_files=["res://.godot/imported/vi-logo.png-ce7d9b0088847828c13e5df979bc9bb3.ctex"]
+source_file="res://Surwave/scenes/ui/images/vi-logo.png"
+dest_files=["res://.godot/imported/vi-logo.png-e6e0dead7dc27bd2e4234094c7c56130.ctex"]
 
 [params]
 

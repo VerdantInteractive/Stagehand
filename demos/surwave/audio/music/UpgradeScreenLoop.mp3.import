@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://bulch4mqcagif"
-path="res://.godot/imported/UpgradeScreenLoop.mp3-7ea31c11bda041ae174ac3bd5099a356.mp3str"
+path="res://.godot/imported/UpgradeScreenLoop.mp3-f9071cbd2d0e747e7a2ce3e1a2f775c1.mp3str"
 
 [deps]
 
-source_file="res://surwave/audio/music/UpgradeScreenLoop.mp3"
-dest_files=["res://.godot/imported/UpgradeScreenLoop.mp3-7ea31c11bda041ae174ac3bd5099a356.mp3str"]
+source_file="res://Surwave/audio/music/UpgradeScreenLoop.mp3"
+dest_files=["res://.godot/imported/UpgradeScreenLoop.mp3-f9071cbd2d0e747e7a2ce3e1a2f775c1.mp3str"]
 
 [params]
 

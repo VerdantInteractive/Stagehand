@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://boks3yb5o73wb"
-path="res://.godot/imported/title-small-2color.png-975b58677801f87409c769a508420dfc.ctex"
+path="res://.godot/imported/title-small-2color.png-b2da4e5bd0b3d01d56294f5e0b996b2c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/ui/images/title-small-2color.png"
-dest_files=["res://.godot/imported/title-small-2color.png-975b58677801f87409c769a508420dfc.ctex"]
+source_file="res://Surwave/scenes/ui/images/title-small-2color.png"
+dest_files=["res://.godot/imported/title-small-2color.png-b2da4e5bd0b3d01d56294f5e0b996b2c.ctex"]
 
 [params]
 

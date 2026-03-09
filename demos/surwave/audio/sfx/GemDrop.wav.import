@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://sgfnmam2ak1n"
-path="res://.godot/imported/GemDrop.wav-56b9c1a03dc3cceef98e5e6b806affb5.sample"
+path="res://.godot/imported/GemDrop.wav-791388258f896e6ed8a0427ffddeb0c2.sample"
 
 [deps]
 
-source_file="res://surwave/audio/sfx/GemDrop.wav"
-dest_files=["res://.godot/imported/GemDrop.wav-56b9c1a03dc3cceef98e5e6b806affb5.sample"]
+source_file="res://Surwave/audio/sfx/GemDrop.wav"
+dest_files=["res://.godot/imported/GemDrop.wav-791388258f896e6ed8a0427ffddeb0c2.sample"]
 
 [params]
 

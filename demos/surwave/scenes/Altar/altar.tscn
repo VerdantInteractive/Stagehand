@@ -1,8 +1,8 @@
-[gd_scene load_steps=12 format=3 uid="uid://bq3luf1jvhoyx"]
+[gd_scene format=3 uid="uid://bq3luf1jvhoyx"]
 
-[ext_resource type="Texture2D" uid="uid://bpagas30bun5u" path="res://surwave/scenes/Altar/Altar.png" id="1_0khly"]
-[ext_resource type="Script" uid="uid://bx35bdxacsgdk" path="res://surwave/scenes/Altar/altar.gd" id="1_muwh6"]
-[ext_resource type="PackedScene" uid="uid://b0m0y6aoexp4a" path="res://surwave/scenes/ui/upgrade_screen.tscn" id="2_8t5dx"]
+[ext_resource type="Texture2D" uid="uid://bpagas30bun5u" path="res://Surwave/scenes/Altar/Altar.png" id="1_0khly"]
+[ext_resource type="Script" uid="uid://bx35bdxacsgdk" path="res://Surwave/scenes/Altar/altar.gd" id="1_muwh6"]
+[ext_resource type="PackedScene" uid="uid://b0m0y6aoexp4a" path="res://Surwave/scenes/ui/upgrade_screen.tscn" id="2_8t5dx"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_muwh6"]
 radius = 9.0

@@ -2,8 +2,8 @@
 
 #include "stagehand/registry.h"
 
-#include "demos/surwave/cpp/components/singletons.h"
-#include "demos/surwave/cpp/prefabs/enemy.h"
+#include "demos/ecs/surwave/components/singletons.h"
+#include "demos/ecs/surwave/prefabs/enemy.h"
 
 using namespace stagehand_demos::surwave;
 

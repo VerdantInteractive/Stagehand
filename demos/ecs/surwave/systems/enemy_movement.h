@@ -13,10 +13,10 @@
 #include "stagehand/ecs/components/transform.h"
 #include "stagehand/registry.h"
 
-#include "demos/surwave/cpp/components/enemy.h"
-#include "demos/surwave/cpp/components/singletons.h"
-#include "demos/surwave/cpp/prefabs/enemy.h"
-#include "demos/surwave/cpp/utilities/enemy_kd_tree.h"
+#include "demos/ecs/surwave/components/enemy.h"
+#include "demos/ecs/surwave/components/singletons.h"
+#include "demos/ecs/surwave/prefabs/enemy.h"
+#include "demos/ecs/surwave/utilities/enemy_kd_tree.h"
 
 using namespace stagehand_demos::surwave;
 using Position2D = stagehand::transform::Position2D;

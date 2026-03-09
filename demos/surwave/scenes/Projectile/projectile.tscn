@@ -1,7 +1,7 @@
-[gd_scene load_steps=12 format=3 uid="uid://cdgbhqr7en0pv"]
+[gd_scene format=3 uid="uid://cdgbhqr7en0pv"]
 
-[ext_resource type="Script" uid="uid://cvj72ut30wm0o" path="res://surwave/scenes/Projectile/projectile.gd" id="1_tk4bu"]
-[ext_resource type="Texture2D" uid="uid://cww3kr7t6kku5" path="res://surwave/resources/Projectile/projectile_texture.tres" id="2_tbm3g"]
+[ext_resource type="Script" uid="uid://cvj72ut30wm0o" path="res://Surwave/scenes/Projectile/projectile.gd" id="1_tk4bu"]
+[ext_resource type="Texture2D" uid="uid://cww3kr7t6kku5" path="res://Surwave/resources/Projectile/projectile_texture.tres" id="2_tbm3g"]
 
 [sub_resource type="CircleShape2D" id="CircleShape2D_6alpu"]
 radius = 3.0

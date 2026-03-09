@@ -2,8 +2,8 @@
 
 #include "stagehand/registry.h"
 
-#include "demos/surwave/cpp/components/enemy.h"
-#include "demos/surwave/cpp/prefabs/character2d.h"
+#include "demos/ecs/surwave/components/enemy.h"
+#include "demos/ecs/surwave/prefabs/character2d.h"
 
 namespace stagehand_demos::surwave {
     inline flecs::entity EnemyPrefab;

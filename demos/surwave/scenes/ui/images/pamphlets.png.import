@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bgh5rsijk5sdh"
-path="res://.godot/imported/pamphlets.png-bd0c0f335cfee5b671707a9b0f76e2df.ctex"
+path="res://.godot/imported/pamphlets.png-7823af30edfd4ebcb534b9c78e01d6ee.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/ui/images/pamphlets.png"
-dest_files=["res://.godot/imported/pamphlets.png-bd0c0f335cfee5b671707a9b0f76e2df.ctex"]
+source_file="res://Surwave/scenes/ui/images/pamphlets.png"
+dest_files=["res://.godot/imported/pamphlets.png-7823af30edfd4ebcb534b9c78e01d6ee.ctex"]
 
 [params]
 

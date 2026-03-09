@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://4vkky8xmxasg"
-path="res://.godot/imported/grass4.png-f5f471809a757d001e0d56e4f488be0a.ctex"
+path="res://.godot/imported/grass4.png-24ebabadc094c276f72223b160e129d4.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/Stage 01/foliage/grass4.png"
-dest_files=["res://.godot/imported/grass4.png-f5f471809a757d001e0d56e4f488be0a.ctex"]
+source_file="res://Surwave/scenes/Stage 01/foliage/grass4.png"
+dest_files=["res://.godot/imported/grass4.png-24ebabadc094c276f72223b160e129d4.ctex"]
 
 [params]
 

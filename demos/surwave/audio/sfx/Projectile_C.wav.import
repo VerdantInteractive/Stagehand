@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://chw26ufg7nfuh"
-path="res://.godot/imported/Projectile_C.wav-db23c9ab54d09d0b4cfe236c57569f39.sample"
+path="res://.godot/imported/Projectile_C.wav-37d54b023092b9ce74e23b7594c746e0.sample"
 
 [deps]
 
-source_file="res://surwave/audio/sfx/Projectile_C.wav"
-dest_files=["res://.godot/imported/Projectile_C.wav-db23c9ab54d09d0b4cfe236c57569f39.sample"]
+source_file="res://Surwave/audio/sfx/Projectile_C.wav"
+dest_files=["res://.godot/imported/Projectile_C.wav-37d54b023092b9ce74e23b7594c746e0.sample"]
 
 [params]
 

@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bd20oc5e0olbf"
-path="res://.godot/imported/MechBoss.png-43f824284366eecb8c413ed26df6c410.ctex"
+path="res://.godot/imported/MechBoss.png-3f802b42b82916ef86d2e82b5b6123b5.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/resources/characters/enemies/MechBoss.png"
-dest_files=["res://.godot/imported/MechBoss.png-43f824284366eecb8c413ed26df6c410.ctex"]
+source_file="res://Surwave/resources/characters/enemies/MechBoss.png"
+dest_files=["res://.godot/imported/MechBoss.png-3f802b42b82916ef86d2e82b5b6123b5.ctex"]
 
 [params]
 

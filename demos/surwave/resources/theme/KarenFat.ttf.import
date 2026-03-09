@@ -3,12 +3,12 @@
 importer="font_data_dynamic"
 type="FontFile"
 uid="uid://bts0yganv5ipq"
-path="res://.godot/imported/KarenFat.ttf-68a7cdf3ed7ad6c456431c92c12cfca4.fontdata"
+path="res://.godot/imported/KarenFat.ttf-e389fb03a578a0a7d8f71936cd28e66f.fontdata"
 
 [deps]
 
-source_file="res://surwave/resources/theme/KarenFat.ttf"
-dest_files=["res://.godot/imported/KarenFat.ttf-68a7cdf3ed7ad6c456431c92c12cfca4.fontdata"]
+source_file="res://Surwave/resources/theme/KarenFat.ttf"
+dest_files=["res://.godot/imported/KarenFat.ttf-e389fb03a578a0a7d8f71936cd28e66f.fontdata"]
 
 [params]
 

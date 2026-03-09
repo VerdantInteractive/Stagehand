@@ -3,12 +3,12 @@
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
 uid="uid://c6022the5qrem"
-path="res://.godot/imported/BugSmallHurt.ogg-bcb2252029e98e76b738c6a164201ed9.oggvorbisstr"
+path="res://.godot/imported/BugSmallHurt.ogg-2bc1d466bd8274b2ed4ee174c458c44d.oggvorbisstr"
 
 [deps]
 
-source_file="res://surwave/audio/sfx/BugSmallHurt.ogg"
-dest_files=["res://.godot/imported/BugSmallHurt.ogg-bcb2252029e98e76b738c6a164201ed9.oggvorbisstr"]
+source_file="res://Surwave/audio/sfx/BugSmallHurt.ogg"
+dest_files=["res://.godot/imported/BugSmallHurt.ogg-2bc1d466bd8274b2ed4ee174c458c44d.oggvorbisstr"]
 
 [params]
 

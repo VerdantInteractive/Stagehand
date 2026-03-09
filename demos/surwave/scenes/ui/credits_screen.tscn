@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://dq8qlbgcgavbj"]
 
-[ext_resource type="Script" uid="uid://cj0a2tc5d7cex" path="res://surwave/scenes/ui/credits_screen.gd" id="1_h6ve6"]
-[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://surwave/scenes/ui/images/background.png" id="2_0irp7"]
-[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="3_uklmw"]
+[ext_resource type="Script" uid="uid://cj0a2tc5d7cex" path="res://Surwave/scenes/ui/credits_screen.gd" id="1_h6ve6"]
+[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://Surwave/scenes/ui/images/background.png" id="2_0irp7"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://Surwave/scenes/ui/audible_button.gd" id="3_uklmw"]
 
 [node name="CreditsScreen" type="CanvasLayer" unique_id=1444305744]
 layer = 2

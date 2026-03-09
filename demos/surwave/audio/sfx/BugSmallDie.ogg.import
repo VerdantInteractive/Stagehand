@@ -3,12 +3,12 @@
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
 uid="uid://crqcjobwpafl6"
-path="res://.godot/imported/BugSmallDie.ogg-461c7cbced82302fd38397b050a46737.oggvorbisstr"
+path="res://.godot/imported/BugSmallDie.ogg-d0f425cb639e4ba9f1b99eec4a84fa47.oggvorbisstr"
 
 [deps]
 
-source_file="res://surwave/audio/sfx/BugSmallDie.ogg"
-dest_files=["res://.godot/imported/BugSmallDie.ogg-461c7cbced82302fd38397b050a46737.oggvorbisstr"]
+source_file="res://Surwave/audio/sfx/BugSmallDie.ogg"
+dest_files=["res://.godot/imported/BugSmallDie.ogg-d0f425cb639e4ba9f1b99eec4a84fa47.oggvorbisstr"]
 
 [params]
 

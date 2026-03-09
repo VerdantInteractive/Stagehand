@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://b0m0y6aoexp4a"]
 
-[ext_resource type="Script" uid="uid://cmpnatk18fbnv" path="res://surwave/scenes/ui/upgrade_screen.gd" id="1_clnow"]
-[ext_resource type="PackedScene" uid="uid://dg3fliufon0m4" path="res://surwave/scenes/ui/upgrade_card.tscn" id="2_eg2gl"]
-[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="3_rw4n6"]
+[ext_resource type="Script" uid="uid://cmpnatk18fbnv" path="res://Surwave/scenes/ui/upgrade_screen.gd" id="1_clnow"]
+[ext_resource type="PackedScene" uid="uid://dg3fliufon0m4" path="res://Surwave/scenes/ui/upgrade_card.tscn" id="2_eg2gl"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://Surwave/scenes/ui/audible_button.gd" id="3_rw4n6"]
 
 [sub_resource type="Animation" id="Animation_bd1lb"]
 length = 0.001

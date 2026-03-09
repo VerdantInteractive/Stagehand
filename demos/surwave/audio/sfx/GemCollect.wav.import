@@ -3,12 +3,12 @@
 importer="wav"
 type="AudioStreamWAV"
 uid="uid://dnuc1kab57s8k"
-path="res://.godot/imported/GemCollect.wav-e77e03c703bf9698989fbaa4d8aeca16.sample"
+path="res://.godot/imported/GemCollect.wav-9508cee76e50c29f08492cb1d7f66ab5.sample"
 
 [deps]
 
-source_file="res://surwave/audio/sfx/GemCollect.wav"
-dest_files=["res://.godot/imported/GemCollect.wav-e77e03c703bf9698989fbaa4d8aeca16.sample"]
+source_file="res://Surwave/audio/sfx/GemCollect.wav"
+dest_files=["res://.godot/imported/GemCollect.wav-9508cee76e50c29f08492cb1d7f66ab5.sample"]
 
 [params]
 

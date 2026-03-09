@@ -1,7 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://c3ddp3cyxtm0q"]
+[gd_scene format=3 uid="uid://c3ddp3cyxtm0q"]
 
-[ext_resource type="Script" uid="uid://ck4krmsbppljt" path="res://surwave/scenes/ui/end_screen.gd" id="1_dtet5"]
-[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="2_n8r4t"]
+[ext_resource type="Script" uid="uid://ck4krmsbppljt" path="res://Surwave/scenes/ui/end_screen.gd" id="1_dtet5"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://Surwave/scenes/ui/audible_button.gd" id="2_n8r4t"]
 
 [sub_resource type="Animation" id="Animation_bd1lb"]
 length = 0.001
