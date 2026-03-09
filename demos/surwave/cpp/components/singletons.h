@@ -18,116 +18,43 @@ namespace stagehand_demos::surwave {
     GODOT_VARIANT_(PlayerPosition, godot::Vector2).then([](auto component) { component.add(flecs::Singleton); });
     FLOAT_(PlayerDamageCooldown, 0.3f).then([](auto component) { component.add(flecs::Singleton); });
 
-    struct EnemyBoidMovementSettings {
-        float player_attraction_weight;
-        float player_engage_radius;
-        float neighbor_radius;
-        float separation_radius;
-        float max_speed_multiplier;
-        float max_force;
-        float grid_cell_size;
-        float separation_weight;
-        float kd_tree_rebuild_distance;
-        float kd_tree_max_stale_frames;
-        float max_neighbor_sample_count;
-        float separation_noise_intensity;
-    };
+    STRUCT_(EnemyBoidMovementSettings, {
+        float player_attraction_weight = 1.0f;
+        float player_engage_radius = 28.0f;
+        float neighbor_radius = 110.0f;
+        float separation_radius = 30.0f;
+        float max_speed_multiplier = 1.1f;
+        float max_force = 220.0f;
+        float grid_cell_size = 96.0f;
+        float separation_weight = 1.0f;
+        float kd_tree_rebuild_distance = 35.0f;
+        float kd_tree_max_stale_frames = 8.0f;
+        float max_neighbor_sample_count = 48.0f;
+        float separation_noise_intensity = 0.05f;
+    }).then([](auto component) { component.add(flecs::Singleton); });
 
-    struct EnemyAnimationSettings {
-        float animation_interval;
-        float walk_animation_range;
-        float death_animation_frame_count;
-        float up_direction_frame_offset;
-        float horizontal_flip_cooldown;
-        float vertical_flip_cooldown;
-        float nominal_movement_speed;
-        float animation_offset_fraction_range;
-        float hit_reaction_duration;
-    };
+    STRUCT_(EnemyAnimationSettings, {
+        float animation_interval = 0.25f;
+        float walk_animation_range = 5.0f;
+        float death_animation_frame_count = 4.0f;
+        float up_direction_frame_offset = 6.0f;
+        float horizontal_flip_cooldown = 0.5f;
+        float vertical_flip_cooldown = 0.5f;
+        float nominal_movement_speed = 9.0f;
+        float animation_offset_fraction_range = 0.3f;
+        float hit_reaction_duration = 0.1f;
+    }).then([](auto component) { component.add(flecs::Singleton); });
 
-    struct EnemyTakeDamageSettings {
-        float projectile_hit_cooldown;
-        float shockwave_hit_cooldown;
-        float projectile_damage;
-        float shockwave_damage;
-    };
+    STRUCT_(EnemyTakeDamageSettings, {
+        float projectile_hit_cooldown = 0.2f;
+        float shockwave_hit_cooldown = 1.0f;
+        float projectile_damage = 1.0f;
+        float shockwave_damage = 1.0f;
+    }).then([](auto component) { component.add(flecs::Singleton); });
 
-    struct PlayerTakeDamageSettings {
-        float damage_cooldown;
-        float player_hit_radius;
-    };
-
-    inline auto register_game_singletons = stagehand::Registry("stagehand_demos::surwave", [](flecs::world &world) {
-        world.component<EnemyBoidMovementSettings>()
-            .member<float>("player_attraction_weight")
-            .member<float>("player_engage_distance")
-            .member<float>("neighbor_radius")
-            .member<float>("separation_radius")
-            .member<float>("max_speed_multiplier")
-            .member<float>("max_force")
-            .member<float>("grid_cell_size")
-            .member<float>("separation_weight")
-            .member<float>("kd_tree_rebuild_distance")
-            .member<float>("kd_tree_max_stale_frames")
-            .member<float>("max_neighbor_sample_count")
-            .member<float>("separation_noise_intensity")
-            .add(flecs::Singleton)
-            .set<EnemyBoidMovementSettings>({
-                1.0f,   // player_attraction_weight
-                28.0f,  // player_engage_distance
-                110.0f, // neighbor_radius
-                30.0f,  // separation_radius
-                1.1f,   // max_speed_multiplier
-                220.0f, // max_force
-                96.0f,  // grid_cell_size
-                1.0f,   // separation_weight
-                35.0f,  // kd_tree_rebuild_distance
-                8.0f,   // kd_tree_max_stale_frames
-                48.0f,  // max_neighbor_sample_count
-                0.05f   // separation_noise_intensity
-            });
-
-        world.component<EnemyAnimationSettings>()
-            .member<float>("animation_interval")
-            .member<float>("walk_animation_range")
-            .member<float>("death_animation_frame_count")
-            .member<float>("up_direction_frame_offset")
-            .member<float>("horizontal_flip_cooldown")
-            .member<float>("vertical_flip_cooldown")
-            .member<float>("nominal_movement_speed")
-            .member<float>("animation_offset_fraction_range")
-            .member<float>("hit_reaction_duration")
-            .add(flecs::Singleton)
-            .set<EnemyAnimationSettings>({
-                0.25f, // animation_interval
-                5.0f,  // walk_animation_range
-                4.0f,  // death_animation_frame_count
-                6.0f,  // up_direction_frame_offset
-                0.5f,  // horizontal_flip_cooldown
-                0.5f,  // vertical_flip_cooldown
-                9.0f,  // nominal_movement_speed
-                0.3f,  // animation_offset_fraction_range
-                0.1f   // hit_reaction_duration
-            });
-
-        world.component<EnemyTakeDamageSettings>()
-            .member<float>("projectile_hit_cooldown")
-            .member<float>("shockwave_hit_cooldown")
-            .member<float>("projectile_damage")
-            .member<float>("shockwave_damage")
-            .add(flecs::Singleton)
-            .set<EnemyTakeDamageSettings>({
-                0.2f, // projectile_hit_cooldown
-                1.0f, // shockwave_hit_cooldown
-                1.0f, // projectile_damage
-                1.0f  // shockwave_damage
-            });
-
-        world.component<PlayerTakeDamageSettings>()
-            .member<float>("damage_cooldown")
-            .member<float>("player_hit_radius")
-            .add(flecs::Singleton)
-            .set<PlayerTakeDamageSettings>({0.3f, 9.0f});
-    });
+    STRUCT_(PlayerTakeDamageSettings, {
+        float damage_cooldown = 0.3f;
+        float player_hit_radius = 9.0f;
+    }).then([](auto component) { component.add(flecs::Singleton); });
 
 } // namespace stagehand_demos::surwave

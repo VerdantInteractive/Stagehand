@@ -1,8 +1,5 @@
 #pragma once
 
-#include <cstddef>
-#include <cstdint>
-
 #include <godot_cpp/core/math.hpp>
 #include <godot_cpp/variant/dictionary.hpp>
 #include <godot_cpp/variant/vector2.hpp>
@@ -21,18 +18,21 @@ using Position2D = stagehand::transform::Position2D;
 
 REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
     // clang-format off
-    world.system<PlayerDamageCooldown, const PlayerPosition, const PlayerTakeDamageSettings, const Position2D, const MeleeDamage>("Enemy Hit Player")
+    world.system<const PlayerDamageCooldown, const PlayerPosition, const PlayerTakeDamageSettings, const Position2D, const MeleeDamage>("Enemy Hit Player")
         .with(flecs::IsA, EnemyPrefab)
         .run([](flecs::iter &it) {
             // clang-format on
             while (it.next()) {
-                flecs::field<PlayerDamageCooldown> player_damage_cooldown_field = it.field<PlayerDamageCooldown>(0);
+                flecs::field<const PlayerDamageCooldown> player_damage_cooldown_field = it.field<const PlayerDamageCooldown>(0);
                 flecs::field<const PlayerPosition> player_position_field = it.field<const PlayerPosition>(1);
                 flecs::field<const PlayerTakeDamageSettings> damage_settings_field = it.field<const PlayerTakeDamageSettings>(2);
                 flecs::field<const Position2D> positions = it.field<const Position2D>(3);
                 flecs::field<const MeleeDamage> melee_damages = it.field<const MeleeDamage>(4);
 
-                PlayerDamageCooldown *player_damage_cooldown = &player_damage_cooldown_field[0];
+                PlayerDamageCooldown *player_damage_cooldown = it.world().try_get_mut<PlayerDamageCooldown>();
+                if (player_damage_cooldown == nullptr) {
+                    return;
+                }
                 const PlayerPosition *player_position = &player_position_field[0];
                 const PlayerTakeDamageSettings *damage_settings = &damage_settings_field[0];
 

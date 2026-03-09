@@ -70,17 +70,22 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
         });
 
     // clang-format off
-    world.system<PlayerDamageCooldown, const PlayerTakeDamageSettings>("Player Damage Timer Tick")
+    world.system<const PlayerDamageCooldown, const PlayerTakeDamageSettings>("Player Damage Timer Tick")
         .kind(flecs::PreUpdate)
         .run([](flecs::iter &it) {
         // clang-format on
         while (it.next()) {
-            flecs::field<PlayerDamageCooldown> player_damage_cooldown = it.field<PlayerDamageCooldown>(0);
+            flecs::field<const PlayerDamageCooldown> player_damage_cooldown = it.field<const PlayerDamageCooldown>(0);
             flecs::field<const PlayerTakeDamageSettings> player_damage_settings = it.field<const PlayerTakeDamageSettings>(1);
+
+            PlayerDamageCooldown *mutable_player_damage_cooldown = it.world().try_get_mut<PlayerDamageCooldown>();
+            if (mutable_player_damage_cooldown == nullptr) {
+                return;
+            }
 
             const float cooldown = godot::Math::max(player_damage_settings->damage_cooldown, 0.0f);
             if (cooldown <= 0.0f) {
-                player_damage_cooldown->value = cooldown;
+                mutable_player_damage_cooldown->value = cooldown;
                 return;
             }
 
@@ -89,7 +94,7 @@ REGISTER_IN_MODULE(stagehand_demos::surwave, [](flecs::world &world) {
                 return;
             }
 
-            player_damage_cooldown->value = godot::Math::min(player_damage_cooldown->value + delta_time, cooldown);
+            mutable_player_damage_cooldown->value = godot::Math::min(player_damage_cooldown->value + delta_time, cooldown);
         }
     });
 });
