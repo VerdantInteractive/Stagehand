@@ -12,14 +12,8 @@ func _ready() -> void:
 
 func _on_flecs_signal(signal_name: StringName, data: Dictionary) -> void:
 	if signal_name == "enemy_died":
-		var enemy_type := String(data.get("enemy_type", ""))
-		var drop_chance := float(drop_probabilities.get(enemy_type, 0.0))
+		var drop_chance := drop_probabilities[data.get("enemy_type")]
 		if randf() < drop_chance:
-			if gem_scene == null:
-				return
-			var enemy_position := data.get("enemy_position", null)
-			if not enemy_position is Vector2:
-				return
 			var gem = gem_scene.instantiate() as Node2D
-			gem.global_position = enemy_position
+			gem.global_position = data.enemy_position
 			add_child(gem)

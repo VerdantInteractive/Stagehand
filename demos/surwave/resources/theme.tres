@@ -1,8 +1,8 @@
 [gd_resource type="Theme" format=3 uid="uid://dqjww1l3b8tt4"]
 
-[ext_resource type="Texture2D" uid="uid://twor16be32bn" path="res://surwave/scenes/ui/images/bulletpoint.png" id="1_ij8oi"]
-[ext_resource type="Texture2D" uid="uid://bgh5rsijk5sdh" path="res://surwave/scenes/ui/images/pamphlets.png" id="2_k6a2o"]
-[ext_resource type="FontFile" uid="uid://bts0yganv5ipq" path="res://surwave/resources/theme/KarenFat.ttf" id="3_ski75"]
+[ext_resource type="Texture2D" uid="uid://twor16be32bn" path="res://Surwave/scenes/ui/images/bulletpoint.png" id="1_ij8oi"]
+[ext_resource type="Texture2D" uid="uid://bgh5rsijk5sdh" path="res://Surwave/scenes/ui/images/pamphlets.png" id="2_k6a2o"]
+[ext_resource type="FontFile" uid="uid://bts0yganv5ipq" path="res://Surwave/resources/theme/KarenFat.ttf" id="3_ski75"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_orw62"]
 

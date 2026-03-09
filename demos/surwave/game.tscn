@@ -1,7 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://cwaod45hj5gi"]
+[gd_scene format=3 uid="uid://cwaod45hj5gi"]
 
-[ext_resource type="Script" uid="uid://dc1cf2wj0uqla" path="res://game.gd" id="1_fc0e3"]
-[ext_resource type="PackedScene" uid="uid://1f0s78v8ooax" path="res://surwave/scenes/Stage 01/stage_01.tscn" id="2_e2o6t"]
+[ext_resource type="Script" uid="uid://dc1cf2wj0uqla" path="res://Surwave/game.gd" id="1_fc0e3"]
+[ext_resource type="PackedScene" uid="uid://1f0s78v8ooax" path="res://Surwave/scenes/Stage 01/stage_01.tscn" id="2_e2o6t"]
 
 [node name="Game" type="Node"]
 script = ExtResource("1_fc0e3")

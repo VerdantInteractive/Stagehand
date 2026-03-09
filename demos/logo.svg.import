@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bd20oc5e0olbf"
-path="res://.godot/imported/MechBoss.png-3f802b42b82916ef86d2e82b5b6123b5.ctex"
+uid="uid://b6pfyvvrox4jw"
+path="res://.godot/imported/logo.svg-8d8cf086b974db23ad31f8a2f3ea7d0f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Surwave/resources/characters/enemies/MechBoss.png"
-dest_files=["res://.godot/imported/MechBoss.png-3f802b42b82916ef86d2e82b5b6123b5.ctex"]
+source_file="res://logo.svg"
+dest_files=["res://.godot/imported/logo.svg-8d8cf086b974db23ad31f8a2f3ea7d0f.ctex"]
 
 [params]
 
@@ -38,3 +38,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

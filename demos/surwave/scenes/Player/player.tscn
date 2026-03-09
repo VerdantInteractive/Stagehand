@@ -1,12 +1,12 @@
-[gd_scene load_steps=14 format=3 uid="uid://b6bjohq7ewbe0"]
+[gd_scene format=3 uid="uid://b6bjohq7ewbe0"]
 
-[ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://surwave/scenes/Player/player.gd" id="1_1kbk7"]
-[ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://surwave/scenes/Player/sprites.png" id="1_cyojo"]
-[ext_resource type="PackedScene" uid="uid://c3ddp3cyxtm0q" path="res://surwave/scenes/ui/end_screen.tscn" id="2_a06cl"]
-[ext_resource type="Script" uid="uid://cstjmlchpx8l6" path="res://classes/upgrade_manager.gd" id="2_hvfru"]
-[ext_resource type="Shader" uid="uid://dnrcjfhn7xfqk" path="res://shaders/shockwave.gdshader" id="3_gqjuk"]
-[ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://classes/projectile_manager.gd" id="4_uiqp4"]
-[ext_resource type="Script" uid="uid://coxlji6xeb5sy" path="res://classes/shockwave_manager.gd" id="5_hvfru"]
+[ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://Surwave/scenes/Player/player.gd" id="1_1kbk7"]
+[ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://Surwave/scenes/Player/sprites.png" id="1_cyojo"]
+[ext_resource type="PackedScene" uid="uid://c3ddp3cyxtm0q" path="res://Surwave/scenes/ui/end_screen.tscn" id="2_a06cl"]
+[ext_resource type="Script" uid="uid://cstjmlchpx8l6" path="res://Surwave/classes/upgrade_manager.gd" id="2_hvfru"]
+[ext_resource type="Shader" uid="uid://dnrcjfhn7xfqk" path="res://Surwave/shaders/shockwave.gdshader" id="3_gqjuk"]
+[ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://Surwave/classes/projectile_manager.gd" id="4_uiqp4"]
+[ext_resource type="Script" uid="uid://coxlji6xeb5sy" path="res://Surwave/classes/shockwave_manager.gd" id="5_hvfru"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_c4h5g"]
 shader = ExtResource("3_gqjuk")

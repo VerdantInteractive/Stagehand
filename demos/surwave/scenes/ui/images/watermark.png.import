@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://cllvftedv8og0"
-path="res://.godot/imported/watermark.png-5c26991e08e788a66a3b2277f9800d1d.ctex"
+path="res://.godot/imported/watermark.png-8bbfc285f3d6e370364bb3fad75f6c53.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/ui/images/watermark.png"
-dest_files=["res://.godot/imported/watermark.png-5c26991e08e788a66a3b2277f9800d1d.ctex"]
+source_file="res://Surwave/scenes/ui/images/watermark.png"
+dest_files=["res://.godot/imported/watermark.png-8bbfc285f3d6e370364bb3fad75f6c53.ctex"]
 
 [params]
 

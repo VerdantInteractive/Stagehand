@@ -3,12 +3,12 @@
 importer="oggvorbisstr"
 type="AudioStreamOggVorbis"
 uid="uid://t3si4cfnx830"
-path="res://.godot/imported/BugHumanoidHurt.ogg-af6be99310f19754129bdea82e65e478.oggvorbisstr"
+path="res://.godot/imported/BugHumanoidHurt.ogg-a1ac5461f94fb5d72484d0591191c528.oggvorbisstr"
 
 [deps]
 
-source_file="res://surwave/audio/sfx/BugHumanoidHurt.ogg"
-dest_files=["res://.godot/imported/BugHumanoidHurt.ogg-af6be99310f19754129bdea82e65e478.oggvorbisstr"]
+source_file="res://Surwave/audio/sfx/BugHumanoidHurt.ogg"
+dest_files=["res://.godot/imported/BugHumanoidHurt.ogg-a1ac5461f94fb5d72484d0591191c528.oggvorbisstr"]
 
 [params]
 

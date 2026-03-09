@@ -19,19 +19,17 @@ config/version="1.0.0"
 run/main_scene="uid://1f0s78v8ooax"
 config/features=PackedStringArray("4.6", "Forward Plus")
 boot_splash/bg_color=Color(0.23137255, 0.023529412, 0.22745098, 1)
-boot_splash/stretch_mode=0
-boot_splash/use_filter=false
-boot_splash/image="uid://d0bs3fs7eqtc5"
+config/icon="uid://b6pfyvvrox4jw"
 
 [audio]
 
-buses/default_bus_layout="res://surwave/resources/default_bus_layout.tres"
+buses/default_bus_layout="res://Surwave/resources/default_bus_layout.tres"
 
 [autoload]
 
-AudioManager="*res://surwave/scenes/Audio Manager/audio_manager.tscn"
-DifficultySetting="*res://surwave/classes/difficulty_setting_autoload.gd"
-ScreenTransition="*res://surwave/scenes/ui/screen_transition.tscn"
+AudioManager="*res://Surwave/scenes/Audio Manager/audio_manager.tscn"
+DifficultySetting="*res://Surwave/classes/difficulty_setting_autoload.gd"
+ScreenTransition="*res://Surwave/scenes/ui/screen_transition.tscn"
 
 [display]
 

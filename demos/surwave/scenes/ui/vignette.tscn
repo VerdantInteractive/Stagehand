@@ -1,7 +1,7 @@
-[gd_scene load_steps=7 format=3 uid="uid://belyoqxn5x3nf"]
+[gd_scene format=3 uid="uid://belyoqxn5x3nf"]
 
-[ext_resource type="Shader" uid="uid://coa26fuid2fkk" path="res://surwave/scenes/ui/vignette.gdshader" id="1_b1bos"]
-[ext_resource type="Script" uid="uid://bneefmxasu5ob" path="res://surwave/scenes/ui/vignette.gd" id="1_l46qo"]
+[ext_resource type="Shader" uid="uid://coa26fuid2fkk" path="res://Surwave/scenes/ui/vignette.gdshader" id="1_b1bos"]
+[ext_resource type="Script" uid="uid://bneefmxasu5ob" path="res://Surwave/scenes/ui/vignette.gd" id="1_l46qo"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_l46qo"]
 shader = ExtResource("1_b1bos")

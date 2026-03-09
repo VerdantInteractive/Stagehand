@@ -65,7 +65,7 @@ if env["arch"] == "x86_64":
         env.Append(CCFLAGS=["-march=x86-64-v3"])
 
 def find_source_files(base_dir):
-    """Recursively find .cpp files under a base directory."""
+    """Recursively find C++ source files under a base directory."""
     cpp_files = []
     for root, dirs, files in os.walk(base_dir):
         if root == base_dir and "addons" in dirs:
@@ -83,10 +83,10 @@ stagehand_cpp_sources = [s for s in stagehand_cpp_sources if not s.startswith(ge
 # Also include demo translation units in the main library so demo REGISTER_IN_MODULE callbacks are linked
 # into the extension and available at runtime unless when building as a downstream project (addons/stagehand).
 if os.path.isdir("demos") and not is_downstream_project:
-    stagehand_cpp_sources.extend(find_source_files("demos"))
+    stagehand_cpp_sources.extend(find_source_files("demos/ecs"))
 project_cpp_sources = []
 if PROJECT_DIRECTORY:
-    project_cpp_sources = find_source_files(f"{PROJECT_DIRECTORY}")
+    project_cpp_sources = find_source_files(os.path.join(PROJECT_DIRECTORY, "ecs"))
     # Exclude repository integration test cpp sources when requested. Use forward-slash
     # normalized paths for comparison since find_source_files returns forward-slash paths.
     if bool(is_downstream_project):
@@ -104,7 +104,7 @@ if PROJECT_DIRECTORY:
         project_cpp_sources = []
 
 # Configure include paths; only add the additional project include root if set.
-cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "dependencies/pfr/include", "."]
+cpplist = ["dependencies/godot-cpp/include", "dependencies/godot-cpp/gen/include", "dependencies/flecs/distr", "dependencies/pfr/include", ".", f"{PROJECT_DIRECTORY}/ecs"]
 if PROJECT_DIRECTORY:
     cpplist.append(f"{PROJECT_DIRECTORY}")
 env.Append(CPPPATH=cpplist)
@@ -204,7 +204,8 @@ else:
 # Build stagehand sources into shared build directory
 stagehand_objs = []
 for src in stagehand_cpp_sources:
-    obj_target = os.path.join(BUILD_DIR, "stagehand", os.path.splitext(os.path.basename(src))[0])
+    relative_path = os.path.relpath(src)
+    obj_target = os.path.join(BUILD_DIR, os.path.splitext(relative_path)[0])
     stagehand_objs.extend(project_env.SharedObject(
         target=obj_target,
         source=src,
@@ -213,8 +214,8 @@ for src in stagehand_cpp_sources:
 
 project_cpp_objs = []
 for src in project_cpp_sources:
-    rel_path = os.path.relpath(src, PROJECT_DIRECTORY)
-    obj_target = os.path.join(BUILD_DIR, os.path.splitext(rel_path)[0])
+    relative_path = os.path.relpath(src, f"{PROJECT_DIRECTORY}/ecs")
+    obj_target = os.path.join(BUILD_DIR, os.path.splitext(relative_path)[0])
     project_cpp_objs.extend(project_env.SharedObject(
         target=obj_target,
         source=src,

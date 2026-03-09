@@ -1,10 +1,10 @@
-[gd_scene load_steps=6 format=3 uid="uid://crlhaxk0hrl4f"]
+[gd_scene format=3 uid="uid://crlhaxk0hrl4f"]
 
-[ext_resource type="Script" uid="uid://c0b477wmljnr" path="res://surwave/scenes/ui/options_menu.gd" id="1_0ejsc"]
-[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://surwave/scenes/ui/images/background.png" id="2_0ejsc"]
-[ext_resource type="Texture2D" uid="uid://dy5a5bkda6dk3" path="res://surwave/scenes/ui/images/options-small-2color.png" id="2_imaij"]
-[ext_resource type="PackedScene" uid="uid://bh7u0ixgau5bc" path="res://surwave/scenes/ui/audible_button.tscn" id="3_c4822"]
-[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="4_hb1yv"]
+[ext_resource type="Script" uid="uid://c0b477wmljnr" path="res://Surwave/scenes/ui/options_menu.gd" id="1_0ejsc"]
+[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://Surwave/scenes/ui/images/background.png" id="2_0ejsc"]
+[ext_resource type="Texture2D" uid="uid://dy5a5bkda6dk3" path="res://Surwave/scenes/ui/images/options-small-2color.png" id="2_imaij"]
+[ext_resource type="PackedScene" uid="uid://bh7u0ixgau5bc" path="res://Surwave/scenes/ui/audible_button.tscn" id="3_c4822"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://Surwave/scenes/ui/audible_button.gd" id="4_hb1yv"]
 
 [node name="OptionsMenu" type="CanvasLayer"]
 layer = 2

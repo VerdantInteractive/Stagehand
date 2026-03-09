@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://btj20852fefi7"
-path="res://.godot/imported/button_set.png-4761b615a4e94a56017010054df39f8d.ctex"
+path="res://.godot/imported/button_set.png-dc44504fb0d081db0bd446389ba90637.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/ui/images/button_set.png"
-dest_files=["res://.godot/imported/button_set.png-4761b615a4e94a56017010054df39f8d.ctex"]
+source_file="res://Surwave/scenes/ui/images/button_set.png"
+dest_files=["res://.godot/imported/button_set.png-dc44504fb0d081db0bd446389ba90637.ctex"]
 
 [params]
 

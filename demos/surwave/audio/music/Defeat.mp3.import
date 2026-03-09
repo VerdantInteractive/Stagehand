@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://c26rgo7njbarq"
-path="res://.godot/imported/Defeat.mp3-bc8f2ee28216f1b26461b5924cf84d26.mp3str"
+path="res://.godot/imported/Defeat.mp3-d3e54420e9cc10bcf0950aa4ee58a0f9.mp3str"
 
 [deps]
 
-source_file="res://surwave/audio/music/Defeat.mp3"
-dest_files=["res://.godot/imported/Defeat.mp3-bc8f2ee28216f1b26461b5924cf84d26.mp3str"]
+source_file="res://Surwave/audio/music/Defeat.mp3"
+dest_files=["res://.godot/imported/Defeat.mp3-d3e54420e9cc10bcf0950aa4ee58a0f9.mp3str"]
 
 [params]
 

@@ -8,19 +8,51 @@ Stagehand brings Flecs, a modern, high-performance Entity Component System to Go
 - Entity and Component authoring workflows that leverage Godot Resources and/or Flecs Script for frictionless, data-oriented design.
 - Multiple integration paths for 3D/2D rendering: Instanced, MultiMesh and compute-shader based fully custom rendering pipelines.
 
-## Requirements
+## Getting Started
 
-TBC
+### Install the Prerequisites
+
+You'll need some development tools installed on the system that you'll build your project:
+
+- A Godot 4 executable
+- A C++ compiler. LLVM-Clang is recommended as it is the officially tested compiler on all platforms.
+- SCons as a build tool
+- A command-line or graphical `git` client
+
+Stagehand is a [C++ GDExtension](https://docs.godotengine.org/en/stable/tutorials/scripting/cpp/about_godot_cpp.html), and a more comprehensive set of instructions can be found in its [Getting Started section](https://docs.godotengine.org/en/stable/tutorials/scripting/cpp/gdextension_cpp_example.html) if needed.
+
+### Add Stagehand into your Godot project
+
+Note: On Windows, symbolic links must be enabled both at OS and git configuration level for the best development experience, and for opening the demo project or running the integration tests.
+
+Change into your Godot project directory and then run the following commands
+```
+# you can also manually place the contents of the Stagehand repository into addons/stagehand
+git submodule add git@github.com:VerdantInteractive/Stagehand.git addons/stagehand
+git submodule update --init --recursive addons/stagehand
+```
+
+### Build it
+
+During development iteration, perform a debug build:
+```
+# `addons/stagehand/scripts/build_debug.sh` also works
+scons -C addons/stagehand
+```
+
+To generate optimised binaries for a release, use:
+```
+# `scons -C addons/stagehand target=template_release production=yes optimize=speed lto=full` also works
+addons/stagehand/scripts/build_release.sh
+```
 
 ## Usage
 
-Note: On Windows, symbolic links must be enabled both at OS and git configuration level for opening the demo project or running the integration tests.
+Place your project's C++ ECS code into the `ecs` subdirectory under your Godot project's root. You can use any file/subdirectory hierarchy within `ecs/`, but the `ecs` directory itself must be at the project root with this exact name to be picked up by the build system.
 
-```
-git clone --recursive git@github.com:VerdantInteractive/Stagehand.git
+### Upgrading Stagehand
 
-scons -C addons/stagehand
-```
+Simply run `git submodule update  --remote --recursive addons/stagehand` to pull in the latest version along with the updated dependencies (if any).
 
 ## Flecs Explorer
 

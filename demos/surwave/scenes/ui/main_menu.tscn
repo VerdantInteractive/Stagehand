@@ -1,14 +1,14 @@
 [gd_scene format=3 uid="uid://c6bnrj1oxaltb"]
 
-[ext_resource type="Script" uid="uid://d565svnkxiwf" path="res://surwave/scenes/ui/main_menu.gd" id="1_1g8jr"]
-[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://surwave/scenes/ui/images/background.png" id="2_1g8jr"]
-[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="2_fe2o3"]
-[ext_resource type="Shader" uid="uid://ddi5lxoqml2dc" path="res://shaders/scroll.gdshader" id="3_btxxm"]
-[ext_resource type="Texture2D" uid="uid://boks3yb5o73wb" path="res://surwave/scenes/ui/images/title-small-2color.png" id="3_m1kxf"]
-[ext_resource type="Texture2D" uid="uid://cllvftedv8og0" path="res://surwave/scenes/ui/images/watermark.png" id="3_x2yvf"]
-[ext_resource type="Texture2D" uid="uid://ce2eqle7a83xv" path="res://surwave/scenes/ui/images/cloud1.png" id="4_wb0q5"]
-[ext_resource type="Texture2D" uid="uid://iw81fgsox65v" path="res://surwave/scenes/ui/images/cloud2.png" id="5_q85j6"]
-[ext_resource type="Texture2D" uid="uid://bvpfv61mqo3mk" path="res://surwave/scenes/ui/images/vi-logo.png" id="9_q85j6"]
+[ext_resource type="Script" uid="uid://d565svnkxiwf" path="res://Surwave/scenes/ui/main_menu.gd" id="1_1g8jr"]
+[ext_resource type="Texture2D" uid="uid://bxoiwf2ynx1if" path="res://Surwave/scenes/ui/images/background.png" id="2_1g8jr"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://Surwave/scenes/ui/audible_button.gd" id="2_fe2o3"]
+[ext_resource type="Shader" uid="uid://ddi5lxoqml2dc" path="res://Surwave/shaders/scroll.gdshader" id="3_btxxm"]
+[ext_resource type="Texture2D" uid="uid://boks3yb5o73wb" path="res://Surwave/scenes/ui/images/title-small-2color.png" id="3_m1kxf"]
+[ext_resource type="Texture2D" uid="uid://cllvftedv8og0" path="res://Surwave/scenes/ui/images/watermark.png" id="3_x2yvf"]
+[ext_resource type="Texture2D" uid="uid://ce2eqle7a83xv" path="res://Surwave/scenes/ui/images/cloud1.png" id="4_wb0q5"]
+[ext_resource type="Texture2D" uid="uid://iw81fgsox65v" path="res://Surwave/scenes/ui/images/cloud2.png" id="5_q85j6"]
+[ext_resource type="Texture2D" uid="uid://bvpfv61mqo3mk" path="res://Surwave/scenes/ui/images/vi-logo.png" id="9_q85j6"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_q85j6"]
 shader = ExtResource("3_btxxm")

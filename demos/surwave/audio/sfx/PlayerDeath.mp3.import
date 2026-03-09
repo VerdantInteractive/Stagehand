@@ -3,12 +3,12 @@
 importer="mp3"
 type="AudioStreamMP3"
 uid="uid://brv4ojswipq23"
-path="res://.godot/imported/PlayerDeath.mp3-28756cd7e1e24abe107cceaac00251c4.mp3str"
+path="res://.godot/imported/PlayerDeath.mp3-f0f61cdd3da6cc5beaf3bfa54b426c6c.mp3str"
 
 [deps]
 
-source_file="res://surwave/audio/sfx/PlayerDeath.mp3"
-dest_files=["res://.godot/imported/PlayerDeath.mp3-28756cd7e1e24abe107cceaac00251c4.mp3str"]
+source_file="res://Surwave/audio/sfx/PlayerDeath.mp3"
+dest_files=["res://.godot/imported/PlayerDeath.mp3-f0f61cdd3da6cc5beaf3bfa54b426c6c.mp3str"]
 
 [params]
 

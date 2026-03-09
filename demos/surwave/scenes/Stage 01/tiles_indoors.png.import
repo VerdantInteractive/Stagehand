@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://dx2oat2julcmh"
-path="res://.godot/imported/tiles_indoors.png-82024b6f55af1d978c4396cf664a32e5.ctex"
+path="res://.godot/imported/tiles_indoors.png-dc758393e9f04afed9fb3873261d8433.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/Stage 01/tiles_indoors.png"
-dest_files=["res://.godot/imported/tiles_indoors.png-82024b6f55af1d978c4396cf664a32e5.ctex"]
+source_file="res://Surwave/scenes/Stage 01/tiles_indoors.png"
+dest_files=["res://.godot/imported/tiles_indoors.png-dc758393e9f04afed9fb3873261d8433.ctex"]
 
 [params]
 

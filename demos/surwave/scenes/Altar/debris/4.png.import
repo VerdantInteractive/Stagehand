@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bqiyvivyet87n"
-path="res://.godot/imported/4.png-11ec152c6f5dc311e30d8742ea64f35f.ctex"
+path="res://.godot/imported/4.png-0bb80705b2dd805c0374ef1f431fca6a.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://surwave/scenes/Altar/debris/4.png"
-dest_files=["res://.godot/imported/4.png-11ec152c6f5dc311e30d8742ea64f35f.ctex"]
+source_file="res://Surwave/scenes/Altar/debris/4.png"
+dest_files=["res://.godot/imported/4.png-0bb80705b2dd805c0374ef1f431fca6a.ctex"]
 
 [params]
 

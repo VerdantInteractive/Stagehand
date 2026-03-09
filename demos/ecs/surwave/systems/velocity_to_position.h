@@ -4,7 +4,7 @@
 #include "stagehand/ecs/components/transform.h"
 #include "stagehand/registry.h"
 
-#include "demos/surwave/cpp/components/singletons.h"
+#include "demos/ecs/surwave/components/singletons.h"
 
 using namespace stagehand_demos::surwave;
 
