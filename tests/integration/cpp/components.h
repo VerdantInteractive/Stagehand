@@ -8,6 +8,7 @@ namespace stagehand_tests {
     // ─── Scalar component macros ─────────────────────────────────────────────────
 
     FLOAT(TestFloat, 0.0f);
+    FLOAT(TestFloatSingleton, 2.5f).then([](auto c) { c.add(flecs::Singleton); });
     DOUBLE(TestDouble, 0.0);
     INT32(TestInt32, 0);
     UINT32(TestUint32, 0);
@@ -25,12 +26,14 @@ namespace stagehand_tests {
     // ─── Collection component macros ─────────────────────────────────────────────
 
     VECTOR(TestVectorFloat, float);
+    VECTOR(TestVectorFloatSingleton, float, {9.0f, 8.0f, 7.0f}).then([](auto c) { c.add(flecs::Singleton); });
     VECTOR(TestVectorInt, int32_t);
     ARRAY(TestArray4, float, 4);
 
     // ─── Godot Variant component macros ──────────────────────────────────────────
 
     GODOT_VARIANT(TestVector2, godot::Vector2);
+    GODOT_VARIANT(TestVector2Singleton, godot::Vector2, {3.0, 4.0}).then([](auto c) { c.add(flecs::Singleton); });
     GODOT_VARIANT(TestVector3, godot::Vector3);
     GODOT_VARIANT(TestVector2i, godot::Vector2i);
     GODOT_VARIANT(TestVector3i, godot::Vector3i);
@@ -40,7 +43,20 @@ namespace stagehand_tests {
     GODOT_VARIANT(TestTransform3D, godot::Transform3D);
     GODOT_VARIANT(TestQuaternion, godot::Quaternion);
     GODOT_VARIANT(TestDictionary, godot::Dictionary);
+    GODOT_VARIANT(TestDictionarySingleton, godot::Dictionary).then([](auto c) { c.add(flecs::Singleton); });
     GODOT_VARIANT(TestString, godot::String);
+
+    // ─── Struct component macros ────────────────────────────────────────────────
+
+    STRUCT_(TestStruct, {
+        float x = 1.0f;
+        float y = 2.0f;
+    });
+
+    STRUCT_(TestStructSingleton, {
+        float speed = 1.5f;
+        int32_t count = 10;
+    }).then([](auto c) { c.add(flecs::Singleton); });
 
     // ─── Counter / accumulator components for system tests ───────────────────────
 

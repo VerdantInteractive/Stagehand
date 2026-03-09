@@ -17,6 +17,49 @@
 #include "flecs.h"
 
 namespace stagehand {
+    namespace internal {
+        constexpr bool stagehand_auto_seed_singleton(...) { return false; }
+
+        template <typename T, typename = void> struct singleton_seed_basis {
+            using type = std::remove_cvref_t<T>;
+        };
+
+        template <typename T> struct singleton_seed_basis<T, std::void_t<typename std::remove_cvref_t<T>::base_type>> {
+            using type = typename std::remove_cvref_t<T>::base_type;
+        };
+
+        template <typename T> using singleton_seed_basis_t = typename singleton_seed_basis<T>::type;
+
+        template <typename T>
+        concept has_native_ptr_method = requires(const std::remove_cvref_t<T> &value) { value._native_ptr(); };
+
+        template <typename T, typename = void> struct explicit_auto_seed_singleton : std::false_type {};
+
+        template <typename T>
+        struct explicit_auto_seed_singleton<T, std::void_t<decltype(stagehand_auto_seed_singleton(static_cast<T *>(nullptr)))>>
+            : std::bool_constant<stagehand_auto_seed_singleton(static_cast<T *>(nullptr))> {};
+
+        template <typename T>
+        struct inferred_auto_seed_singleton : std::bool_constant<std::is_default_constructible_v<T> && !has_native_ptr_method<singleton_seed_basis_t<T>>> {};
+
+        template <typename T>
+        struct should_auto_seed_singleton
+            : std::conditional_t<explicit_auto_seed_singleton<T>::value, explicit_auto_seed_singleton<T>, inferred_auto_seed_singleton<T>> {};
+
+        template <typename T> void initialize_singleton_value_if_needed(flecs::world &world) {
+            flecs::component<T> component = world.component<T>();
+            if (!component.is_valid() || !component.has(flecs::Singleton)) {
+                return;
+            }
+
+            if constexpr (should_auto_seed_singleton<T>::value && std::is_default_constructible_v<T>) {
+                if (!component.template has<T>()) {
+                    component.template set<T>(T{});
+                }
+            }
+        }
+    } // namespace internal
+
     /// Callback function type for registering components and systems with the Flecs world.
     using RegistrationCallback = std::function<void(flecs::world &)>;
 
@@ -73,7 +116,12 @@ namespace stagehand {
     ///     GODOT_VARIANT(Bar, Vector2).then([](auto c) { c.add(flecs::Singleton); });
     template <typename T> class ComponentRegistrar {
       public:
-        explicit ComponentRegistrar(RegistrationCallback base_callback) { register_callback(std::move(base_callback)); }
+        explicit ComponentRegistrar(RegistrationCallback base_callback) {
+            register_callback([base_callback = std::move(base_callback)](flecs::world &world) {
+                base_callback(world);
+                internal::initialize_singleton_value_if_needed<T>(world);
+            });
+        }
 
         /// Chain an arbitrary callable that receives flecs::component<T>.
         /// This is the single general-purpose chaining mechanism — any operation
@@ -82,7 +130,10 @@ namespace stagehand {
         /// world initialization.
         /// @param f A callable taking flecs::component<T>.
         template <typename F> ComponentRegistrar &then(F &&f) {
-            register_callback([f = std::forward<F>(f)](flecs::world &world) { f(world.component<T>()); });
+            register_callback([f = std::forward<F>(f)](flecs::world &world) {
+                f(world.component<T>());
+                internal::initialize_singleton_value_if_needed<T>(world);
+            });
             return *this;
         }
     };

@@ -45,6 +45,8 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a single-precision floating-point number.
 #define STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, Type, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                       \
+    struct Name;                                                                                                                                               \
+    constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
     ChangeTagDecl struct Name {                                                                                                                                \
         ChangeTagAlias Type value{__VA_ARGS__};                                                                                                                \
         Name() = default;                                                                                                                                      \
@@ -95,6 +97,8 @@ using std::uint8_t;
 
 /// Macro that defines a component wrapping a pointer type.
 #define STAGEHAND_POINTER_COMPONENT_IMPL(Name, Type, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                       \
+    struct Name;                                                                                                                                               \
+    constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
     ChangeTagDecl struct Name {                                                                                                                                \
         ChangeTagAlias Type *ptr{__VA_ARGS__};                                                                                                                 \
         Name() = default;                                                                                                                                      \
@@ -191,6 +195,8 @@ using std::uint8_t;
 ///
 /// Example: VECTOR(MyVectorComponent, float, {1.0f, 2.0f, 3.0f})
 #define STAGEHAND_VECTOR_COMPONENT_IMPL(Name, ElementType, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                 \
+    struct Name;                                                                                                                                               \
+    constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
     ChangeTagDecl struct Name {                                                                                                                                \
         ChangeTagAlias std::vector<ElementType> value{__VA_ARGS__};                                                                                            \
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::vector<ElementType>)                                                                                  \
@@ -219,6 +225,8 @@ using std::uint8_t;
 ///
 /// Example: ARRAY(MyArrayComponent, int, 5, {10, 20, 30, 40, 50})
 #define STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                            \
+    struct Name;                                                                                                                                               \
+    constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
     ChangeTagDecl struct Name {                                                                                                                                \
         ChangeTagAlias std::array<ElementType, Size> value{__VA_ARGS__};                                                                                       \
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::array<ElementType, Size>)                                                                             \
@@ -345,6 +353,7 @@ namespace stagehand {
 ///   }).then([](auto c) { c.add(flecs::Singleton); });
 #define STRUCT(Name, ...)                                                                                                                                      \
     struct Name __VA_ARGS__;                                                                                                                                   \
+    constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
     struct HasChanged##Name {};                                                                                                                                \
     inline auto register_##Name##_struct = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
         stagehand::register_struct_component<Name>(world, #Name);                                                                                              \
@@ -353,5 +362,6 @@ namespace stagehand {
 
 #define STRUCT_(Name, ...)                                                                                                                                     \
     struct Name __VA_ARGS__;                                                                                                                                   \
+    constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
     inline auto register_##Name##_struct_no_change =                                                                                                           \
         stagehand::ComponentRegistrar<Name>([](flecs::world &world) { stagehand::register_struct_component<Name>(world, #Name); })

@@ -47,6 +47,14 @@ func _ready() -> void:
 	assert_true(has_component("EntityValue", entity_id), "has_component returns true for existing component")
 	assert_true(has_component("Position2D", entity_id), "has_component returns true for Position2D")
 
+	# ── Test 5b: struct component roundtrip on specific entity ───────────
+	print("\n=== Test 5b: Struct component on specific entity ===")
+	set_component("TestStruct", {"x": 12.5, "y": - 4.0}, entity_id)
+	var struct_value = get_component("TestStruct", entity_id)
+	assert_eq(typeof(struct_value), TYPE_DICTIONARY, "TestStruct type")
+	assert_approx(struct_value["x"], 12.5, "TestStruct x")
+	assert_approx(struct_value["y"], -4.0, "TestStruct y")
+
 	# ── Test 6: Multiple entities - independence ─────────────────────────
 	print("\n=== Test 6: Multiple entity independence ===")
 	var entity_a = instantiate_prefab("stagehand_tests::TestEntity2D", {"EntityValue": 100.0})
@@ -89,6 +97,12 @@ func assert_eq(actual, expected, label: String) -> void:
 func assert_true(value: bool, label: String) -> void:
 	if not value:
 		_fail(label)
+	else:
+		print("  PASS: %s" % label)
+
+func assert_approx(actual: float, expected: float, label: String, epsilon: float = 0.01) -> void:
+	if abs(actual - expected) > epsilon:
+		_fail("%s: expected ~%s, got %s" % [label, str(expected), str(actual)])
 	else:
 		print("  PASS: %s" % label)
 

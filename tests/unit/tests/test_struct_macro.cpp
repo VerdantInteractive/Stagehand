@@ -180,6 +180,11 @@ TEST_F(StructMacroFixture, EntityRoundtripSetAndGet) {
     ASSERT_NEAR(data->y, 10.0f, 1e-9f);
 }
 
+TEST_F(StructMacroFixture, NonSingletonStructIsNotSeededOnWorldEntity) {
+    const test_struct::SimpleStruct *data = world.try_get<test_struct::SimpleStruct>();
+    ASSERT_EQ(data, nullptr);
+}
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Change detection
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -198,6 +203,13 @@ TEST_F(StructMacroFixture, HasChangedTagExistsForTrackedStruct) {
     flecs::component<test_struct::HasChangedTrackedStruct> tag = world.component<test_struct::HasChangedTrackedStruct>();
     ASSERT_NE(tag.id(), 0u);
     ASSERT_TRUE(tag.has<stagehand::IsChangeDetectionTag>());
+}
+
+TEST_F(StructMacroFixture, SingletonIsSeededWithDefaultValueAfterRegistration) {
+    const test_struct::AsSingleton *data = world.try_get<test_struct::AsSingleton>();
+    ASSERT_NE(data, nullptr);
+    ASSERT_NEAR(data->global_speed, 1.0f, 1e-6f);
+    ASSERT_EQ(data->max_entities, 1000);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════

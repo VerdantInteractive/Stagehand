@@ -17,6 +17,11 @@ func _ready() -> void:
 	set_component("TestInt32", -42)
 	assert_eq(get_component("TestInt32"), -42, "TestInt32 value")
 
+	# ── Seeded scalar singleton defaults + getter/setter ─────────────────────
+	assert_approx(get_component("TestFloatSingleton"), 2.5, "TestFloatSingleton default value")
+	set_component("TestFloatSingleton", 6.75)
+	assert_approx(get_component("TestFloatSingleton"), 6.75, "TestFloatSingleton updated value")
+
 	# ── VECTOR(float) ────────────────────────────────────────────────────────
 	set_component("TestVectorFloat", [1.0, 2.0, 3.0])
 	var vec_float = get_component("TestVectorFloat")
@@ -24,6 +29,16 @@ func _ready() -> void:
 	assert_eq(vec_float.size(), 3, "TestVectorFloat size")
 	assert_approx(vec_float[0], 1.0, "TestVectorFloat[0]")
 	assert_approx(vec_float[2], 3.0, "TestVectorFloat[2]")
+
+	var seeded_vec_float = get_component("TestVectorFloatSingleton")
+	assert_eq(typeof(seeded_vec_float), TYPE_ARRAY, "TestVectorFloatSingleton type")
+	assert_eq(seeded_vec_float.size(), 3, "TestVectorFloatSingleton size")
+	assert_approx(seeded_vec_float[0], 9.0, "TestVectorFloatSingleton[0]")
+	assert_approx(seeded_vec_float[2], 7.0, "TestVectorFloatSingleton[2]")
+	set_component("TestVectorFloatSingleton", [4.0, 5.0])
+	var updated_seeded_vec_float = get_component("TestVectorFloatSingleton")
+	assert_eq(updated_seeded_vec_float.size(), 2, "TestVectorFloatSingleton updated size")
+	assert_approx(updated_seeded_vec_float[1], 5.0, "TestVectorFloatSingleton updated value")
 
 	# ── VECTOR(int) ──────────────────────────────────────────────────────────
 	set_component("TestVectorInt", [10, 20, 30, 40])
@@ -43,6 +58,12 @@ func _ready() -> void:
 	var v2 = get_component("TestVector2")
 	assert_eq(typeof(v2), TYPE_VECTOR2, "TestVector2 type")
 	assert_eq(v2, Vector2(10.5, 20.5), "TestVector2 value")
+
+	var seeded_v2 = get_component("TestVector2Singleton")
+	assert_eq(typeof(seeded_v2), TYPE_VECTOR2, "TestVector2Singleton type")
+	assert_eq(seeded_v2, Vector2(3, 4), "TestVector2Singleton default value")
+	set_component("TestVector2Singleton", Vector2(-2, 9))
+	assert_eq(get_component("TestVector2Singleton"), Vector2(-2, 9), "TestVector2Singleton updated value")
 
 	# ── GODOT_VARIANT – Vector3 ──────────────────────────────────────────────
 	set_component("TestVector3", Vector3(1, 2, 3))
@@ -94,6 +115,25 @@ func _ready() -> void:
 	assert_eq(d["key"], "value", "TestDictionary[key]")
 	assert_eq(d["num"], 42, "TestDictionary[num]")
 
+	assert_true(not has_component("TestDictionarySingleton"), "TestDictionarySingleton is not auto-seeded")
+	set_component("TestDictionarySingleton", {"ok": true, "count": 3})
+	var singleton_dictionary = get_component("TestDictionarySingleton")
+	assert_eq(typeof(singleton_dictionary), TYPE_DICTIONARY, "TestDictionarySingleton type")
+	assert_true(has_component("TestDictionarySingleton"), "TestDictionarySingleton exists after explicit set")
+	assert_eq(singleton_dictionary["ok"], true, "TestDictionarySingleton[ok]")
+	assert_eq(singleton_dictionary["count"], 3, "TestDictionarySingleton[count]")
+
+	# ── STRUCT_ singleton – default seeding + partial setter ─────────────────
+	var default_struct_singleton = get_component("TestStructSingleton")
+	assert_eq(typeof(default_struct_singleton), TYPE_DICTIONARY, "TestStructSingleton type")
+	assert_approx(default_struct_singleton["speed"], 1.5, "TestStructSingleton default speed")
+	assert_eq(default_struct_singleton["count"], 10, "TestStructSingleton default count")
+
+	set_component("TestStructSingleton", {"speed": 8.25})
+	var updated_struct_singleton = get_component("TestStructSingleton")
+	assert_approx(updated_struct_singleton["speed"], 8.25, "TestStructSingleton updated speed")
+	assert_eq(updated_struct_singleton["count"], 10, "TestStructSingleton missing field resets to default")
+
 	# ── GODOT_VARIANT – String ───────────────────────────────────────────────
 	set_component("TestString", "Hello from GDScript")
 	assert_eq(get_component("TestString"), "Hello from GDScript", "TestString value")
@@ -131,6 +171,12 @@ func _ready() -> void:
 func assert_eq(actual, expected, label: String) -> void:
 	if actual != expected:
 		_fail("%s: expected %s, got %s" % [label, str(expected), str(actual)])
+	else:
+		print("  PASS: %s" % label)
+
+func assert_true(value: bool, label: String) -> void:
+	if not value:
+		_fail(label)
 	else:
 		print("  PASS: %s" % label)
 

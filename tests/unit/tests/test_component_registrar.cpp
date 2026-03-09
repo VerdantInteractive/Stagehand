@@ -27,6 +27,13 @@ namespace test_registrar {
 
     // A Godot variant component (Vector2i) registered as a singleton
     GODOT_VARIANT(GodotVariantSingleton, Vector2i).then([](auto c) { c.add(flecs::Singleton); });
+    GODOT_VARIANT(EngineBackedGodotVariantSingleton, Dictionary).then([](auto c) { c.add(flecs::Singleton); });
+
+    INT32(SeededScalarSingleton, 17).then([](auto c) { c.add(flecs::Singleton); });
+
+    VECTOR(SeededVectorSingleton, int32_t, {2, 4, 6}).then([](auto c) { c.add(flecs::Singleton); });
+
+    ARRAY(SeededArraySingleton, float, 3, {1.0f, 2.0f, 3.0f}).then([](auto c) { c.add(flecs::Singleton); });
 
     // A component demonstrating method chaining: adds a trait, registers an on_set hook,
     // and then adds the Sparse trait in a subsequent .then()
@@ -122,12 +129,68 @@ namespace test_registrar {
                                            }).then([](auto c) {
                                                  c.add(flecs::CanToggle);
                                              }).then([](auto c) { c.set_doc_name("ManualComponent"); });
+
+    struct BaseSeededSingleton {
+        int data = 33;
+    };
+
+    constexpr bool stagehand_auto_seed_singleton(BaseSeededSingleton *) { return true; }
+
+    inline auto register_BaseSeededSingleton = stagehand::ComponentRegistrar<BaseSeededSingleton>([](flecs::world &world) {
+        flecs::component<BaseSeededSingleton> component = world.component<BaseSeededSingleton>();
+        component.member<int>("data");
+        component.add(flecs::Singleton);
+    });
 } // namespace test_registrar
+
+static_assert(stagehand::internal::should_auto_seed_singleton<test_registrar::GodotVariantSingleton>::value);
+static_assert(!stagehand::internal::should_auto_seed_singleton<test_registrar::EngineBackedGodotVariantSingleton>::value);
 
 TEST_F(RegistrarFixture, ProgrammaticRegistrarWithThen) {
     auto comp = world.component<test_registrar::ManualComponent>();
     ASSERT_NE(comp.id(), 0u);
     ASSERT_TRUE(comp.has(flecs::CanToggle));
+}
+
+TEST_F(RegistrarFixture, ScalarSingletonIsSeededFromMacroDefault) {
+    const auto *data = world.try_get<test_registrar::SeededScalarSingleton>();
+    ASSERT_NE(data, nullptr);
+    ASSERT_EQ(data->value, 17);
+}
+
+TEST_F(RegistrarFixture, VectorSingletonIsSeededFromMacroDefault) {
+    const auto *data = world.try_get<test_registrar::SeededVectorSingleton>();
+    ASSERT_NE(data, nullptr);
+    ASSERT_EQ(data->value.size(), 3u);
+    ASSERT_EQ(data->value[0], 2);
+    ASSERT_EQ(data->value[1], 4);
+    ASSERT_EQ(data->value[2], 6);
+}
+
+TEST_F(RegistrarFixture, ArraySingletonIsSeededFromMacroDefault) {
+    const auto *data = world.try_get<test_registrar::SeededArraySingleton>();
+    ASSERT_NE(data, nullptr);
+    ASSERT_FLOAT_EQ(data->value[0], 1.0f);
+    ASSERT_FLOAT_EQ(data->value[1], 2.0f);
+    ASSERT_FLOAT_EQ(data->value[2], 3.0f);
+}
+
+TEST_F(RegistrarFixture, BaseCallbackSingletonIsSeededWhenComponentIsMarkedSingletonInBaseRegistration) {
+    const auto *data = world.try_get<test_registrar::BaseSeededSingleton>();
+    ASSERT_NE(data, nullptr);
+    ASSERT_EQ(data->data, 33);
+}
+
+TEST_F(RegistrarFixture, PodGodotVariantSingletonIsSeededFromWrapperDefaultConstructor) {
+    const auto *data = world.try_get<test_registrar::GodotVariantSingleton>();
+    ASSERT_NE(data, nullptr);
+    ASSERT_EQ(data->x, 0);
+    ASSERT_EQ(data->y, 0);
+}
+
+TEST_F(RegistrarFixture, EngineBackedGodotVariantSingletonIsNotAutoSeeded) {
+    const auto *data = world.try_get<test_registrar::EngineBackedGodotVariantSingleton>();
+    ASSERT_EQ(data, nullptr);
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -174,7 +237,6 @@ TEST_F(RegistrarFixture, AddPairByEntityIds) {
     ASSERT_TRUE(comp.has(flecs::OnDelete, flecs::Panic));
 }
 
-// ═══════════════════════════════════════════════════════════════════════════════
 // Tests: then() — typed pair
 // ═══════════════════════════════════════════════════════════════════════════════
 
