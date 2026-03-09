@@ -15,6 +15,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
 #include "stagehand/ecs/components/macros.h"
 #include "stagehand/registry.h"
