@@ -22,6 +22,17 @@ var max_enemy_count: int
 func _ready() -> void:
 	if world == null:
 		push_warning("EnemySpawnManager: World node not found.")
+		set_process(false)
+		return
+
+	if probability_curve == null or enemy_type_curve == null:
+		push_warning("EnemySpawnManager: Spawn curves must be assigned.")
+		set_process(false)
+		return
+
+	if enemies_multimesh == null or enemies_multimesh.multimesh == null:
+		push_warning("EnemySpawnManager: Enemies MultiMesh must be assigned.")
+		set_process(false)
 		return
 
 	# Prefer configuration from the ECS WorldConfiguration singleton when present.

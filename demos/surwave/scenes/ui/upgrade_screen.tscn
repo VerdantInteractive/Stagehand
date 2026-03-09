@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://b0m0y6aoexp4a"]
+[gd_scene load_steps=8 format=3 uid="uid://b0m0y6aoexp4a"]
 
 [ext_resource type="Script" uid="uid://cmpnatk18fbnv" path="res://surwave/scenes/ui/upgrade_screen.gd" id="1_clnow"]
 [ext_resource type="PackedScene" uid="uid://dg3fliufon0m4" path="res://surwave/scenes/ui/upgrade_card.tscn" id="2_eg2gl"]
+[ext_resource type="Script" uid="uid://4rwaoyqxdfsd" path="res://surwave/scenes/ui/audible_button.gd" id="3_rw4n6"]
 
 [sub_resource type="Animation" id="Animation_bd1lb"]
 length = 0.001
@@ -88,6 +89,24 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.22352941, 0.16078432, 0.27450982, 1)
+
+[node name="TopRightMargin" type="MarginContainer" parent="."]
+anchors_preset = 10
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -96.0
+offset_top = 12.0
+offset_right = -12.0
+offset_bottom = 43.0
+grow_horizontal = 0
+
+[node name="BackButton" type="Button" parent="TopRightMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(84, 0)
+text = "Back"
+script = ExtResource("3_rw4n6")
+metadata/_custom_type_script = "uid://4rwaoyqxdfsd"
 
 [node name="MarginContainer" type="MarginContainer" parent="."]
 anchors_preset = 15

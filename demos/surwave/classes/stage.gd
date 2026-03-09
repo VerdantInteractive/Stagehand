@@ -28,6 +28,8 @@ signal player_instantiated(player: Player)
 @export var camera_zoom_out_speed: float = 1.0
 
 const MAXIMUM_GEMS: int = 99
+const EASY_PLAYER_HEALTH_MULTIPLIER: float = 2.5
+const HARD_PLAYER_HEALTH: float = 0.1
 const PAUSE_MENU = preload("uid://bxvjrn4aui4lk")
 
 var altar_nodes: Array[Node]
@@ -128,8 +130,8 @@ func _instantiate_player() -> void:
 	var player_scene: PackedScene = preload("res://surwave/scenes/Player/player.tscn")
 	var player_instance: Player = player_scene.instantiate() as Player
 	player_instance.position = Vector2(0, 0)
-	if DifficultySetting.value == 0: player_instance.max_health *= 2.5
-	elif DifficultySetting.value == 2: player_instance.max_health = 0.1
+	if DifficultySetting.value == 0: player_instance.max_health *= EASY_PLAYER_HEALTH_MULTIPLIER
+	elif DifficultySetting.value == 2: player_instance.max_health = HARD_PLAYER_HEALTH
 	player_instance.connect("died", _on_player_died)
 	player_instance.connect("gem_collected", _on_gem_collected)
 	add_child(player_instance)
@@ -375,6 +377,7 @@ func _on_player_died() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"):
-		add_child(PAUSE_MENU.instantiate())
+	if not event.is_action_pressed("ui_cancel"):
+		return
+	add_child(PAUSE_MENU.instantiate())
 	get_tree().root.set_input_as_handled()

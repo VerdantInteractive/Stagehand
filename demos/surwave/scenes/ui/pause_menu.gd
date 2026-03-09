@@ -37,7 +37,9 @@ func _close() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action_pressed("ui_cancel"): _close()
+	if not event.is_action_pressed("ui_cancel"):
+		return
+	_close()
 	get_tree().root.set_input_as_handled()
 
 

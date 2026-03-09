@@ -10,9 +10,11 @@ var was_game_paused: bool = false
 var purchase_in_progress: bool = false
 var requesting_node: Node
 
+@onready var back_button: AudibleButton = %BackButton
 @onready var card_container: HBoxContainer = %CardContainer
 
 func _ready() -> void:
+	back_button.pressed.connect(_on_back_button_pressed)
 	visible = false
 
 
@@ -110,6 +112,12 @@ func _unhandled_input(event: InputEvent) -> void:
 
 func _cancel_selection() -> void:
 	hide_screen()
+
+
+func _on_back_button_pressed() -> void:
+	if purchase_in_progress:
+		return
+	_cancel_selection()
 
 
 func _ensure_upgrade_manager(player_body: Node = null) -> bool:
