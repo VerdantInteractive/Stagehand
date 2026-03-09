@@ -9,7 +9,7 @@ on:
 
 permissions:
   contents: read
-  actions: write
+  actions: read
 
 jobs:
   build:
@@ -53,19 +53,3 @@ jobs:
             tests/unit/build/**
           if-no-files-found: error
           retention-days: 1
-
-      - name: Dispatch Unit Tests workflow
-        uses: peter-evans/workflow-dispatch@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          workflow: unit-tests.yml
-          ref: ${{ github.sha }}
-
-      - name: Dispatch Integration Tests workflow
-        uses: peter-evans/workflow-dispatch@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          repository: ${{ github.repository }}
-          workflow: integration-tests.yml
-          ref: ${{ github.sha }}
