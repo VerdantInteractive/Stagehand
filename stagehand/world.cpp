@@ -1,0 +1,584 @@
+#include "stagehand/world.h"
+
+#include <utility>
+
+#include <godot_cpp/classes/engine.hpp>
+#include <godot_cpp/classes/multi_mesh.hpp>
+#include <godot_cpp/classes/multi_mesh_instance2d.hpp>
+#include <godot_cpp/classes/multi_mesh_instance3d.hpp>
+#include <godot_cpp/classes/rendering_server.hpp>
+#include <godot_cpp/core/class_db.hpp>
+#include <godot_cpp/core/defs.hpp>
+#include <godot_cpp/variant/utility_functions.hpp>
+
+#include "stagehand/ecs/components/event_payload.h"
+#include "stagehand/ecs/components/rendering.h"
+#include "stagehand/ecs/components/scene_children.h"
+#include "stagehand/ecs/components/world_configuration.h"
+#include "stagehand/ecs/systems/rendering_instanced.h"
+#include "stagehand/ecs/systems/rendering_multimesh.h"
+#include "stagehand/nodes/instanced_renderer_3d.h"
+#include "stagehand/nodes/multi_mesh_renderer.h"
+#include "stagehand/registry.h"
+#include "stagehand/utilities/platform.h"
+
+namespace stagehand {
+    FlecsWorld::FlecsWorld() {
+        if (unlikely(is_initialised)) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld's constructor was called when it was already initialised"));
+            return;
+        }
+
+        // Enable Flecs REST, statistics and extra logging verbosity in debug builds
+#if defined(DEBUG_ENABLED)
+        godot::UtilityFunctions::print(godot::String("Debug build. Enabling extra logging and Flecs Explorer: https://www.flecs.dev/explorer/?host=localhost"));
+        world.set<flecs::Rest>({});
+        world.import<flecs::stats>();
+        // flecs::log::set_level(1);
+#endif
+
+        // Set the number of threads Flecs should use based on CPU thread count
+        unsigned int num_threads = ::utilities::Platform::get_thread_count();
+        world.set_threads(static_cast<int>(num_threads));
+
+        // Register the components and systems, then populate the getter/setter maps.
+        register_components_and_systems_with_world(world);
+        for (const auto &[component_name, funcs] : get_component_registry()) {
+            godot::StringName name(component_name.c_str());
+
+            // Cache the component entity ID for fast lookups in has/add/remove.
+            // Prefer the entity_id stored during registration (always correct),
+            // falling back to world.lookup() for components registered without
+            // register_component_with_world_name.
+            flecs::entity_t comp_id = funcs.entity_id;
+            if (comp_id == 0) {
+                comp_id = world.lookup(component_name.c_str()).id();
+            }
+            component_ids[name] = comp_id;
+
+            if (funcs.setter) {
+                component_setters[name] = [this, global_setter = funcs.setter](flecs::entity_t entity_id, const godot::Variant &data) {
+                    global_setter(this->world, entity_id, data);
+                };
+            }
+            if (funcs.getter) {
+                component_getters[name] = [this, global_getter = funcs.getter](flecs::entity_t entity_id) { return global_getter(this->world, entity_id); };
+            }
+        }
+
+        connect("tree_entered", callable_mp(this, &FlecsWorld::_enter_tree));
+        connect("ready", callable_mp(this, &FlecsWorld::run_post_tree_setup));
+        connect("tree_exiting", callable_mp(this, &FlecsWorld::_exit_tree));
+
+        is_initialised = true;
+    }
+
+    void FlecsWorld::set_component(const godot::StringName &component_name, const godot::Variant &data, uint64_t entity_id) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_component was called before world was initialised"));
+            return;
+        }
+
+        if (likely(component_setters.contains(component_name))) {
+            component_setters[component_name](static_cast<ecs_entity_t>(entity_id), data);
+        } else {
+            godot::UtilityFunctions::push_warning(godot::String("No setter for component '") + component_name + "' found.");
+        }
+    }
+
+    godot::Variant FlecsWorld::get_component(const godot::StringName &component_name, uint64_t entity_id) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_component was called before world was initialised"));
+            return godot::Variant();
+        }
+
+        if (unlikely(!component_getters.contains(component_name))) {
+            godot::UtilityFunctions::push_warning(godot::String("No getter for component '") + component_name + "' found.");
+            return godot::Variant();
+        }
+
+        return component_getters[component_name](static_cast<ecs_entity_t>(entity_id));
+    }
+
+    bool FlecsWorld::has_component(const godot::StringName &component_name, uint64_t entity_id) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::has_component called before world initialised");
+            return false;
+        }
+        if (unlikely(!component_ids.contains(component_name))) {
+            godot::UtilityFunctions::push_warning("Component not found: " + component_name);
+            return false;
+        }
+
+        const ecs_entity_t component_id = component_ids[component_name];
+        if (entity_id == 0) {
+            return world.entity(component_id).has(component_id);
+        }
+
+        const ecs_entity_t flecs_entity_id = static_cast<ecs_entity_t>(entity_id);
+
+        return world.entity(flecs_entity_id).has(component_id);
+    }
+
+    void FlecsWorld::add_component(const godot::StringName &component_name, uint64_t entity_id) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::add_component called before world initialised");
+            return;
+        }
+        if (unlikely(!component_ids.contains(component_name))) {
+            godot::UtilityFunctions::push_warning("Component not found: " + component_name);
+            return;
+        }
+
+        const ecs_entity_t component_id = component_ids[component_name];
+        if (entity_id == 0) {
+            world.entity(component_id).add(component_id);
+            return;
+        }
+
+        const ecs_entity_t flecs_entity_id = static_cast<ecs_entity_t>(entity_id);
+
+        world.entity(flecs_entity_id).add(component_id);
+    }
+
+    void FlecsWorld::remove_component(const godot::StringName &component_name, uint64_t entity_id) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::remove_component called before world initialised");
+            return;
+        }
+        if (unlikely(!component_ids.contains(component_name))) {
+            godot::UtilityFunctions::push_warning("Component not found: " + component_name);
+            return;
+        }
+
+        const ecs_entity_t component_id = component_ids[component_name];
+        if (entity_id == 0) {
+            world.entity(component_id).remove(component_id);
+            return;
+        }
+
+        const ecs_entity_t flecs_entity_id = static_cast<ecs_entity_t>(entity_id);
+
+        world.entity(flecs_entity_id).remove(component_id);
+    }
+
+    bool FlecsWorld::enable_entity(uint64_t entity_id, bool enabled) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::enable_entity called before world initialised");
+            return false;
+        }
+
+        flecs::entity entity = world.entity(static_cast<ecs_entity_t>(entity_id));
+        if (unlikely(!entity.is_valid())) {
+            godot::UtilityFunctions::push_warning("Entity not found: " + godot::String::num_int64(entity_id));
+            return false;
+        }
+
+        enabled ? entity.enable() : entity.disable();
+        return true;
+    }
+
+    bool FlecsWorld::run_system(const godot::Variant &system, const Dictionary &parameters) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::run_system called before world initialised");
+            return false;
+        }
+
+        uint64_t entity_id;
+        if (system.get_type() == godot::Variant::INT) {
+            entity_id = static_cast<uint64_t>(system);
+        } else if (system.get_type() == godot::Variant::STRING || system.get_type() == godot::Variant::STRING_NAME) {
+            entity_id = lookup(system);
+        } else {
+            godot::UtilityFunctions::push_warning("FlecsWorld::run_system expects an integer ID or a string name.");
+            return false;
+        }
+
+        flecs::entity entity = world.entity(static_cast<ecs_entity_t>(entity_id));
+        if (unlikely(!entity.is_valid()) || unlikely(!entity.has(flecs::System))) {
+            godot::UtilityFunctions::push_warning("System not found or invalid: " + godot::String::num_int64(entity_id));
+            return false;
+        }
+
+        flecs::system sys = world.system(entity);
+        parameters.is_empty() ? sys.run() : sys.run(0.0f, (void *)&parameters);
+        return true;
+    }
+
+    uint64_t FlecsWorld::create_entity(const godot::String &name) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::create_entity called before world initialised");
+            return 0;
+        }
+        if (name.is_empty()) {
+            return static_cast<uint64_t>(world.entity().id());
+        }
+        return static_cast<uint64_t>(world.entity(name.utf8().get_data()).id());
+    }
+
+    void FlecsWorld::destroy_entity(uint64_t entity_id) {
+        if (unlikely(!is_initialised))
+            return;
+        world.entity(static_cast<ecs_entity_t>(entity_id)).destruct();
+    }
+
+    bool FlecsWorld::is_alive(uint64_t entity_id) {
+        if (unlikely(!is_initialised))
+            return false;
+        return world.entity(static_cast<ecs_entity_t>(entity_id)).is_alive();
+    }
+
+    uint64_t FlecsWorld::lookup(const godot::String &name) {
+        if (unlikely(!is_initialised))
+            return 0;
+        return world.lookup(name.utf8().get_data()).id();
+    }
+
+    godot::String FlecsWorld::get_entity_name(uint64_t entity_id) {
+        if (unlikely(!is_initialised))
+            return "";
+        return godot::String(world.entity(static_cast<ecs_entity_t>(entity_id)).name().c_str());
+    }
+
+    uint64_t FlecsWorld::instantiate_prefab(const godot::StringName &prefab_name, const godot::Dictionary &components) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::instantiate_prefab called before world initialised");
+            return 0;
+        }
+
+        flecs::entity prefab = world.lookup(godot::String(prefab_name).utf8().get_data());
+        if (unlikely(!prefab.is_valid())) {
+            godot::UtilityFunctions::push_warning(godot::String("Prefab '") + prefab_name + "' not found");
+            return 0;
+        }
+
+        flecs::entity instance = world.entity().is_a(prefab);
+
+        if (!components.is_empty()) {
+            godot::Array keys = components.keys();
+            for (int i = 0; i < keys.size(); ++i) {
+                godot::StringName key = keys[i];
+                if (component_setters.count(key)) {
+                    component_setters[key](instance.id(), components[key]);
+                } else {
+                    godot::UtilityFunctions::push_warning(godot::String("No setter found for component '") + key + "'");
+                }
+            }
+        }
+
+        return static_cast<uint64_t>(instance.id());
+    }
+
+    void FlecsWorld::emit_event(const godot::StringName &event_name, const godot::Dictionary &data, uint64_t source_entity_id) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning("FlecsWorld::emit_flecs_event called before world initialised");
+            return;
+        }
+
+        stagehand::EventPayload payload;
+        payload.name = event_name;
+        payload.data = data;
+        payload.source_entity_id = source_entity_id;
+
+        // Flecs requires emitted events to have a valid table, which in practice means the event must be associated with an entity.
+        ecs_entity_t emitter_entity_id = 0;
+        if (source_entity_id != 0) {
+            if (unlikely(!world.is_alive(static_cast<ecs_entity_t>(source_entity_id)))) {
+                godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::emit_flecs_event called with invalid source entity: ") +
+                                                      godot::String::num_uint64(source_entity_id));
+                return;
+            }
+            emitter_entity_id = static_cast<ecs_entity_t>(source_entity_id);
+        } else {
+            emitter_entity_id = world.entity("stagehand::internal::no_source_event_emitter").id();
+            payload.source_entity_id = 0;
+        }
+
+        // Flecs requires:
+        // - desc.event to be a component type when using desc.param (payload)
+        // - at least one id; use EcsAny as a generic id for Stagehand events.
+        world.event<stagehand::EventPayload>().id(flecs::Any).entity(emitter_entity_id).ctx(std::move(payload)).emit();
+    }
+
+    void FlecsWorld::set_progress_tick(ProgressTick p_progress_tick) {
+        progress_tick = p_progress_tick;
+
+        set_process(false);
+        set_physics_process(false);
+
+        if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
+            set_process(true);
+        } else if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
+            set_physics_process(true);
+        }
+    }
+
+    void FlecsWorld::progress(double delta) {
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::progress was called before world was initialised"));
+            return;
+        }
+
+        world.progress(static_cast<ecs_ftime_t>(delta));
+    }
+
+    void FlecsWorld::set_world_configuration(const godot::TypedDictionary<godot::String, godot::Variant> &p_configuration) {
+        const godot::TypedDictionary<godot::String, godot::Variant> previous_configuration = world_configuration;
+
+        // Avoid self-assignment which can crash
+        if (&p_configuration != &world_configuration) {
+            world_configuration = p_configuration;
+        }
+
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::set_world_configuration was called before world was initialised"));
+            return;
+        }
+
+        const WorldConfiguration *existing_configuration = world.try_get<WorldConfiguration>();
+        if (unlikely(existing_configuration != nullptr && p_configuration == previous_configuration && *existing_configuration != world_configuration)) {
+            return;
+        }
+
+        // Replace the singleton configuration with the latest property value.
+        set_component("WorldConfiguration", world_configuration);
+    }
+
+    godot::TypedDictionary<godot::String, godot::Variant> FlecsWorld::get_world_configuration() const {
+        if (godot::Engine::get_singleton()->is_editor_hint()) {
+            return world_configuration;
+        }
+
+        if (unlikely(!is_initialised)) {
+            godot::UtilityFunctions::push_warning(godot::String("FlecsWorld::get_world_configuration was called before world was initialised"));
+            return world_configuration;
+        }
+
+        const WorldConfiguration *configuration = world.try_get<WorldConfiguration>();
+        if (likely(configuration != nullptr)) {
+            return *configuration;
+        }
+
+        return world_configuration;
+    }
+
+    void FlecsWorld::set_modules_to_import(const godot::TypedArray<godot::String> &p_modules) { modules_to_import = p_modules; }
+
+    godot::TypedArray<godot::String> FlecsWorld::get_modules_to_import() const { return modules_to_import; }
+
+    void FlecsWorld::populate_scene_children_singleton() {
+        Dictionary children;
+        godot::TypedArray<Node> child_nodes = get_children();
+        for (int i = 0; i < child_nodes.size(); ++i) {
+            Node *child_node = Object::cast_to<Node>(child_nodes[i]);
+            if (child_node) {
+                children[child_node->get_name()] = child_node;
+            }
+        }
+        world.set<SceneChildren>(children);
+    }
+
+    void FlecsWorld::setup_entity_renderers_instanced() {
+        int renderer_count = 0;
+
+        // Get an existing copy of the Renderers singleton (may already contain multimesh configs) or start with a fresh one.
+        world.component<rendering::Renderers>();
+        rendering::Renderers renderers;
+        const rendering::Renderers *existing = world.try_get<rendering::Renderers>();
+        if (existing) {
+            renderers = *existing;
+        }
+
+        godot::TypedArray<Node> child_nodes = get_children();
+        for (int i = 0; i < child_nodes.size(); ++i) {
+            if (auto ir3d = godot::Object::cast_to<InstancedRenderer3D>(child_nodes[i])) {
+                register_instanced_renderer(world, ir3d, renderers, renderer_count);
+            }
+        }
+
+        if (renderer_count > 0) {
+            world.set<rendering::Renderers>(renderers);
+            godot::UtilityFunctions::print(godot::String("Registered ") + godot::String::num_int64(renderer_count) + " Instanced entity renderers.");
+        } else {
+            stagehand::rendering::EntityRenderingInstanced.disable();
+        }
+    }
+
+    void FlecsWorld::cleanup_instanced_renderer_rids() {
+        const rendering::Renderers *renderers_ptr = world.try_get<rendering::Renderers>();
+        if (!renderers_ptr) {
+            return;
+        }
+
+        godot::RenderingServer *rendering_server = godot::RenderingServer::get_singleton();
+        if (!rendering_server) {
+            return;
+        }
+
+        // Free all RenderingServer instance RIDs created by the instanced rendering system
+        for (const rendering::InstancedRendererConfig &renderer : renderers_ptr->instanced_renderers) {
+            for (const godot::RID &rid : renderer.instance_rids) {
+                if (rid.is_valid()) {
+                    rendering_server->free_rid(rid);
+                }
+            }
+        }
+    }
+
+    void FlecsWorld::setup_entity_renderers_multimesh() {
+        rendering::Renderers renderers;
+        int renderer_count = 0;
+
+        godot::TypedArray<Node> child_nodes = get_children();
+        for (int i = 0; i < child_nodes.size(); ++i) {
+            // Only register nodes which are MultiMeshRenderer2D or MultiMeshRenderer3D
+            if (auto mm2d = godot::Object::cast_to<MultiMeshRenderer2D>(child_nodes[i])) {
+                register_multimesh_renderer(world, mm2d, renderers, renderer_count);
+            } else if (auto mm3d = godot::Object::cast_to<MultiMeshRenderer3D>(child_nodes[i])) {
+                register_multimesh_renderer(world, mm3d, renderers, renderer_count);
+            }
+        }
+
+        if (renderer_count > 0) {
+            world.component<rendering::Renderers>();
+            world.set<rendering::Renderers>(renderers);
+            godot::UtilityFunctions::print(godot::String("Registered ") + godot::String::num_int64(renderer_count) + " MultiMesh entity renderers.");
+        } else {
+            // No multimesh instances found to use as entity renderers, disable the system.
+            stagehand::rendering::EntityRenderingMultiMesh.disable();
+        }
+    }
+
+    void FlecsWorld::register_signal_observer() {
+        world.observer("stagehand::SignalObserver")
+            .event<EventPayload>()
+            .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
+            .each([this](flecs::iter &it, size_t index) {
+                const EventPayload *signal = it.param<EventPayload>();
+                if (likely(signal)) {
+                    this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
+                }
+            });
+    }
+
+    void FlecsWorld::import_configured_modules() {
+        for (int i = 0; i < modules_to_import.size(); ++i) {
+            godot::String module_entry = modules_to_import[i];
+            std::string module_name = module_entry.utf8().get_data();
+
+            if (stagehand::has_module_callbacks_for(module_name)) {
+                stagehand::run_module_callbacks_for(world, module_name);
+                continue;
+            }
+
+            godot::UtilityFunctions::push_error(godot::String("Failed to import Flecs module: '") + module_entry);
+        }
+    }
+
+    void FlecsWorld::_enter_tree() {
+        if (enter_tree_setup_completed) {
+            return;
+        }
+
+        enter_tree_setup_completed = true;
+        post_tree_setup_completed = false;
+
+        register_signal_observer();
+        import_configured_modules();
+        script_loader.run_all(world, modules_to_import);
+        set_world_configuration(world_configuration);
+        set_progress_tick(progress_tick);
+
+        // GDScript subclasses can override _ready() without calling super, so
+        // schedule the shared post-tree setup independently of script method dispatch.
+        callable_mp(this, &FlecsWorld::run_post_tree_setup).call_deferred();
+    }
+
+    void FlecsWorld::run_post_tree_setup() {
+        if (post_tree_setup_completed || !is_inside_tree()) {
+            return;
+        }
+
+        post_tree_setup_completed = true;
+
+        populate_scene_children_singleton();
+        setup_entity_renderers_instanced();
+        setup_entity_renderers_multimesh();
+    }
+
+    void FlecsWorld::_ready() { run_post_tree_setup(); }
+
+    void FlecsWorld::_process(double p_delta) {
+        if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
+            progress(p_delta);
+        }
+    }
+
+    void FlecsWorld::_physics_process(double p_delta) {
+        if (progress_tick == ProgressTick::PROGRESS_TICK_PHYSICS) {
+            progress(p_delta);
+        }
+    }
+
+    void FlecsWorld::_exit_tree() {
+        enter_tree_setup_completed = false;
+        post_tree_setup_completed = false;
+
+        if (is_initialised) {
+            cleanup_instanced_renderer_rids();
+            is_initialised = false;
+        }
+    }
+
+    void FlecsWorld::_bind_methods() {
+        godot::ClassDB::bind_method(godot::D_METHOD("set_component", "component_name", "data", "entity_id"), &FlecsWorld::set_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("get_component", "component_name", "entity_id"), &FlecsWorld::get_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("has_component", "component_name", "entity_id"), &FlecsWorld::has_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("add_component", "component_name", "entity_id"), &FlecsWorld::add_component, DEFVAL(0));
+        godot::ClassDB::bind_method(godot::D_METHOD("remove_component", "component_name", "entity_id"), &FlecsWorld::remove_component, DEFVAL(0));
+
+        godot::ClassDB::bind_method(godot::D_METHOD("enable_entity", "entity_id", "enabled"), &FlecsWorld::enable_entity, DEFVAL(true));
+        godot::ClassDB::bind_method(godot::D_METHOD("run_system", "system", "data"), &FlecsWorld::run_system, DEFVAL(Dictionary()));
+
+        godot::ClassDB::bind_method(godot::D_METHOD("create_entity", "name"), &FlecsWorld::create_entity, DEFVAL(""));
+        godot::ClassDB::bind_method(godot::D_METHOD("destroy_entity", "entity_id"), &FlecsWorld::destroy_entity);
+        godot::ClassDB::bind_method(godot::D_METHOD("is_alive", "entity_id"), &FlecsWorld::is_alive);
+        godot::ClassDB::bind_method(godot::D_METHOD("lookup", "name"), &FlecsWorld::lookup);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_entity_name", "entity_id"), &FlecsWorld::get_entity_name);
+        godot::ClassDB::bind_method(godot::D_METHOD("instantiate_prefab", "prefab_name", "components"), &FlecsWorld::instantiate_prefab, DEFVAL(Dictionary()));
+
+        godot::ClassDB::bind_method(godot::D_METHOD("emit_event", "event_name", "data", "source_entity_id"), &FlecsWorld::emit_event, DEFVAL(Dictionary()),
+                                    DEFVAL(0));
+
+        godot::ClassDB::bind_method(godot::D_METHOD("set_progress_tick", "progress_tick"), &FlecsWorld::set_progress_tick);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_progress_tick"), &FlecsWorld::get_progress_tick);
+        godot::ClassDB::bind_method(godot::D_METHOD("progress", "delta"), &FlecsWorld::progress);
+
+        godot::ClassDB::bind_method(godot::D_METHOD("set_world_configuration", "configuration"), &FlecsWorld::set_world_configuration);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_world_configuration"), &FlecsWorld::get_world_configuration);
+
+        godot::ClassDB::bind_method(godot::D_METHOD("set_modules_to_import", "modules"), &FlecsWorld::set_modules_to_import);
+        godot::ClassDB::bind_method(godot::D_METHOD("get_modules_to_import"), &FlecsWorld::get_modules_to_import);
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::INT, "progress_tick", godot::PROPERTY_HINT_ENUM, "Rendering,Physics,Manual"), "set_progress_tick",
+                     "get_progress_tick");
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_RENDERING);
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_PHYSICS);
+        BIND_ENUM_CONSTANT(PROGRESS_TICK_MANUAL);
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::DICTIONARY, "world_configuration", godot::PROPERTY_HINT_TYPE_STRING,
+                                         godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
+                                         godot::PROPERTY_USAGE_DEFAULT),
+                     "set_world_configuration", "get_world_configuration");
+
+        ADD_PROPERTY(godot::PropertyInfo(godot::Variant::ARRAY, "modules_to_import", godot::PROPERTY_HINT_TYPE_STRING,
+                                         godot::String::num_int64(godot::Variant::STRING) + "/" + godot::String::num_int64(godot::PROPERTY_HINT_NONE) + ":",
+                                         godot::PROPERTY_USAGE_DEFAULT),
+                     "set_modules_to_import", "get_modules_to_import");
+
+        ADD_SIGNAL(godot::MethodInfo("stagehand_signal_emitted", godot::PropertyInfo(godot::Variant::STRING_NAME, "name"),
+                                     godot::PropertyInfo(godot::Variant::DICTIONARY, "data")));
+    }
+
+    FlecsWorld::~FlecsWorld() {}
+} // namespace stagehand

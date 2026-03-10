@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="FlecsWorld" inherits="Node" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		The main ECS world node that integrates Flecs with Godot.
+	</brief_description>
+	<description>
+		[b]FlecsWorld[/b] is a Godot node that provides access to a Flecs Entity Component System (ECS) world. It enables data-oriented design patterns in Godot, allowing you to efficiently manage large numbers of entities and components through declarative systems.
+		The world can be configured to progress during rendering, physics, or manually. Components and systems are defined through C++ code, GDScript integration, or Flecs script files. Entities can be created, destroyed, and queried at runtime, with full support for prefabs and event-driven systems.
+	</description>
+	<tutorials>
+	</tutorials>
+	<signals>
+		<signal name="stagehand_signal_emitted">
+			<param index="0" name="event_name" type="StringName" />
+			<param index="1" name="data" type="Dictionary" default="{}" />
+			<param index="2" name="source_entity_id" type="int" default="0" />
+			<description>
+				Emitted when a Stagehand event is forwarded into Flecs. The signal carries the event name, an optional payload [param data], and the optional [param source_entity_id] of the originating entity (0 indicates an internal emitter).
+			</description>
+		</signal>
+	</signals>
+	<methods>
+		<method name="add_component">
+			<return type="void" />
+			<param index="0" name="component_name" type="StringName" />
+			<param index="1" name="entity_id" type="int" default="0" />
+			<description>
+				Adds a component (or tag) to an entity by name. If the component is a tag (has no data), this registers the tag on the entity. For components with data, use [method set_component] instead.
+			</description>
+		</method>
+		<method name="create_entity">
+			<return type="int" />
+			<param index="0" name="name" type="String" default="&quot;&quot;" />
+			<description>
+				Creates a new entity and returns its unique ID. Optionally assign a name for easier lookup via [method lookup].
+			</description>
+		</method>
+		<method name="destroy_entity">
+			<return type="void" />
+			<param index="0" name="entity_id" type="int" />
+			<description>
+				Destroys an entity and removes it from the world.
+			</description>
+		</method>
+		<method name="emit_event">
+			<return type="void" />
+			<param index="0" name="event_name" type="StringName" />
+			<param index="1" name="data" type="Dictionary" default="{}" />
+			<param index="2" name="source_entity_id" type="int" default="0" />
+			<description>
+				Emits a Stagehand event payload into Flecs. Event data is stored in an [code]EventPayload[/code] component that is available to Flecs systems. If [param source_entity_id] is 0, an internal emitter entity is used.
+			</description>
+		</method>
+		<method name="enable_entity">
+			<return type="bool" />
+			<param index="0" name="entity_id" type="int" />
+			<param index="1" name="enabled" type="bool" default="true" />
+			<description>
+				Enables or disables an entity. Disabled entities are skipped by systems but remain in the world.
+			</description>
+		</method>
+		<method name="get_component">
+			<return type="Variant" />
+			<param index="0" name="component_name" type="StringName" />
+			<param index="1" name="entity_id" type="int" default="0" />
+			<description>
+				Gets a component value from an entity. Returns the component data as a Variant. If the entity doesn't have the component, returns null.
+			</description>
+		</method>
+		<method name="get_entity_name">
+			<return type="String" />
+			<param index="0" name="entity_id" type="int" />
+			<description>
+				Gets the name assigned to an entity.
+			</description>
+		</method>
+		<method name="get_modules_to_import">
+			<return type="PackedStringArray" />
+			<description>
+				Returns the list of Flecs modules configured for import at startup.
+			</description>
+		</method>
+		<method name="get_progress_tick">
+			<return type="int" enum="FlecsWorld.ProgressTick" />
+			<description>
+				Returns the current progress tick mode.
+			</description>
+		</method>
+		<method name="get_world_configuration">
+			<return type="Dictionary" />
+			<description>
+				Gets the world configuration singleton as a dictionary.
+			</description>
+		</method>
+		<method name="has_component">
+			<return type="bool" />
+			<param index="0" name="component_name" type="StringName" />
+			<param index="1" name="entity_id" type="int" default="0" />
+			<description>
+				Checks if an entity has a component.
+			</description>
+		</method>
+		<method name="instantiate_prefab">
+			<return type="int" />
+			<param index="0" name="prefab_name" type="StringName" />
+			<param index="1" name="components" type="Dictionary" default="{}" />
+			<description>
+				Instantiates a prefab by name and returns the entity ID of the new instance. Component data can be overridden via the [param components] dictionary. Returns 0 if the prefab doesn't exist.
+			</description>
+		</method>
+		<method name="is_alive">
+			<return type="bool" />
+			<param index="0" name="entity_id" type="int" />
+			<description>
+				Checks if an entity is alive (exists in the world).
+			</description>
+		</method>
+		<method name="lookup">
+			<return type="int" />
+			<param index="0" name="name" type="String" />
+			<description>
+				Looks up an entity by name and returns its ID, or 0 if not found.
+			</description>
+		</method>
+		<method name="progress">
+			<return type="void" />
+			<param index="0" name="delta" type="float" />
+			<description>
+				Advances the ECS world by a delta time. Called automatically based on [member progress_tick], but can also be called manually from GDScript.
+			</description>
+		</method>
+		<method name="remove_component">
+			<return type="void" />
+			<param index="0" name="component_name" type="StringName" />
+			<param index="1" name="entity_id" type="int" default="0" />
+			<description>
+				Removes a component (or tag) from an entity.
+			</description>
+		</method>
+		<method name="run_system">
+			<return type="bool" />
+			<param index="0" name="system" type="Variant" />
+			<param index="1" name="parameters" type="Dictionary" default="{}" />
+			<description>
+				Runs a specific system manually. The [param system] argument can be either a system ID (int) or name (String). Optionally pass [param parameters] to the system. Useful for triggering on-demand systems from GDScript.
+			</description>
+		</method>
+		<method name="set_component">
+			<return type="void" />
+			<param index="0" name="component_name" type="StringName" />
+			<param index="1" name="data" type="Variant" />
+			<param index="2" name="entity_id" type="int" default="0" />
+			<description>
+				Sets a component value for an entity. If the entity doesn't have the component, it is added first.
+			</description>
+		</method>
+		<method name="set_modules_to_import">
+			<return type="void" />
+			<param index="0" name="modules" type="PackedStringArray" />
+			<description>
+				Sets the list of Flecs modules (library names) to import on startup.
+			</description>
+		</method>
+		<method name="set_progress_tick">
+			<return type="void" />
+			<param index="0" name="progress_tick" type="int" enum="FlecsWorld.ProgressTick" />
+			<description>
+				Sets when (or if) the world progresses automatically.
+			</description>
+		</method>
+		<method name="set_world_configuration">
+			<return type="void" />
+			<param index="0" name="configuration" type="Dictionary" />
+			<description>
+				Sets the world configuration singleton. Configuration is typically used by systems at startup.
+			</description>
+		</method>
+	</methods>
+	<members>
+		<member name="modules_to_import" type="PackedStringArray" setter="set_modules_to_import" getter="get_modules_to_import" default="PackedStringArray()">
+			The list of Flecs modules (library names) imported during world initialization.
+		</member>
+		<member name="progress_tick" type="int" setter="set_progress_tick" getter="get_progress_tick" enum="FlecsWorld.ProgressTick" default="0">
+			Controls when the world progresses automatically: rendering tick, physics tick, or manual progression.
+		</member>
+		<member name="world_configuration" type="Dictionary" setter="set_world_configuration" getter="get_world_configuration" default="{}">
+			Global world configuration data exposed to ECS systems.
+		</member>
+	</members>
+	<constants>
+		<constant name="PROGRESS_TICK_RENDERING" value="0" enum="ProgressTick">
+			The world progresses in [method _process] (rendering tick).
+		</constant>
+		<constant name="PROGRESS_TICK_PHYSICS" value="1" enum="ProgressTick">
+			The world progresses in [method _physics_process] (fixed-rate physics tick).
+		</constant>
+		<constant name="PROGRESS_TICK_MANUAL" value="2" enum="ProgressTick">
+			No automatic world progression; the world must be progressed manually via [method progress].
+		</constant>
+	</constants>
+</class>

@@ -1,0 +1,10 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/pipeline_and_config/pipeline_and_config.gd" id="1"]
+
+[node name="PipelineAndConfig" type="FlecsWorld"]
+script = ExtResource("1")
+world_configuration = Dictionary[String, Variant]({
+"test_int": 42,
+"test_string": "hello"
+})

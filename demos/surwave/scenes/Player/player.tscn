@@ -1,0 +1,97 @@
+[gd_scene format=3 uid="uid://b6bjohq7ewbe0"]
+
+[ext_resource type="Script" uid="uid://bqur363lsbm3k" path="res://Surwave/scenes/Player/player.gd" id="1_1kbk7"]
+[ext_resource type="Texture2D" uid="uid://5cwvcedtanps" path="res://Surwave/scenes/Player/sprites.png" id="1_cyojo"]
+[ext_resource type="PackedScene" uid="uid://c3ddp3cyxtm0q" path="res://Surwave/scenes/ui/end_screen.tscn" id="2_a06cl"]
+[ext_resource type="Script" uid="uid://cstjmlchpx8l6" path="res://Surwave/classes/upgrade_manager.gd" id="2_hvfru"]
+[ext_resource type="Shader" uid="uid://dnrcjfhn7xfqk" path="res://Surwave/shaders/shockwave.gdshader" id="3_gqjuk"]
+[ext_resource type="Script" uid="uid://dmf3livfpo8fu" path="res://Surwave/classes/projectile_manager.gd" id="4_uiqp4"]
+[ext_resource type="Script" uid="uid://coxlji6xeb5sy" path="res://Surwave/classes/shockwave_manager.gd" id="5_hvfru"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_c4h5g"]
+shader = ExtResource("3_gqjuk")
+shader_parameter/radius = 0.0
+shader_parameter/inner_ring = 0.5
+shader_parameter/outer_ring = 0.05
+shader_parameter/shockwave_colour = Color(0.8, 1, 1, 0.49803922)
+
+[sub_resource type="QuadMesh" id="QuadMesh_gqjuk"]
+size = Vector2(360, 360)
+
+[sub_resource type="PlaceholderTexture2D" id="PlaceholderTexture2D_c4h5g"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_cyojo"]
+radius = 6.0
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_a06cl"]
+bg_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_hvfru"]
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.23137255, 0.023529412, 0.22745098, 1)
+
+[node name="Player" type="Node2D" node_paths=PackedStringArray("sprite")]
+script = ExtResource("1_1kbk7")
+end_screen_scene = ExtResource("2_a06cl")
+sprite = NodePath("CharacterBody2D/Sprite2D")
+
+[node name="UpgradeManager" type="Node" parent="."]
+script = ExtResource("2_hvfru")
+
+[node name="ProjectileManager" type="Node" parent="."]
+script = ExtResource("4_uiqp4")
+
+[node name="ShockwaveManager" type="Node" parent="."]
+script = ExtResource("5_hvfru")
+
+[node name="Timer" type="Timer" parent="ShockwaveManager"]
+wait_time = 4.2
+autostart = true
+
+[node name="CharacterBody2D" type="CharacterBody2D" parent="." groups=["Players"]]
+collision_layer = 4
+collision_mask = 27
+
+[node name="ActionVFX" type="Node2D" parent="CharacterBody2D"]
+
+[node name="ShockwaveVFX" type="MeshInstance2D" parent="CharacterBody2D/ActionVFX"]
+unique_name_in_owner = true
+material = SubResource("ShaderMaterial_c4h5g")
+mesh = SubResource("QuadMesh_gqjuk")
+texture = SubResource("PlaceholderTexture2D_c4h5g")
+
+[node name="Sprite2D" type="Sprite2D" parent="CharacterBody2D"]
+position = Vector2(0, 14)
+texture = ExtResource("1_cyojo")
+offset = Vector2(0, -16)
+hframes = 8
+vframes = 7
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("CircleShape2D_cyojo")
+
+[node name="HealthBar" type="ProgressBar" parent="CharacterBody2D"]
+modulate = Color(1, 1, 1, 0.24705882)
+custom_minimum_size = Vector2(24, 4)
+offset_left = -12.0
+offset_top = -16.0
+offset_right = 12.0
+offset_bottom = -12.0
+pivot_offset = Vector2(12, 2)
+theme_override_styles/background = SubResource("StyleBoxFlat_a06cl")
+theme_override_styles/fill = SubResource("StyleBoxFlat_hvfru")
+max_value = 1.0
+show_percentage = false
+
+[node name="DamageCooldownTimer" type="Timer" parent="."]
+wait_time = 1.2
+one_shot = true
+autostart = true
+ignore_time_scale = true
+
+[connection signal="timeout" from="ShockwaveManager/Timer" to="ShockwaveManager" method="_fire"]
+[connection signal="value_changed" from="CharacterBody2D/HealthBar" to="." method="_on_health_bar_value_changed"]
+[connection signal="timeout" from="DamageCooldownTimer" to="." method="_on_damage_cooldown_timeout"]

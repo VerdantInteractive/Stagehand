@@ -1,0 +1,19 @@
+[remap]
+
+importer="mp3"
+type="AudioStreamMP3"
+uid="uid://dnb7p4e0ef6co"
+path="res://.godot/imported/Wreckage Machinery - Long Gone.mp3-26057933b043190ab4f1b306cf83e3f7.mp3str"
+
+[deps]
+
+source_file="res://Surwave/audio/music/Wreckage Machinery - Long Gone.mp3"
+dest_files=["res://.godot/imported/Wreckage Machinery - Long Gone.mp3-26057933b043190ab4f1b306cf83e3f7.mp3str"]
+
+[params]
+
+loop=false
+loop_offset=0
+bpm=0
+beat_count=0
+bar_beats=4

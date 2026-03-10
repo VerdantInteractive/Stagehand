@@ -1,0 +1,84 @@
+name: Integration Tests
+
+on:
+  workflow_run:
+    workflows: ["Build"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+env:
+  GODOT_VERSION: "4.6.1"
+
+jobs:
+  integration-tests:
+    if: ${{ github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          submodules: recursive
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Install LLVM and Clang
+        uses: KyleMayes/install-llvm-action@v2
+        with:
+          version: "22"
+
+      - name: Configure Clang toolchain
+        shell: bash
+        run: |
+          echo "CC=${LLVM_PATH}/bin/clang" >> "$GITHUB_ENV"
+          echo "CXX=${LLVM_PATH}/bin/clang++" >> "$GITHUB_ENV"
+
+      - name: Install SCons
+        run: python -m pip install --upgrade pip scons
+
+      - name: Download build artifacts
+        if: ${{ github.event_name == 'workflow_run' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh run download ${{ github.event.workflow_run.id }} --repo ${{ github.repository }} --name stagehand-build-artifacts --dir .
+
+      - name: Download Godot
+        shell: bash
+        run: |
+          curl -fsSL --retry 3 -o godot.zip "https://downloads.godotengine.org/?version=${GODOT_VERSION}&flavor=stable&slug=linux.x86_64.zip&platform=linux.64"
+          python - <<'PY'
+          import os
+          import stat
+          import zipfile
+
+          archive_path = "godot.zip"
+          extract_dir = "godot-download"
+          output_path = os.path.join("bin", "godot")
+
+          os.makedirs(extract_dir, exist_ok=True)
+          os.makedirs("bin", exist_ok=True)
+
+          with zipfile.ZipFile(archive_path, "r") as archive:
+              members = [name for name in archive.namelist() if not name.endswith("/")]
+              if len(members) != 1:
+                  raise RuntimeError(f"Expected a single file in {archive_path}, found {len(members)}")
+              archive.extract(members[0], extract_dir)
+              extracted_path = os.path.join(extract_dir, members[0])
+
+          os.replace(extracted_path, output_path)
+          current_mode = os.stat(output_path).st_mode
+          os.chmod(output_path, current_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
+          PY
+          rm -rf godot-download godot.zip
+
+      - name: Run integration tests
+        env:
+          GODOT: ./bin/godot
+        run: python scripts/run_integration_tests.py

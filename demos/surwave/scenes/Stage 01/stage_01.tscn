@@ -1,0 +1,258 @@
+[gd_scene format=3 uid="uid://1f0s78v8ooax"]
+
+[ext_resource type="Script" uid="uid://b0ekcl6i0i8y0" path="res://Surwave/scenes/Stage 01/stage_01.gd" id="1_eml3u"]
+[ext_resource type="Texture2D" uid="uid://u0ein3bhqfwq" path="res://Surwave/scenes/Stage 01/foliage/grass1.png" id="2_3tqr6"]
+[ext_resource type="Script" uid="uid://b33fufhty65cb" path="res://Surwave/scenes/Stage 01/world.gd" id="2_u0n13"]
+[ext_resource type="PackedScene" uid="uid://c3ddp3cyxtm0q" path="res://Surwave/scenes/ui/end_screen.tscn" id="2_vufsv"]
+[ext_resource type="PackedScene" uid="uid://bq3luf1jvhoyx" path="res://Surwave/scenes/Altar/altar.tscn" id="3_2lrbc"]
+[ext_resource type="Shader" uid="uid://c6w6e2p6d7103" path="res://Surwave/shaders/flipbook_animation.gdshader" id="3_c1wav"]
+[ext_resource type="Script" uid="uid://wwu5hgfrs7ax" path="res://Surwave/classes/minimap_manager.gd" id="3_jfh1v"]
+[ext_resource type="Texture2D" uid="uid://byjknt5h78oqt" path="res://Surwave/scenes/Stage 01/foliage/grass2.png" id="3_u0n13"]
+[ext_resource type="Texture2D" uid="uid://pwpiyyc44edk" path="res://Surwave/scenes/Stage 01/foliage/grass3.png" id="4_gms3k"]
+[ext_resource type="Texture2D" uid="uid://bbpjjjtucvjlr" path="res://Surwave/resources/characters/enemies/Bugs/Bugs.png" id="4_qgwcv"]
+[ext_resource type="Script" uid="uid://cblprpvcpkxxh" path="res://Surwave/classes/enemy_spawn_manager.gd" id="5_1m5sl"]
+[ext_resource type="Texture2D" uid="uid://4vkky8xmxasg" path="res://Surwave/scenes/Stage 01/foliage/grass4.png" id="5_qgwcv"]
+[ext_resource type="Script" uid="uid://c8rbxj6sdbfbr" path="res://Surwave/classes/gem_drop_manager.gd" id="6_qgwcv"]
+[ext_resource type="PackedScene" uid="uid://b0rmafrd1wigo" path="res://Surwave/scenes/Gem/gem.tscn" id="7_1m5sl"]
+[ext_resource type="Texture2D" uid="uid://ej5738ncc6oc" path="res://Surwave/scenes/Altar/debris/5.png" id="12_o3nnp"]
+[ext_resource type="Texture2D" uid="uid://bibdu8jl30p4a" path="res://Surwave/scenes/Altar/debris/1.png" id="13_jfh1v"]
+[ext_resource type="Texture2D" uid="uid://nwfl7onslfdc" path="res://Surwave/scenes/Altar/debris/6.png" id="14_vufsv"]
+[ext_resource type="Texture2D" uid="uid://jf5nqssf1a5c" path="res://Surwave/scenes/Altar/debris/3.png" id="16_y354e"]
+[ext_resource type="Texture2D" uid="uid://bqiyvivyet87n" path="res://Surwave/scenes/Altar/debris/4.png" id="17_avk1y"]
+[ext_resource type="PackedScene" uid="uid://cou2i7rmir1yd" path="res://Surwave/scenes/ui/status_overlay.tscn" id="20_vufsv"]
+[ext_resource type="PackedScene" uid="uid://belyoqxn5x3nf" path="res://Surwave/scenes/ui/vignette.tscn" id="21_8wwtj"]
+
+[sub_resource type="Curve" id="Curve_1m5sl"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.4952381, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_sv3iu"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_1m5sl"]
+shader = ExtResource("3_c1wav")
+shader_parameter/columns = 6
+shader_parameter/rows = 12
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qgwcv"]
+shader = ExtResource("3_c1wav")
+shader_parameter/columns = 6
+shader_parameter/rows = 4
+
+[sub_resource type="QuadMesh" id="QuadMesh_sv3iu"]
+material = SubResource("ShaderMaterial_qgwcv")
+size = Vector2(48, -48)
+
+[sub_resource type="MultiMesh" id="MultiMesh_c1wav"]
+use_custom_data = true
+custom_aabb = AABB(-1024, -1024, 0, 2048, 2048, 0)
+visible_instance_count = 0
+mesh = SubResource("QuadMesh_sv3iu")
+
+[sub_resource type="QuadMesh" id="QuadMesh_ps4hv"]
+size = Vector2(2048, 2048)
+
+[sub_resource type="Gradient" id="Gradient_2lrbc"]
+interpolation_mode = 1
+offsets = PackedFloat32Array(0, 0.39945653, 0.78532606)
+colors = PackedColorArray(0.44313726, 0.2509804, 0.34509805, 1, 0.56078434, 0.34117648, 0.39607844, 1, 0.67058825, 0.4509804, 0.46666667, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_oji7v"]
+noise_type = 3
+frequency = 0.03
+domain_warp_enabled = true
+domain_warp_fractal_octaves = 3
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_eml3u"]
+width = 2048
+height = 2048
+generate_mipmaps = false
+noise = SubResource("FastNoiseLite_oji7v")
+color_ramp = SubResource("Gradient_2lrbc")
+
+[sub_resource type="QuadMesh" id="QuadMesh_3tqr6"]
+size = Vector2(2, 2)
+
+[sub_resource type="MultiMesh" id="MultiMesh_u0n13"]
+mesh = SubResource("QuadMesh_3tqr6")
+
+[sub_resource type="QuadMesh" id="QuadMesh_gms3k"]
+size = Vector2(5, 5)
+
+[sub_resource type="MultiMesh" id="MultiMesh_qgwcv"]
+mesh = SubResource("QuadMesh_gms3k")
+
+[sub_resource type="QuadMesh" id="QuadMesh_1m5sl"]
+size = Vector2(6, 6)
+
+[sub_resource type="MultiMesh" id="MultiMesh_sv3iu"]
+mesh = SubResource("QuadMesh_1m5sl")
+
+[sub_resource type="QuadMesh" id="QuadMesh_c1wav"]
+size = Vector2(3, 5)
+
+[sub_resource type="MultiMesh" id="MultiMesh_3mvql"]
+mesh = SubResource("QuadMesh_c1wav")
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_gms3k"]
+size = Vector2(2080, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_qgwcv"]
+size = Vector2(20, 2080)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1m5sl"]
+size = Vector2(2080, 20)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_sv3iu"]
+size = Vector2(20, 2080)
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_gms3k"]
+radius = 48.0
+
+[node name="Stage01" type="Node" unique_id=759500000]
+script = ExtResource("1_eml3u")
+end_screen_scene = ExtResource("2_vufsv")
+
+[node name="Vignette" parent="." unique_id=1089843116 instance=ExtResource("21_8wwtj")]
+
+[node name="StatusOverlay" parent="." unique_id=1828413316 instance=ExtResource("20_vufsv")]
+
+[node name="World" type="FlecsWorld" parent="." unique_id=256269905]
+world_configuration = Dictionary[String, Variant]({
+"enemy_count": 4096
+})
+modules_to_import = PackedStringArray("stagehand_demos::surwave")
+script = ExtResource("2_u0n13")
+
+[node name="MinimapManager" type="Node" parent="World" unique_id=1938565226]
+script = ExtResource("3_jfh1v")
+
+[node name="GemDropManager" type="Node" parent="World" unique_id=917363912]
+script = ExtResource("6_qgwcv")
+gem_scene = ExtResource("7_1m5sl")
+drop_probabilities = Dictionary[String, float]({
+"BugHumanoid": 0.15,
+"BugLarge": 0.3,
+"BugSmall": 0.1
+})
+
+[node name="EnemySpawnManager" type="Node" parent="World" unique_id=1874945668]
+script = ExtResource("5_1m5sl")
+probability_curve = SubResource("Curve_1m5sl")
+enemy_type_curve = SubResource("Curve_sv3iu")
+
+[node name="Enemies" type="MultiMeshRenderer2D" parent="World" unique_id=1263604764]
+prefabs_rendered = PackedStringArray("stagehand_demos::surwave::BugSmall", "stagehand_demos::surwave::BugHumanoid", "stagehand_demos::surwave::BugLarge")
+draw_order = 2
+material = SubResource("ShaderMaterial_1m5sl")
+multimesh = SubResource("MultiMesh_c1wav")
+texture = ExtResource("4_qgwcv")
+
+[node name="Terrain" type="MeshInstance2D" parent="." unique_id=1895127810]
+z_index = -99
+mesh = SubResource("QuadMesh_ps4hv")
+texture = SubResource("NoiseTexture2D_eml3u")
+
+[node name="Foliage" type="Node2D" parent="Terrain" unique_id=1393383716]
+
+[node name="Grass1" type="MultiMeshInstance2D" parent="Terrain/Foliage" unique_id=599364095]
+multimesh = SubResource("MultiMesh_u0n13")
+texture = ExtResource("2_3tqr6")
+
+[node name="Grass2" type="MultiMeshInstance2D" parent="Terrain/Foliage" unique_id=164898115]
+multimesh = SubResource("MultiMesh_qgwcv")
+texture = ExtResource("3_u0n13")
+
+[node name="Grass3" type="MultiMeshInstance2D" parent="Terrain/Foliage" unique_id=1999003431]
+multimesh = SubResource("MultiMesh_sv3iu")
+texture = ExtResource("4_gms3k")
+
+[node name="Grass4" type="MultiMeshInstance2D" parent="Terrain/Foliage" unique_id=1484014860]
+multimesh = SubResource("MultiMesh_3mvql")
+texture = ExtResource("5_qgwcv")
+
+[node name="Landmarks" type="Node" parent="." unique_id=112948038]
+
+[node name="Debris" type="Node" parent="Landmarks" unique_id=1798884459]
+
+[node name="5" type="Sprite2D" parent="Landmarks/Debris" unique_id=1563133678]
+position = Vector2(-1006, -1018)
+texture = ExtResource("12_o3nnp")
+
+[node name="1" type="Sprite2D" parent="Landmarks/Debris" unique_id=943635383]
+position = Vector2(-1020, -996)
+texture = ExtResource("13_jfh1v")
+
+[node name="6" type="Sprite2D" parent="Landmarks/Debris" unique_id=331827302]
+position = Vector2(1007, -1016)
+texture = ExtResource("14_vufsv")
+
+[node name="2" type="Sprite2D" parent="Landmarks/Debris" unique_id=556333141]
+position = Vector2(1020, -997)
+texture = ExtResource("13_jfh1v")
+
+[node name="3" type="Sprite2D" parent="Landmarks/Debris" unique_id=1473260493]
+position = Vector2(1020, 997)
+texture = ExtResource("13_jfh1v")
+
+[node name="4" type="Sprite2D" parent="Landmarks/Debris" unique_id=713308033]
+position = Vector2(1000, 1018)
+texture = ExtResource("16_y354e")
+
+[node name="7" type="Sprite2D" parent="Landmarks/Debris" unique_id=1573496940]
+position = Vector2(-1003, 1018)
+scale = Vector2(-1, 1)
+texture = ExtResource("17_avk1y")
+
+[node name="8" type="Sprite2D" parent="Landmarks/Debris" unique_id=1966175043]
+position = Vector2(-1019, 997)
+scale = Vector2(-1, 1)
+texture = ExtResource("13_jfh1v")
+
+[node name="AltarNW" parent="Landmarks" unique_id=1654487228 instance=ExtResource("3_2lrbc")]
+position = Vector2(-1004, -1009)
+
+[node name="AltarNE" parent="Landmarks" unique_id=1503881255 instance=ExtResource("3_2lrbc")]
+position = Vector2(1004, -1009)
+
+[node name="AltarSE" parent="Landmarks" unique_id=222386399 instance=ExtResource("3_2lrbc")]
+position = Vector2(1004, 989)
+
+[node name="AltarSW" parent="Landmarks" unique_id=1860507338 instance=ExtResource("3_2lrbc")]
+position = Vector2(-1004, 989)
+
+[node name="Borders" type="StaticBody2D" parent="." unique_id=453022012]
+collision_mask = 0
+
+[node name="North" type="CollisionShape2D" parent="Borders" unique_id=2110816693]
+position = Vector2(0, -1030)
+shape = SubResource("RectangleShape2D_gms3k")
+
+[node name="East" type="CollisionShape2D" parent="Borders" unique_id=171242215]
+position = Vector2(1034, 0)
+shape = SubResource("RectangleShape2D_qgwcv")
+
+[node name="South" type="CollisionShape2D" parent="Borders" unique_id=534072537]
+position = Vector2(0, 1034)
+shape = SubResource("RectangleShape2D_1m5sl")
+
+[node name="West" type="CollisionShape2D" parent="Borders" unique_id=1042212211]
+position = Vector2(-1034, 0)
+shape = SubResource("RectangleShape2D_sv3iu")
+
+[node name="AltarNW" type="CollisionShape2D" parent="Borders" unique_id=1431946880]
+position = Vector2(-1037, -1037)
+shape = SubResource("CircleShape2D_gms3k")
+
+[node name="AltarNE" type="CollisionShape2D" parent="Borders" unique_id=1472660064]
+position = Vector2(1037, -1037)
+shape = SubResource("CircleShape2D_gms3k")
+
+[node name="AltarSW" type="CollisionShape2D" parent="Borders" unique_id=1167720307]
+position = Vector2(1037, 1037)
+shape = SubResource("CircleShape2D_gms3k")
+
+[node name="AltarSE" type="CollisionShape2D" parent="Borders" unique_id=1869171263]
+position = Vector2(-1037, 1037)
+shape = SubResource("CircleShape2D_gms3k")

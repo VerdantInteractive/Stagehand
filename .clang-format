@@ -1,0 +1,24 @@
+# Indentation
+BasedOnStyle: LLVM # Or Google, Microsoft, WebKit, etc.
+IndentWidth: 4
+TabWidth: 4
+UseTab: Never
+NamespaceIndentation: All
+
+# Wrapping
+ColumnLimit: 160
+BinPackParameters: false
+
+# Grouping & reordering for includes
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<godot_cpp/.*'
+    Priority: 2
+  - Regex: '^<.*'
+    Priority: 1
+  - Regex: '^"flecs.h"'
+    Priority: 3
+  - Regex: '^"stagehand/.*"'
+    Priority: 4
+  - Regex: '.*'
+    Priority: 5

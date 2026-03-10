@@ -1,0 +1,147 @@
+[gd_scene format=3 uid="uid://c0h5bevr7m6at"]
+
+[ext_resource type="Script" uid="uid://du3idm3ms8uls" path="res://Surwave/scenes/Audio Manager/audio_manager.gd" id="1_th668"]
+[ext_resource type="AudioStream" uid="uid://dhjyu0fcago5e" path="res://Surwave/audio/sfx/BugHumanoidDie.ogg" id="2_sxpqy"]
+[ext_resource type="AudioStream" uid="uid://t3si4cfnx830" path="res://Surwave/audio/sfx/BugHumanoidHurt.ogg" id="3_u4mrk"]
+[ext_resource type="AudioStream" uid="uid://d3pmagc8lr44u" path="res://Surwave/audio/sfx/BugLargeDie.ogg" id="4_i37gu"]
+[ext_resource type="AudioStream" uid="uid://bkpql1ewrhjwg" path="res://Surwave/audio/sfx/BugLargeHurt.ogg" id="5_gufja"]
+[ext_resource type="AudioStream" uid="uid://crqcjobwpafl6" path="res://Surwave/audio/sfx/BugSmallDie.ogg" id="6_o7vmc"]
+[ext_resource type="AudioStream" uid="uid://c26rgo7njbarq" path="res://Surwave/audio/music/Defeat.mp3" id="7_5a0sd"]
+[ext_resource type="AudioStream" uid="uid://c6022the5qrem" path="res://Surwave/audio/sfx/BugSmallHurt.ogg" id="7_bsslw"]
+[ext_resource type="AudioStream" uid="uid://dnuc1kab57s8k" path="res://Surwave/audio/sfx/GemCollect.wav" id="7_ne6yq"]
+[ext_resource type="AudioStream" uid="uid://db8mv32c6i2ql" path="res://Surwave/audio/music/Victory.mp3" id="8_2m2tg"]
+[ext_resource type="AudioStream" uid="uid://sgfnmam2ak1n" path="res://Surwave/audio/sfx/GemDrop.wav" id="8_sxpqy"]
+[ext_resource type="AudioStream" uid="uid://b1v2a4nc6gxm4" path="res://Surwave/audio/sfx/Click.wav" id="8_u4mrk"]
+[ext_resource type="AudioStream" uid="uid://dnb7p4e0ef6co" path="res://Surwave/audio/music/Wreckage Machinery - Long Gone.mp3" id="9_tw5x4"]
+[ext_resource type="AudioStream" uid="uid://yxqx4ip7pkkr" path="res://Surwave/audio/sfx/PlayerHurt_A.wav" id="9_u4mrk"]
+[ext_resource type="AudioStream" uid="uid://v3bs0widi6qg" path="res://Surwave/audio/sfx/PlayerHurt_B.wav" id="10_i37gu"]
+[ext_resource type="AudioStream" uid="uid://dmhsv40idwipg" path="res://Surwave/audio/sfx/PlayerHurt_C.wav" id="11_gufja"]
+[ext_resource type="AudioStream" uid="uid://bcq2w5dgb5h2" path="res://Surwave/audio/sfx/PlayerHurt_D.wav" id="12_o7vmc"]
+[ext_resource type="AudioStream" uid="uid://c5vos5rj8ygjw" path="res://Surwave/audio/sfx/PlayerHurt_E.wav" id="13_bsslw"]
+[ext_resource type="AudioStream" uid="uid://xx2vmmowphpp" path="res://Surwave/audio/sfx/Projectile_A.wav" id="14_d6sch"]
+[ext_resource type="AudioStream" uid="uid://1lu2bntpblbi" path="res://Surwave/audio/sfx/Projectile_B.wav" id="15_5xvwe"]
+[ext_resource type="AudioStream" uid="uid://brv4ojswipq23" path="res://Surwave/audio/sfx/PlayerDeath.mp3" id="16_i37gu"]
+[ext_resource type="AudioStream" uid="uid://chw26ufg7nfuh" path="res://Surwave/audio/sfx/Projectile_C.wav" id="16_ua6oc"]
+[ext_resource type="AudioStream" uid="uid://dq3iasmxnqbvu" path="res://Surwave/audio/sfx/Projectile_D.wav" id="17_lljys"]
+[ext_resource type="AudioStream" uid="uid://v8hgiqdpyvcy" path="res://Surwave/audio/sfx/Shockwave.ogg" id="19_sxpqy"]
+[ext_resource type="AudioStream" uid="uid://bj5dcbmn15xq4" path="res://Surwave/audio/sfx/UpgradeAcquired.mp3" id="19_uu38c"]
+[ext_resource type="AudioStream" uid="uid://bulch4mqcagif" path="res://Surwave/audio/music/UpgradeScreenLoop.mp3" id="26_gufja"]
+[ext_resource type="AudioStream" uid="uid://bsibr4gw0n4iq" path="res://Surwave/audio/music/Intro.ogg" id="27_o7vmc"]
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_1n5lx"]
+streams_count = 5
+stream_0/stream = ExtResource("9_u4mrk")
+stream_1/stream = ExtResource("10_i37gu")
+stream_2/stream = ExtResource("11_gufja")
+stream_3/stream = ExtResource("12_o7vmc")
+stream_4/stream = ExtResource("13_bsslw")
+
+[sub_resource type="AudioStreamRandomizer" id="AudioStreamRandomizer_jhqse"]
+streams_count = 4
+stream_0/stream = ExtResource("14_d6sch")
+stream_1/stream = ExtResource("15_5xvwe")
+stream_2/stream = ExtResource("16_ua6oc")
+stream_3/stream = ExtResource("17_lljys")
+
+[node name="AudioManager" type="Node"]
+script = ExtResource("1_th668")
+
+[node name="SFXPlayers" type="Node" parent="."]
+
+[node name="BugHumanoidDie" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("2_sxpqy")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="BugHumanoidHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("3_u4mrk")
+volume_db = -11.0
+bus = &"SFX"
+
+[node name="BugLargeDie" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("4_i37gu")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="BugLargeHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("5_gufja")
+volume_db = -11.0
+bus = &"SFX"
+
+[node name="BugSmallDie" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("6_o7vmc")
+volume_db = -7.0
+bus = &"SFX"
+
+[node name="BugSmallHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("7_bsslw")
+volume_db = -11.0
+bus = &"SFX"
+
+[node name="Click" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("8_u4mrk")
+mix_target = 2
+bus = &"SFX"
+
+[node name="GemCollect" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("7_ne6yq")
+volume_db = -15.0
+max_polyphony = 8
+bus = &"SFX"
+
+[node name="GemDrop" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("8_sxpqy")
+max_polyphony = 8
+bus = &"SFX"
+
+[node name="PlayerHurt" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = SubResource("AudioStreamRandomizer_1n5lx")
+volume_db = -5.0
+bus = &"SFX"
+
+[node name="PlayerDeath" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("16_i37gu")
+bus = &"SFX"
+
+[node name="Projectile" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = SubResource("AudioStreamRandomizer_jhqse")
+volume_db = -8.0
+pitch_scale = 1.2
+max_polyphony = 16
+bus = &"SFX"
+
+[node name="Shockwave" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("19_sxpqy")
+volume_db = -6.0
+pitch_scale = 1.2
+bus = &"SFX"
+
+[node name="UpgradeAcquired" type="AudioStreamPlayer" parent="SFXPlayers"]
+stream = ExtResource("19_uu38c")
+bus = &"SFX"
+
+[node name="MusicPlayers" type="Node" parent="."]
+
+[node name="Defeat" type="AudioStreamPlayer" parent="MusicPlayers"]
+stream = ExtResource("7_5a0sd")
+bus = &"Music"
+
+[node name="Intro" type="AudioStreamPlayer" parent="MusicPlayers"]
+stream = ExtResource("27_o7vmc")
+volume_db = -10.0
+bus = &"Music"
+
+[node name="Victory" type="AudioStreamPlayer" parent="MusicPlayers"]
+stream = ExtResource("8_2m2tg")
+bus = &"Music"
+
+[node name="SoundTrack" type="AudioStreamPlayer" parent="MusicPlayers"]
+stream = ExtResource("9_tw5x4")
+volume_db = -10.0
+bus = &"Music"
+
+[node name="UpgradeScreenLoop" type="AudioStreamPlayer" parent="MusicPlayers"]
+process_mode = 3
+stream = ExtResource("26_gufja")
+volume_db = -10.0
+bus = &"Music"

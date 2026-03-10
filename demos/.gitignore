@@ -1,0 +1,6 @@
+.DS_Store
+build/
+
+# Default entries for Godot projects
+.godot/
+/android/

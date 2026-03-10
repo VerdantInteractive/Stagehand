@@ -1,0 +1,88 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Play (Windows, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "${userHome}\\Applications\\Godot\\Godot_console.exe",
+            "args": [
+                "--path",
+                "demos"
+            ],
+        },
+        {
+            "name": "Editor (Windows, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "${userHome}\\Applications\\Godot\\Godot_console.exe",
+            "args": [
+                "demos\\project.godot"
+            ],
+        },
+        {
+            "name": "Play (Mac, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "/Applications/Godot.app/Contents/MacOS/Godot",
+            "args": [
+                "--path",
+                "demos"
+            ],
+        },
+        {
+            "name": "Editor (Mac, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "/Applications/Godot.app/Contents/MacOS/Godot",
+            "args": [
+                "demos/project.godot"
+            ],
+        },
+        {
+            "name": "Play (Linux, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "${userHome}/Applications/Godot/godot",
+            "args": [
+                "--path",
+                "demos"
+            ],
+        },
+        {
+            "name": "Editor (Linux, lldb)",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "${userHome}/Applications/Godot/godot",
+            "args": [
+                "demos/project.godot"
+            ],
+        },
+        {
+            "name": "debug3",
+            "type": "lldb",
+            "request": "launch",
+            "preLaunchTask": "Build (Debug)",
+            "cwd": "${workspaceRoot}",
+            "program": "/Applications/Godot.app/Contents/MacOS/Godot",
+            "args": [
+                "--path",
+                "demos",
+                "--quit-after",
+                "3"
+            ],
+        }
+    ]
+}

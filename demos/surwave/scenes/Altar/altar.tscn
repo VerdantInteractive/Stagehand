@@ -1,0 +1,141 @@
+[gd_scene format=3 uid="uid://bq3luf1jvhoyx"]
+
+[ext_resource type="Texture2D" uid="uid://bpagas30bun5u" path="res://Surwave/scenes/Altar/Altar.png" id="1_0khly"]
+[ext_resource type="Script" uid="uid://bx35bdxacsgdk" path="res://Surwave/scenes/Altar/altar.gd" id="1_muwh6"]
+[ext_resource type="PackedScene" uid="uid://b0m0y6aoexp4a" path="res://Surwave/scenes/ui/upgrade_screen.tscn" id="2_8t5dx"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_muwh6"]
+radius = 9.0
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_0khly"]
+radius = 20.0
+
+[sub_resource type="Gradient" id="Gradient_8t5dx"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_uvbkc"]
+gradient = SubResource("Gradient_8t5dx")
+width = 384
+height = 384
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.8)
+
+[sub_resource type="Animation" id="Animation_8t5dx"]
+resource_name = "flicker"
+length = 10.0
+loop_mode = 1
+step = 0.0333333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Light:energy")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1.1333333, 2.4, 3.1, 4.2, 5.266667, 6.366667, 8.333333, 10),
+"transitions": PackedFloat32Array(1, 1, 1, 1, 1, 1, 1, 1, 1),
+"update": 0,
+"values": [2.0, 1.23, 1.74, 1.21, 1.47, 0.95, 2.5300000000000002, 1.48, 2.0]
+}
+
+[sub_resource type="Animation" id="Animation_uvbkc"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Light:energy")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 0,
+"values": [2.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Light:enabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [true]
+}
+
+[sub_resource type="Animation" id="Animation_fvto8"]
+resource_name = "go_off"
+step = 0.0333333
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Light:energy")
+tracks/0/interp = 2
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 0,
+"values": [2.0, 0.0]
+}
+tracks/1/type = "value"
+tracks/1/imported = false
+tracks/1/enabled = true
+tracks/1/path = NodePath("Light:enabled")
+tracks/1/interp = 1
+tracks/1/loop_wrap = true
+tracks/1/keys = {
+"times": PackedFloat32Array(0, 1),
+"transitions": PackedFloat32Array(1, 1),
+"update": 1,
+"values": [true, false]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_fvto8"]
+_data = {
+&"RESET": SubResource("Animation_uvbkc"),
+&"flicker": SubResource("Animation_8t5dx"),
+&"go_off": SubResource("Animation_fvto8")
+}
+
+[node name="Altar" type="Node2D" node_paths=PackedStringArray("sprite") groups=["Altars"]]
+script = ExtResource("1_muwh6")
+upgrade_screen_scene = ExtResource("2_8t5dx")
+sprite = NodePath("StaticBody2D/Sprite2D")
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+collision_layer = 2
+collision_mask = 0
+
+[node name="Sprite2D" type="Sprite2D" parent="StaticBody2D"]
+texture = ExtResource("1_0khly")
+hframes = 10
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(0, 15)
+shape = SubResource("CircleShape2D_muwh6")
+
+[node name="Area2D" type="Area2D" parent="StaticBody2D"]
+position = Vector2(0, 15)
+collision_layer = 2
+collision_mask = 4
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D/Area2D"]
+shape = SubResource("CircleShape2D_0khly")
+
+[node name="Light" type="PointLight2D" parent="."]
+color = Color(0, 1, 1, 1)
+energy = 2.0
+shadow_color = Color(0, 0, 0, 1)
+texture = SubResource("GradientTexture2D_uvbkc")
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+libraries = {
+&"": SubResource("AnimationLibrary_fvto8")
+}
+autoplay = "flicker"
+
+[connection signal="body_entered" from="StaticBody2D/Area2D" to="." method="_on_area_2d_body_entered"]

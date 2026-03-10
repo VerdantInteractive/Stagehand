@@ -1,0 +1,16 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://c3gvexl0uqj1h" path="res://tests/entity_rendering_multi_mesh/entity_rendering_colored.gd" id="1_script"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_col"]
+
+[sub_resource type="MultiMesh" id="MultiMesh_col"]
+mesh = SubResource("QuadMesh_col")
+use_colors = true
+
+[node name="EntityRenderingColored2D" type="FlecsWorld"]
+script = ExtResource("1_script")
+
+[node name="ColoredRenderer" type="MultiMeshRenderer2D" parent="."]
+multimesh = SubResource("MultiMesh_col")
+prefabs_rendered = PackedStringArray("stagehand_tests::ColoredEntity2D")

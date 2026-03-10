@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://tests/per_entity_operations/per_entity_operations.gd" id="1"]
+
+[node name="PerEntityOperations" type="FlecsWorld"]
+script = ExtResource("1")

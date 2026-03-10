@@ -1,0 +1,7 @@
+[gd_scene format=3 uid="uid://bx5j7bdn1x3rt"]
+
+[ext_resource type="Script" uid="uid://byi28y8hp6s5e" path="res://Surwave/scenes/Camera/camera.gd" id="1_k24df"]
+
+[node name="Camera" type="Camera2D"]
+zoom = Vector2(2, 2)
+script = ExtResource("1_k24df")

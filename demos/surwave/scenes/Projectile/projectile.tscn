@@ -1,0 +1,68 @@
+[gd_scene format=3 uid="uid://cdgbhqr7en0pv"]
+
+[ext_resource type="Script" uid="uid://cvj72ut30wm0o" path="res://Surwave/scenes/Projectile/projectile.gd" id="1_tk4bu"]
+[ext_resource type="Texture2D" uid="uid://cww3kr7t6kku5" path="res://Surwave/resources/Projectile/projectile_texture.tres" id="2_tbm3g"]
+
+[sub_resource type="CircleShape2D" id="CircleShape2D_6alpu"]
+radius = 3.0
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_tbm3g"]
+blend_mode = 1
+
+[sub_resource type="Curve" id="Curve_tbm3g"]
+_data = [Vector2(0, 0.6741574), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_5vio8"]
+curve = SubResource("Curve_tbm3g")
+
+[sub_resource type="Curve" id="Curve_5vio8"]
+_data = [Vector2(0, 0.516854), 0.0, 0.0, 0, 0, Vector2(1, 0.10112369), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_r3vam"]
+curve = SubResource("Curve_5vio8")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_5vio8"]
+particle_flag_disable_z = true
+gravity = Vector3(0, 0, 0)
+scale_curve = SubResource("CurveTexture_r3vam")
+color = Color(0, 1, 1, 1)
+alpha_curve = SubResource("CurveTexture_5vio8")
+
+[sub_resource type="Gradient" id="Gradient_8t5dx"]
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 0)
+
+[sub_resource type="GradientTexture2D" id="GradientTexture2D_tbm3g"]
+gradient = SubResource("Gradient_8t5dx")
+width = 16
+height = 16
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(0.8, 0.8)
+
+[node name="Projectile" type="Node2D" groups=["Projectiles"]]
+script = ExtResource("1_tk4bu")
+speed = 5.0
+
+[node name="CharacterBody2D" type="StaticBody2D" parent="."]
+collision_layer = 32
+collision_mask = 27
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
+shape = SubResource("CircleShape2D_6alpu")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+material = SubResource("CanvasItemMaterial_tbm3g")
+texture = ExtResource("2_tbm3g")
+
+[node name="GPUParticles2D" type="GPUParticles2D" parent="Sprite2D"]
+amount = 256
+texture = ExtResource("2_tbm3g")
+process_material = SubResource("ParticleProcessMaterial_5vio8")
+
+[node name="Light" type="PointLight2D" parent="."]
+color = Color(0, 1, 1, 1)
+energy = 2.0
+shadow_color = Color(0, 0, 0, 1)
+texture = SubResource("GradientTexture2D_tbm3g")
