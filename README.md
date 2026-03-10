@@ -38,13 +38,15 @@ Most of the core features are already implemented.
 
 - ComputeRenderer: Build fully custom rendering pipelines with compute shaders that tightly integrate with ECS code
 - Documentation: Complete set of manuals and other documentation.
+- Demo #3 with InstancedRenderer3D.
 
 ### v1.0 (Q3 2026)
 - Entity Composer: Design entity (prefab) hierarchies visually in the Godot editor using graphs, similar to a visual shader.
+- Demo #4 with ComputeRenderer.
 
 ## Demos
 
-Stagehand currently ships with two demos that cover different aspects of the workflow: a compact, data-oriented simulation and a full single-level game with deeper Godot scene integration and orchestration. These are excellent for learning the framework's workflows and patterns.
+Stagehand currently ships with two demos that cover different aspects of the framework: a compact, data-oriented simulation and a full single-level game with deeper Godot scene integration and orchestration. These are excellent for learning the framework's workflows and patterns.
 
 The demos are contained in a single Godot project in the `demos` subdirectory, which can be imported into the Project Manager. Remember to build the binaries for them to work after a fresh checkout - see the Getting Started section below for details.
 
@@ -62,7 +64,7 @@ Demonstrates `FlecsWorld` node properties and the `WorldConfiguration` singleton
 
 A 2D survivor-style action game where thousands of enemies chase the player with ECS-driven behaviour and gameplay systems. An older version of the game is [hosted on itch.io](https://60k41p.itch.io/surwave).
 
-Demonstrates singleton components, prefab inheritance, `MultiMeshRenderer2D`, ECS-to-Godot Signal bridging, dictionary-backed event payloads, runtime configuration and transform components, mixing GDScript orchestration, UI and audio logic with C++ ECS code, rendering many enemies from prefabs, prefab inheritance.
+Demonstrates mixing GDScript orchestration, UI and audio logic with C++ ECS code, `MultiMeshRenderer2D`, Flecs Script loading, prefab authoring, hierarchy and inheritance, per-frame ECS->Godot data sync with dictionary-backed event payloads.
 
 ## Getting Started
 
