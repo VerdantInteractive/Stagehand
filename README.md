@@ -39,11 +39,15 @@ Stagehand currently ships with two demos that cover different aspects of the wor
 
 ### Game of Life
 
+![Demo-GameOfLife](https://github.com/user-attachments/assets/7d51182b-b183-44ee-b507-c917e866c6a0)
+
 A Conway's Game of Life simulation driven entirely by ECS systems.
 
 Demonstrates `FlecsWorld` node properties and the `WorldConfiguration` singleton, module import, tag components, prefab-based entity creation, cached queries, scene-child access from ECS, ordered system phases, modeling grid cells as entities, precomputing neighbour references, using tags for state transitions, optimisation via selective matching of components in systems, rendering ECS state into a Godot texture each frame.
 
 ### Surwave
+
+![Demo-Surwave](https://github.com/user-attachments/assets/d0df9c47-cd29-4496-86dd-635762e51540)
 
 A 2D survivor-style action mini-game where thousands of enemies chase the player with ECS-driven behaviour and gameplay systems.
 
