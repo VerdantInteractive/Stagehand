@@ -14,7 +14,7 @@ Stagehand is in the early stages of development. APIs may change, features may b
 
 ### Component & Entity Authoring
 - **Macro-Based Component Definition** — Define components with minimal boilerplate using reflection macros
-- **Change Detection** — Zero-overhead change tracking that automatically toggles tags when components are modified
+- **Change Detection** — Boilerplate-free change tracking that automatically toggles tags when components are modified
 - **GDScript API** — Create, modify, and query entities and components directly from GDScript
 - **Prefab System** — Instantiate preconfigured entity templates with component overrides
 - **Entity Composer (in development)** — Design entity prefab hierarchies using graphs in the Godot editor
