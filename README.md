@@ -33,6 +33,22 @@ Stagehand is in the early stages of development. APIs may change, features may b
 - **Type-Safe Payloads** — Pass structured data between ECS and Godot using dictionaries
 - **Entity-Scoped Events** — Attach events to specific entities for targeted communication
 
+## Demos
+
+Stagehand currently ships with two demos that cover different aspects of the workflow: a compact, data-oriented simulation and a full single-level game with deeper Godot scene integration and orchestration.
+
+### Game of Life
+
+A Conway's Game of Life simulation driven entirely by ECS systems.
+
+Demonstrates `FlecsWorld` node properties and the `WorldConfiguration` singleton, module import, tag components, prefab-based entity creation, cached queries, scene-child access from ECS, ordered system phases, modeling grid cells as entities, precomputing neighbour references, using tags for state transitions, optimisation via selective matching of components in systems, rendering ECS state into a Godot texture each frame.
+
+### Surwave
+
+A 2D survivor-style action mini-game where thousands of enemies chase the player with ECS-driven behaviour and gameplay systems.
+
+Demonstrates singleton components, prefab inheritance, `MultiMeshRenderer2D`, ECS-to-Godot Signal bridging, dictionary-backed event payloads, runtime configuration and transform components, mixing GDScript orchestration, UI and audio logic with C++ ECS code, rendering many enemies from prefabs, prefab inheritance.
+
 ## Getting Started
 
 ### Install the Prerequisites
