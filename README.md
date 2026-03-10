@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/images/logo.svg" alt="Stagehand logo" width="220" />
+</p>
+
 # Stagehand: take Godot to a bigger stage.
 
 Stagehand brings Flecs, a modern, high-performance Entity Component System to Godot, enabling large-scale simulations, complex gameplay logic, and performance-critical systems that would otherwise be impractical or impossible.
