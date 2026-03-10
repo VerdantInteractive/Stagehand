@@ -2,11 +2,32 @@
 
 Stagehand brings Flecs, a modern, high-performance Entity Component System to Godot, enabling large-scale simulations, complex gameplay logic, and performance-critical systems that would otherwise be impractical or impossible.
 
+🚧 **Early Development Notice** 🚧  
+Stagehand is in the early stages of development. APIs may change, features may be incomplete, and documentation is still being written. Use at your own risk and expect breaking changes.
+
 ## Features
 
-- An ECS world node to integrate seamlessly into a Godot scene
-- Entity and Component authoring workflows that leverage Godot Resources and/or Flecs Script for frictionless, data-oriented design.
-- Multiple integration paths for 3D/2D rendering: Instanced, MultiMesh and compute-shader based fully custom rendering pipelines.
+### Core ECS Integration
+- **FlecsWorld Node** — Seamlessly integrates Flecs ECS into Godot's scene tree with automatic lifecycle management
+- **Full Flecs API Access** — Leverage the complete Flecs C++ API including queries, systems, observers, and relationships
+- **Modern C++20** — Zero-overhead abstractions with compile-time optimizations for maximum performance
+
+### Component & Entity Authoring
+- **Macro-Based Component Definition** — Define components with minimal boilerplate using reflection macros
+- **Change Detection** — Zero-overhead change tracking that automatically toggles tags when components are modified
+- **GDScript API** — Create, modify, and query entities and components directly from GDScript
+- **Prefab System** — Instantiate preconfigured entity templates with component overrides
+- **Entity Composer (in development)** — Design entity prefab hierarchies using graphs in the Godot editor
+
+### High-Performance Rendering
+- **InstancedRenderer3D** — Efficient instanced rendering with LOD support and per-instance uniforms
+- **MultiMeshRenderer2D/3D** — MultiMesh-based rendering for simpler use cases
+- **Compute Shader Support (in development)** — Build fully custom rendering pipelines with compute shaders that tightly integrate with ECS code
+
+### Event & Signal System
+- **Bidirectional Events** — Emit events from GDScript to Flecs and from Flecs systems to Godot signals
+- **Type-Safe Payloads** — Pass structured data between ECS and Godot using dictionaries
+- **Entity-Scoped Events** — Attach events to specific entities for targeted communication
 
 ## Getting Started
 
