@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdint>
+#include <memory>
 #include <pfr/core.hpp>
 #include <pfr/core_name.hpp>
 #include <pfr/tuple_size.hpp>
@@ -263,13 +264,18 @@ using std::uint64_t;
 
 namespace stagehand::internal {
     /// Registers all members of an aggregate struct with Flecs using PFR reflection.
+    /// Includes explicit offset information for each member for proper reflection support.
     template <typename T> void register_pfr_members(flecs::world &world) {
         T instance{};
+        const uintptr_t instance_addr = reinterpret_cast<uintptr_t>(std::addressof(instance));
         flecs::component<T> comp = world.component<T>();
-        pfr::for_each_field_with_name(instance, [&comp](std::string_view name, const auto &field) {
+        
+        pfr::for_each_field_with_name(instance, [&comp, instance_addr](std::string_view name, const auto &field) {
             using FieldType = std::remove_cvref_t<decltype(field)>;
             const std::string name_str(name);
-            comp.template member<FieldType>(name_str.c_str());
+            const uintptr_t field_addr = reinterpret_cast<uintptr_t>(std::addressof(field));
+            size_t offset = field_addr - instance_addr;
+            comp.template member<FieldType>(name_str.c_str(), 0, offset);
         });
     }
 } // namespace stagehand::internal
