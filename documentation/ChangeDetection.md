@@ -1,4 +1,3 @@
-
 ## Change Detection
 
 To avoid the error-prone manual management of `HasChanged*` tags, Stagehand provides zero-overhead abstractions that automatically toggle these tags when components are modified.
