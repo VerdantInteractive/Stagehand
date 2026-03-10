@@ -127,7 +127,7 @@ func _initialise_portals() -> void:
 
 
 func _instantiate_player() -> void:
-	var player_scene: PackedScene = preload("res://surwave/scenes/Player/player.tscn")
+	var player_scene: PackedScene = preload("res://Surwave/scenes/Player/player.tscn")
 	var player_instance: Player = player_scene.instantiate() as Player
 	player_instance.position = Vector2(0, 0)
 	if DifficultySetting.value == 0: player_instance.max_health *= EASY_PLAYER_HEALTH_MULTIPLIER
@@ -146,7 +146,7 @@ func _instantiate_player() -> void:
 
 
 func _instantiate_camera() -> void:
-	var camera_scene: PackedScene = preload("res://surwave/scenes/Camera/camera.tscn")
+	var camera_scene: PackedScene = preload("res://Surwave/scenes/Camera/camera.tscn")
 	var camera_instance: Camera2D = camera_scene.instantiate() as Camera2D
 	add_child(camera_instance)
 	camera_instance.position = Vector2(0, 0)

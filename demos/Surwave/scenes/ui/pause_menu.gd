@@ -62,7 +62,7 @@ func _on_quit_to_menu_button_pressed() -> void:
 	get_tree().paused = false
 	AudioManager.intro.volume_db = -10.0
 	AudioManager.intro.play()
-	get_tree().change_scene_to_file("res://surwave/scenes/ui/main_menu.tscn")
+	get_tree().change_scene_to_file("res://Surwave/scenes/ui/main_menu.tscn")
 
 
 func _on_options_back_button_pressed(options_menu_instance: Node) -> void:
