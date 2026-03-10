@@ -1,10 +1,17 @@
 <p align="center">
   <img src="assets/images/logo.svg" alt="Stagehand logo" width="220" />
 </p>
+<p align="center">
+  <a href="https://github.com/VerdantInteractive/Stagehand/actions/workflows/build.yml"><img src="https://github.com/VerdantInteractive/Stagehand/actions/workflows/build.yml/badge.svg" alt="Build"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/VerdantInteractive/Stagehand/actions/workflows/unit-tests.yml"><img src="https://github.com/VerdantInteractive/Stagehand/actions/workflows/unit-tests.yml/badge.svg" alt="Unit Tests"></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://github.com/VerdantInteractive/Stagehand/actions/workflows/integration-tests.yml"><img src="https://github.com/VerdantInteractive/Stagehand/actions/workflows/integration-tests.yml/badge.svg" alt="Integration Tests"></a>
+</p>
 
 # Stagehand: take Godot to a bigger stage.
 
-Stagehand brings [Flecs](https://www.flecs.dev), a modern, high-performance Entity Component System to Godot, enabling large-scale, complex gameplay logic and simulations.
+Stagehand brings the [Flecs](https://www.flecs.dev) Entity Component System to Godot, enabling large-scale, complex gameplay logic and simulations.
 
 You write your performance-critical code in C++, while still having the freedom to choose where to use Godot's scripting languages. Stagehand integrates deeply with the Godot engine and has facilities that enhance developer ergonomics.
 
@@ -53,7 +60,7 @@ Demonstrates `FlecsWorld` node properties and the `WorldConfiguration` singleton
 
 ![Demo-Surwave](https://github.com/user-attachments/assets/d0df9c47-cd29-4496-86dd-635762e51540)
 
-A 2D survivor-style action mini-game where thousands of enemies chase the player with ECS-driven behaviour and gameplay systems.
+A 2D survivor-style action game where thousands of enemies chase the player with ECS-driven behaviour and gameplay systems. An older version of the game is [hosted on itch.io](https://60k41p.itch.io/surwave).
 
 Demonstrates singleton components, prefab inheritance, `MultiMeshRenderer2D`, ECS-to-Godot Signal bridging, dictionary-backed event payloads, runtime configuration and transform components, mixing GDScript orchestration, UI and audio logic with C++ ECS code, rendering many enemies from prefabs, prefab inheritance.
 

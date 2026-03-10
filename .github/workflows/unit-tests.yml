@@ -16,29 +16,13 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: ${{ github.event.workflow_run.head_sha }}
           submodules: recursive
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      - name: Install LLVM and Clang
-        uses: KyleMayes/install-llvm-action@v2
-        with:
-          version: "22"
-
-      - name: Configure Clang toolchain
-        shell: bash
-        run: |
-          echo "CC=${LLVM_PATH}/bin/clang" >> "$GITHUB_ENV"
-          echo "CXX=${LLVM_PATH}/bin/clang++" >> "$GITHUB_ENV"
-
-      - name: Install SCons
-        run: python -m pip install --upgrade pip scons
+      - name: Setup Build Tools
+        uses: ./.github/actions/setup-build-tools
 
       - name: Download build artifacts
         env:

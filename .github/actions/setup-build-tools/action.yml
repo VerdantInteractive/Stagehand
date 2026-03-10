@@ -1,0 +1,19 @@
+name: Setup Build Tools
+description: Installs the build toolchain used by the CI workflows.
+
+runs:
+  using: composite
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: "3.x"
+
+    - name: Install LLVM and Clang
+      uses: KyleMayes/install-llvm-action@v2
+      with:
+        version: "21"
+
+    - name: Install SCons
+      shell: bash
+      run: python -m pip install --upgrade --no-cache-dir scons
