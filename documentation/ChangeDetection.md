@@ -1,8 +1,14 @@
+# Change Detection
+
 ## Change Detection
 
 To avoid the error-prone manual management of `HasChanged*` tags, Stagehand provides zero-overhead abstractions that automatically toggle these tags when components are modified.
 
 To enable these features, components must be defined using Stagehand's macros that are described in the Components manual.
+
+### How Change Tags Work
+
+For every component defined with a change-tracking macro, Stagehand automatically generates an empty tag struct named `HasChanged<Name>`. For example, `FLOAT(Health)` generates `HasChangedHealth`. This tag is registered with Flecs using `flecs::With`, so it is added to every entity that has the component and is disabled by default. When a modification is detected, Stagehand enables the tag on the affected entity. At the end of each frame (in the `PostRender` pipeline phase), a built-in Stagehand system automatically disables all change tags on all entities, giving them per-frame semantics.
 
 Change tracking can be enabled or disabled at component definition time:
 
@@ -48,10 +54,16 @@ world.system<Position, Velocity>()
 Another system can then match on the relevant change detection tag to skip unnecessary work. For example:
 
 ```cpp
-// ...
-world.system<Position, const HasChangedVelocity>()
-    .each([](stagehand::entity e, Position& position, Velocity& velocity) {
-        e.set()
+// This system only runs for entities whose Velocity was modified this frame.
+world.system<Position, const Velocity>()
+    .with<HasChangedVelocity>()
+    .each([](stagehand::entity e, Position& position, const Velocity& velocity) {
+        // Velocity changed — update any dependent state.
+        e.modify(position, [&velocity](Position& p) {
+            p.x += velocity.x;
+            p.y += velocity.y;
+            p.z += velocity.z;
+        });
     });
 ```
 

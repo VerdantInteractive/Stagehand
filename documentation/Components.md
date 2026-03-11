@@ -1,86 +1,106 @@
-# Stagehand ECS Patterns & Best Practices
+# Defining and Registering Components
 
-Stagehand introduces facilities and patterns to streamline working with components.
+Through macros, boilerplate-free component definition and registration of components is possible. The macros also handle the per-component setup of [automatic change detection](ChangeDetection.md) behind the scenes. Appending an underscore to a macro name (e.g., `FLOAT_` instead of `FLOAT`) opts out of change detection for that component.
 
-## Defining and Registering Components
+## Manually defined & registered components
 
-Through macros, boilerplate-free component definition and registration of components is possible. The macros also handle the per-component setup of [automatic change detection](ChangeDetection.md) behind the scenes.
+When none of the macro categories below fit your needs — for example, when defining a component that inherits from an arbitrary base class or requires custom Flecs hooks — you can register components manually using the `REGISTER` macro together with the Flecs and Stagehand APIs directly.
 
+```cpp
+// 1. Define your struct.
+struct Velocity {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+};
 
-### Manually defined & registered components
+// 2. Register it. stagehand::register_component<T>() enables GDScript get/set access.
+REGISTER([](flecs::world& world) {
+    world.component<Velocity>()
+        .member<float>("x")
+        .member<float>("y")
+        .member<float>("z");
+    stagehand::register_component<Velocity>("Velocity");
+});
+```
 
+Change detection is not set up automatically with manual registration. To add it, declare a tag struct and call `stagehand::internal::register_change_detection_for_component<T, ChangeTag>(world)` inside your `REGISTER` block.
 
-### Primitive C++ Types
+## Primitive C++ Types
 
-#### `FLOAT(Name, ...)` / `FLOAT_(Name, ...)` - 32-bit (single precision) floating point number
+### `FLOAT(Name, ...)` / `FLOAT_(Name, ...)` - 32-bit (single precision) floating point number
 ```cpp
 FLOAT(Health); // Default-initialised to 0.0f.
 FLOAT(MaxHealth, 100.0f); // Initialised with a default value.
 ```
 
-#### `DOUBLE(Name, ...)` / `DOUBLE_(Name, ...)` - 64-bit (double precision) floating point number
+### `DOUBLE(Name, ...)` / `DOUBLE_(Name, ...)` - 64-bit (double precision) floating point number
 ```cpp
 DOUBLE(Gravity); // Default-initialised to 0.0.
 DOUBLE(Pi, 3.14159265359); // Initialised with a default value.
 ```
 
-#### `INT8(Name, ...)` / `INT8_(Name, ...)` - 8-bit signed integer
+### `INT8(Name, ...)` / `INT8_(Name, ...)` - 8-bit signed integer
 ```cpp
 INT8(Level); // Default-initialised to 0.
 INT8(MaxLevel, 99); // Initialised with a default value.
 ```
 
-#### `UINT8(Name, ...)` / `UINT8_(Name, ...)` - 8-bit unsigned integer
+### `UINT8(Name, ...)` / `UINT8_(Name, ...)` - 8-bit unsigned integer
 ```cpp
 UINT8(Lives); // Default-initialised to 0.
 UINT8(MaxLives, 3); // Initialised with a default value.
 ```
 
-#### `INT16(Name, ...)` / `INT16_(Name, ...)` - 16-bit signed integer
+### `INT16(Name, ...)` / `INT16_(Name, ...)` - 16-bit signed integer
 ```cpp
 INT16(Damage); // Default-initialised to 0.
 INT16(BaseDamage, 10); // Initialised with a default value.
 ```
 
-#### `UINT16(Name, ...)` / `UINT16_(Name, ...)` - 16-bit unsigned integer
+### `UINT16(Name, ...)` / `UINT16_(Name, ...)` - 16-bit unsigned integer
 ```cpp
 UINT16(Ammo); // Default-initialised to 0.
 UINT16(MaxAmmo, 250); // Initialised with a default value.
 ```
 
-#### `INT32(Name, ...)` / `INT32_(Name, ...)` - 32-bit signed integer
+### `INT32(Name, ...)` / `INT32_(Name, ...)` - 32-bit signed integer
 ```cpp
 INT32(Score); // Default-initialised to 0.
 INT32(HighScore, 10000); // Initialised with a default value.
 ```
 
-#### `UINT32(Name, ...)` / `UINT32_(Name, ...)` - 32-bit unsigned integer
+### `UINT32(Name, ...)` / `UINT32_(Name, ...)` - 32-bit unsigned integer
 ```cpp
 UINT32(Gold); // Default-initialised to 0.
 UINT32(StartGold, 50); // Initialised with a default value.
 ```
 
-#### `INT64(Name, ...)` / `INT64_(Name, ...)` - 64-bit signed integer
+### `INT64(Name, ...)` / `INT64_(Name, ...)` - 64-bit signed integer
 ```cpp
-INT64(ParticleCount); // Default-initialised to 0.
+INT64(AHugeSignedNumber); // Default-initialised to 0.
 INT64(AVeryLowInteger, -135761385678932632); // Initialised with a default value.
 ```
 
-#### `UINT64(Name, ...)` / `UINT64_(Name, ...)` - 64-bit unsigned integer
+### `UINT64(Name, ...)` / `UINT64_(Name, ...)` - 64-bit unsigned integer
 ```cpp
-UINT64(IDontEvenKnowWhenIWouldUseThis); // Default-initialised to 0.
+UINT64(ParticleCount); // Default-initialised to 0.
 UINT64(AVeryHighInteger, 53925713520814); // Initialised with a default value.
 ```
 
-### Other C++ Types
+## Other C++ Types
 
-#### `TAG(Name)` / `TAG_(Name)`
+### `TAG(Name)` / `TAG_(Name)`
+
+Empty marker component for entity classification and filtering. Tags carry no data; change detection does not apply to them.
 ```cpp
 TAG(IsPlayer); // Defines a tag component.
-TAG_(IsGrounded); // Alias for TAG, no change detection applicable for tags.
+TAG_(IsGrounded); // Alias for TAG; change detection is not applicable to tags.
 ```
 
-#### `ENUM(Name, [UnderlyingType])` / `ENUM_(Name, [UnderlyingType])`
+### `ENUM(Name, [UnderlyingType])` / `ENUM_(Name, [UnderlyingType])`
+
+Registers an existing C++ `enum class` as an ECS component. The optional `UnderlyingType` tells Stagehand which integer type to use for GDScript serialisation; it should match the enum's declared underlying type (defaults to `uint8_t`).
 ```cpp
 enum class AIState { Idle, Patrol, Chase };
 ENUM(AIState); // Defaults to uint8_t underlying type.
@@ -92,38 +112,46 @@ enum class Weather { Sunny, Rainy };
 ENUM_(Weather); // Opt out of change detection.
 ```
 
-#### `POINTER(Name, Type, [DefaultValue])` / `POINTER_(Name, Type, [DefaultValue])`
+### `POINTER(Name, Type, [DefaultValue])` / `POINTER_(Name, Type, [DefaultValue])`
+
+Component wrapping a raw `Type*` pointer to an external object. Default-initialises to `nullptr` unless a value is provided.
 ```cpp
 POINTER(CurrentTarget, Targetable); // Default-initialised to nullptr.
 POINTER(GameWindow, void, nullptr); // Initialised with an explicit default value.
 ```
 
-#### `VECTOR(Name, ElementType, [Initialiser])` / `VECTOR_(Name, ElementType, [Initialiser])`
+### `VECTOR(Name, ElementType, [Initialiser])` / `VECTOR_(Name, ElementType, [Initialiser])`
+
+Dynamic-size array component backed by `std::vector<ElementType>`.
 ```cpp
 VECTOR(PathNodes, godot::Vector3); // Default-initialised to an empty vector.
 VECTOR(ItemIDs, int, {10, 23, 42}); // Initialised with a default list.
 ```
 
-#### `ARRAY(Name, ElementType, Size, [Initialiser])` / `ARRAY_(Name, ElementType, Size, [Initialiser])`
+### `ARRAY(Name, ElementType, Count, [Initialiser])` / `ARRAY_(Name, ElementType, Count, [Initialiser])`
+
+Fixed-size array component backed by `std::array<ElementType, Count>`. `Count` must be a compile-time constant.
 ```cpp
 ARRAY(InputBuffer, uint8_t, 8); // An array of 8 elements that are default-initialised.
 ARRAY(ModelView, float, 4, {1,0,0,1}); // Initialised with a default list.
 ```
 
-#### `STRUCT(Name, { ... })` / `STRUCT_(Name, { ... })`
+### `STRUCT(Name, { ... })` / `STRUCT_(Name, { ... })`
+
+Multi-field aggregate struct component with automatic member reflection via Boost.PFR. All fields are individually registered with Flecs and exposed to GDScript as a `Dictionary`. The struct must be an aggregate type: no user-declared constructors, no virtual functions, and no private or protected non-static data members. All field types must be individually convertible to `godot::Variant`.
 ```cpp
 STRUCT(PlayerStats, { float age; int rank; }); // Members are default-initialised.
 STRUCT(ColoredPoint, { godot::Vector3 position = godot::Vector3(0, 0, 0); godot::Color color = godot::Color(1, 1, 1); }); // Members initialised with default values.
 STRUCT_(TrackedPosition, { float x = 0.0f; float y = 0.0f; float z = 0.0f; }); // Opt out of change detection.
 ```
 
-### Godot Variants
+## Godot Variants
 
-#### `GODOT_VARIANT(Name, Type, [DefaultValue])` / `GODOT_VARIANT_(Name, Type, [DefaultValue])`
+### `GODOT_VARIANT(Name, Type, [DefaultValue])` / `GODOT_VARIANT_(Name, Type, [DefaultValue])`
 
-These macros wrap Godot's built-in Variant types as components. They support both struct-based (Plain Old Data) types and class-based (handle) types.
+These macros wrap Godot's built-in Variant types as components. They support both struct-based (Plain Old Data) types and class-based (handle) types. `GODOT_VARIANT` includes change detection; `GODOT_VARIANT_` opts out of it.
 
-#### Struct-based (Plain Old Data) Variants
+### Struct-based (Plain Old Data) Variants
 ```cpp
 // Color
 GODOT_VARIANT(BackgroundColor, godot::Color); // Default-initialised.
@@ -190,7 +218,7 @@ GODOT_VARIANT(CameraProjection, godot::Projection);
 GODOT_VARIANT(CustomProjection, godot::Projection, godot::Projection());
 ```
 
-#### Class-based (handle) Variants
+### Class-based (handle) Variants
 ```cpp
 // Array
 GODOT_VARIANT(ChildNodes, godot::Array);
