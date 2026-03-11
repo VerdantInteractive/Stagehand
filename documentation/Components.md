@@ -2,29 +2,32 @@
 
 Through macros, boilerplate-free component definition and registration of components is possible. The macros also handle the per-component setup of [automatic change detection](ChangeDetection.md) behind the scenes. Appending an underscore to a macro name (e.g., `FLOAT_` instead of `FLOAT`) opts out of change detection for that component.
 
-## Manually defined & registered components
+## Method chaining with `.then`
 
-When none of the macro categories below fit your needs — for example, when defining a component that inherits from an arbitrary base class or requires custom Flecs hooks — you can register components manually using the `REGISTER` macro together with the Flecs and Stagehand APIs directly.
+All component definition macros return a `ComponentRegistrar<T>` object that exposes a `.then()` method. This allows you to chain additional Flecs configuration onto the component immediately at the definition site, without needing a separate `REGISTER` block. The callable passed to `.then()` receives the `flecs::component<T>` handle, so any operation available on it can be used. Multiple `.then()` calls can be chained and are executed in order during world initialization.
 
 ```cpp
-// 1. Define your struct.
-struct Velocity {
-    float x = 0.0f;
-    float y = 0.0f;
-    float z = 0.0f;
-};
+// Make a component a world singleton.
+FLOAT(GlobalTimescale, 1.0f)
+    .then([](auto c) { c.add(flecs::Singleton); });
 
-// 2. Register it. stagehand::register_component<T>() enables GDScript get/set access.
-REGISTER([](flecs::world& world) {
-    world.component<Velocity>()
-        .member<float>("x")
-        .member<float>("y")
-        .member<float>("z");
-    stagehand::register_component<Velocity>("Velocity");
-});
+// Attach lifecycle hooks.
+STRUCT_(PhysicsBody, { uint64_t body_id = 0; float mass = 1.0f; })
+    .then([](auto c) {
+        c.on_add([](PhysicsBody& body) {
+            body.body_id = Physics::create_body(body.mass);
+        });
+        c.on_remove([](PhysicsBody& body) {
+            Physics::destroy_body(body.body_id);
+        });
+    });
+
+// Add a Flecs trait or relationship to the component itself.
+GODOT_VARIANT(WorldTransform, godot::Transform3D)
+    .then([](auto c) { c.add(flecs::OnInstantiate, flecs::Inherit); });
 ```
 
-Change detection is not set up automatically with manual registration. To add it, declare a tag struct and call `stagehand::internal::register_change_detection_for_component<T, ChangeTag>(world)` inside your `REGISTER` block.
+The following sections describe all the macros available with examples of their usage.
 
 ## Primitive C++ Types
 
@@ -292,3 +295,28 @@ GODOT_VARIANT(CustomSignal, godot::Signal, godot::Signal());
 GODOT_VARIANT(PhysicsBodyRID, godot::RID);
 GODOT_VARIANT(MaterialRID, godot::RID, godot::RID());
 ```
+
+## Manually Defining and Registered Components
+
+```cpp
+// 1. Define your component data structure
+struct Destination {
+    float x = 0.0f;
+    float y = 0.0f;
+    float z = 0.0f;
+};
+
+// 2. Register it the normal Flecs way 
+REGISTER([](flecs::world& world) {
+    world.component<Destination>()
+        // Reflection info needs to be manually added
+        .member<float>("x")
+        .member<float>("y")
+        .member<float>("z");
+    
+    // stagehand::register_component<T>() enables GDScript get/set access.
+    stagehand::register_component<Destination>("Destination");
+});
+```
+
+Change detection is not set up automatically with manual registration. To add it, you would need to declare a tag struct and call `stagehand::internal::register_change_detection_for_component<T, ChangeTag>(world)` inside your `REGISTER` block.
