@@ -37,6 +37,9 @@ class InstancedRenderer3D : public godot::Node3D {
     /// Returns configuration warnings to display in the Godot Scene dock.
     [[nodiscard]] godot::PackedStringArray _get_configuration_warnings() const override;
 
+    void _enter_tree() override;
+    void _exit_tree() override;
+
     /// Returns true if the configuration is valid enough to render.
     [[nodiscard]] bool validate_configuration() const;
 

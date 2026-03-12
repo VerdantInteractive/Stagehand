@@ -188,21 +188,45 @@ void InstancedRenderer3D::set_prefabs_rendered(const godot::PackedStringArray &p
 void InstancedRenderer3D::set_lod_levels(const godot::TypedArray<InstancedRenderer3DLODConfiguration> &p_lod_levels) {
     const godot::Callable warnings_callable = callable_mp(static_cast<godot::Node *>(this), &godot::Node::update_configuration_warnings);
 
-    for (const godot::Ref<InstancedRenderer3DLODConfiguration> &previous_lod_level : lod_levels) {
-        if (previous_lod_level.is_valid() && previous_lod_level->is_connected("changed", warnings_callable)) {
-            previous_lod_level->disconnect("changed", warnings_callable);
+    if (is_inside_tree()) {
+        for (const godot::Ref<InstancedRenderer3DLODConfiguration> &previous_lod_level : lod_levels) {
+            if (previous_lod_level.is_valid() && previous_lod_level->is_connected("changed", warnings_callable)) {
+                previous_lod_level->disconnect("changed", warnings_callable);
+            }
         }
     }
 
     lod_levels = p_lod_levels;
 
+    if (is_inside_tree()) {
+        for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+            if (lod_level.is_valid() && !lod_level->is_connected("changed", warnings_callable)) {
+                lod_level->connect("changed", warnings_callable);
+            }
+        }
+    }
+
+    update_configuration_warnings();
+}
+
+void InstancedRenderer3D::_enter_tree() {
+    Node3D::_enter_tree();
+    const godot::Callable warnings_callable = callable_mp(static_cast<godot::Node *>(this), &godot::Node::update_configuration_warnings);
     for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
         if (lod_level.is_valid() && !lod_level->is_connected("changed", warnings_callable)) {
             lod_level->connect("changed", warnings_callable);
         }
     }
+}
 
-    update_configuration_warnings();
+void InstancedRenderer3D::_exit_tree() {
+    Node3D::_exit_tree();
+    const godot::Callable warnings_callable = callable_mp(static_cast<godot::Node *>(this), &godot::Node::update_configuration_warnings);
+    for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+        if (lod_level.is_valid() && lod_level->is_connected("changed", warnings_callable)) {
+            lod_level->disconnect("changed", warnings_callable);
+        }
+    }
 }
 
 godot::PackedStringArray InstancedRenderer3D::_get_configuration_warnings() const {
