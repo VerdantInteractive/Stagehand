@@ -22,9 +22,6 @@ class InstancedRenderer3D : public godot::Node3D {
   public:
     static constexpr int MAX_LOD_LEVELS = 8;
 
-    InstancedRenderer3D();
-    ~InstancedRenderer3D() override;
-
     void set_prefabs_rendered(const godot::PackedStringArray &p_prefabs);
     [[nodiscard]] godot::PackedStringArray get_prefabs_rendered() const { return prefabs_rendered; }
 
@@ -47,9 +44,6 @@ class InstancedRenderer3D : public godot::Node3D {
     static void _bind_methods();
 
   private:
-    void connect_lod_level_warning_signals();
-    void disconnect_lod_level_warning_signals();
-
     godot::PackedStringArray prefabs_rendered;
     godot::TypedArray<InstancedRenderer3DLODConfiguration> lod_levels;
     godot::Ref<godot::Material> material;
