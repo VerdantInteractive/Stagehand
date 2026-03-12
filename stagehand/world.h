@@ -99,11 +99,8 @@ namespace stagehand {
         /// Gets the list of Flecs modules configured for import.
         [[nodiscard]] godot::TypedArray<godot::String> get_modules_to_import() const;
 
-        void _enter_tree() override;
-        void _ready() override;
         void _process(double p_delta) override;
         void _physics_process(double p_delta) override;
-        void _exit_tree() override;
 
         ~FlecsWorld();
 
@@ -121,13 +118,15 @@ namespace stagehand {
         std::unordered_map<godot::StringName, std::function<godot::Variant(flecs::entity_t)>> component_getters;
         std::unordered_map<godot::StringName, flecs::entity_t> component_ids;
 
+        void on_enter_tree();
+        void register_signal_observer();
+        void import_configured_modules();
+        void on_ready();
         void run_post_tree_setup();
         void populate_scene_children_singleton();
         void setup_entity_renderers_instanced();
         void setup_entity_renderers_multimesh();
-        void register_signal_observer();
-        void import_configured_modules();
-
+        void on_exit_tree();
         void cleanup_instanced_renderer_rids();
 
       protected:
