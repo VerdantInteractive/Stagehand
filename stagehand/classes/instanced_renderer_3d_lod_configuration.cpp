@@ -4,32 +4,32 @@
 
 void InstancedRenderer3DLODConfiguration::set_mesh(const godot::Ref<godot::Mesh> &p_mesh) {
     mesh = p_mesh;
-    emit_changed();
+    call_deferred("emit_signal", godot::StringName("changed"));
 }
 
 void InstancedRenderer3DLODConfiguration::set_visibility_range_begin(float p_value) {
     visibility_range_begin = p_value;
-    emit_changed();
+    call_deferred("emit_signal", godot::StringName("changed"));
 }
 
 void InstancedRenderer3DLODConfiguration::set_visibility_range_end(float p_value) {
     visibility_range_end = p_value;
-    emit_changed();
+    call_deferred("emit_signal", godot::StringName("changed"));
 }
 
 void InstancedRenderer3DLODConfiguration::set_visibility_range_begin_margin(float p_value) {
     visibility_range_begin_margin = p_value;
-    emit_changed();
+    call_deferred("emit_signal", godot::StringName("changed"));
 }
 
 void InstancedRenderer3DLODConfiguration::set_visibility_range_end_margin(float p_value) {
     visibility_range_end_margin = p_value;
-    emit_changed();
+    call_deferred("emit_signal", godot::StringName("changed"));
 }
 
 void InstancedRenderer3DLODConfiguration::set_visibility_range_fade_mode(godot::RenderingServer::VisibilityRangeFadeMode p_value) {
     visibility_range_fade_mode = p_value;
-    emit_changed();
+    call_deferred("emit_signal", godot::StringName("changed"));
 }
 
 void InstancedRenderer3DLODConfiguration::_bind_methods() {
