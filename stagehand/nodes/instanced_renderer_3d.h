@@ -22,6 +22,9 @@ class InstancedRenderer3D : public godot::Node3D {
   public:
     static constexpr int MAX_LOD_LEVELS = 8;
 
+    InstancedRenderer3D();
+    ~InstancedRenderer3D() override;
+
     void set_prefabs_rendered(const godot::PackedStringArray &p_prefabs);
     [[nodiscard]] godot::PackedStringArray get_prefabs_rendered() const { return prefabs_rendered; }
 
@@ -37,9 +40,6 @@ class InstancedRenderer3D : public godot::Node3D {
     /// Returns configuration warnings to display in the Godot Scene dock.
     [[nodiscard]] godot::PackedStringArray _get_configuration_warnings() const override;
 
-    void _enter_tree() override;
-    void _exit_tree() override;
-
     /// Returns true if the configuration is valid enough to render.
     [[nodiscard]] bool validate_configuration() const;
 
@@ -47,6 +47,9 @@ class InstancedRenderer3D : public godot::Node3D {
     static void _bind_methods();
 
   private:
+    void connect_lod_level_warning_signals();
+    void disconnect_lod_level_warning_signals();
+
     godot::PackedStringArray prefabs_rendered;
     godot::TypedArray<InstancedRenderer3DLODConfiguration> lod_levels;
     godot::Ref<godot::Material> material;
