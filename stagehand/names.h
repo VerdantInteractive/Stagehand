@@ -35,7 +35,6 @@ namespace stagehand::names {
         constexpr const char *PHYSICS_SYNC_VELOCITY_2D = NAMESPACE_STR "::physics::Sync Velocity (2D)";
         constexpr const char *PHYSICS_SYNC_VELOCITY_3D = NAMESPACE_STR "::physics::Sync Velocity (3D)";
         constexpr const char *PREFAB_INSTANTIATION = NAMESPACE_STR "::Prefab Instantiation";
-        constexpr const char *TAG_RESET_CHANGE_DETECTION = NAMESPACE_STR "::Tag Reset (Change Detection)";
         constexpr const char *TRANSFORM_COMPOSE_2D = NAMESPACE_STR "::transform::Transform Compose (2D)";
         constexpr const char *TRANSFORM_COMPOSE_3D = NAMESPACE_STR "::transform::Transform Compose (3D)";
         constexpr const char *TRANSFORM_DECOMPOSE_2D = NAMESPACE_STR "::transform::Transform Decompose (2D)";
@@ -49,7 +48,6 @@ namespace stagehand::names {
         constexpr const char *INSTANCE = NAMESPACE_STR "::Instance";
         constexpr const char *INSTANCE_2D = NAMESPACE_STR "::Instance2D";
         constexpr const char *INSTANCE_3D = NAMESPACE_STR "::Instance3D";
-        constexpr const char *XPBD_CLOTH_3D = NAMESPACE_STR "::XPBDCloth3D";
 
         constexpr const char *SEGMENT = NAMESPACE_STR "::Segment";
         constexpr const char *SEGMENT_2D = NAMESPACE_STR "::Segment2D";

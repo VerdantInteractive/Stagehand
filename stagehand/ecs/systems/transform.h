@@ -24,11 +24,6 @@ namespace stagehand::transform {
         using Rotation = std::conditional_t<IS_2D, Rotation2D, Rotation3D>;
         using Scale = std::conditional_t<IS_2D, Scale2D, Scale3D>;
 
-        using HasChangedPosition = std::conditional_t<IS_2D, HasChangedPosition2D, HasChangedPosition3D>;
-        using HasChangedRotation = std::conditional_t<IS_2D, HasChangedRotation2D, HasChangedRotation3D>;
-        using HasChangedScale = std::conditional_t<IS_2D, HasChangedScale2D, HasChangedScale3D>;
-        using HasChangedTransform = std::conditional_t<IS_2D, HasChangedTransform2D, HasChangedTransform3D>;
-
         static constexpr const char *DECOMPOSE_SYSTEM_NAME =
             IS_2D ? stagehand::names::systems::TRANSFORM_DECOMPOSE_2D : stagehand::names::systems::TRANSFORM_DECOMPOSE_3D;
 
@@ -68,7 +63,6 @@ namespace stagehand::transform {
                 typename Traits::Scale
             >(Traits::DECOMPOSE_SYSTEM_NAME)
             .kind(flecs::PostLoad)
-            .template with<typename Traits::HasChangedTransform>()
             .multi_threaded()
             .each([](
                 stagehand::entity entity,
@@ -93,13 +87,7 @@ namespace stagehand::transform {
                 const typename Traits::Scale
             >(Traits::COMPOSE_SYSTEM_NAME)
             .kind(stagehand::PreRender)
-            .template with<const typename Traits::HasChangedPosition>()
-                .or_()
-            .template with<const typename Traits::HasChangedRotation>()
-                .or_()
-            .template with<const typename Traits::HasChangedScale>()
             .template term_at<typename Traits::Transform>().out()
-            .template write<typename Traits::HasChangedTransform>()
             .multi_threaded()
             .each([](
                 stagehand::entity entity,

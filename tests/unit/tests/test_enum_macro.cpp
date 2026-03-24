@@ -1,10 +1,9 @@
-/// Unit tests for the ENUM and ENUM_ component macros.
+/// Unit tests for the ENUM component macro.
 /// Tests verify:
 ///   1. Enum struct layout and value semantics.
 ///   2. Flecs component registration for enum types.
-///   3. Change detection behavior for ENUM vs ENUM_.
-///   4. Getter/setter registration in the component registry.
-///   5. Entity-level roundtrips.
+///   3. Getter/setter registration in the component registry.
+///   4. Entity-level roundtrips.
 
 #include <cstdint>
 #include <flecs.h>
@@ -12,13 +11,11 @@
 #include <string>
 
 #include "stagehand/ecs/components/macros.h"
-#include "stagehand/ecs/components/traits.h"
 #include "stagehand/entity.h"
 #include "stagehand/registry.h"
 
 namespace test_enum_macro {
 
-    // ─── Tracked enum with default underlying type (uint8_t) ────────────
     enum class Direction : uint8_t {
         North = 0,
         East = 1,
@@ -27,7 +24,6 @@ namespace test_enum_macro {
     };
     ENUM(Direction);
 
-    // ─── Tracked enum with explicit underlying type ─────────────────────
     enum class Priority : uint16_t {
         Low = 0,
         Medium = 1,
@@ -36,26 +32,19 @@ namespace test_enum_macro {
     };
     ENUM(Priority, uint16_t);
 
-    // ─── Untracked enum (opt-out of change detection) ───────────────────
     enum class Alignment : uint8_t {
         Left = 0,
         Center = 1,
         Right = 2,
     };
-    ENUM_(Alignment);
+    ENUM(Alignment);
 
-    // ─── Untracked enum with explicit underlying type ───────────────────
     enum class Layer : uint32_t {
         Background = 0,
         Foreground = 1,
         UI = 2,
     };
-    ENUM_(Layer, uint32_t);
-
-    // ─── Static assertions: change tag presence ─────────────────────────
-    static_assert(stagehand::internal::component_has_change_tag_v<Direction> == false,
-                  "ENUM macro generates a standalone HasChangedDirection, not a nested ChangeTag");
-    static_assert(stagehand::internal::component_has_change_tag_v<Alignment> == false, "ENUM_ does not generate any change tag");
+    ENUM(Layer, uint32_t);
 
 } // namespace test_enum_macro
 
@@ -102,23 +91,13 @@ TEST(EnumValue, EnumCanBeConstructedFromUnderlying) {
 // Flecs registration
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(EnumMacroFixture, TrackedEnumIsRegisteredInWorld) {
+TEST_F(EnumMacroFixture, EnumIsRegisteredInWorld) {
     auto comp = world.component<test_enum_macro::Direction>();
     ASSERT_NE(comp.id(), 0u);
 }
 
-TEST_F(EnumMacroFixture, TrackedEnumWithExplicitTypeIsRegistered) {
+TEST_F(EnumMacroFixture, EnumWithExplicitTypeIsRegistered) {
     auto comp = world.component<test_enum_macro::Priority>();
-    ASSERT_NE(comp.id(), 0u);
-}
-
-TEST_F(EnumMacroFixture, UntrackedEnumIsRegisteredInWorld) {
-    auto comp = world.component<test_enum_macro::Alignment>();
-    ASSERT_NE(comp.id(), 0u);
-}
-
-TEST_F(EnumMacroFixture, UntrackedEnumWithExplicitTypeIsRegistered) {
-    auto comp = world.component<test_enum_macro::Layer>();
     ASSERT_NE(comp.id(), 0u);
 }
 
@@ -145,15 +124,6 @@ TEST_F(EnumMacroFixture, EnumComponentOverwrite) {
     ASSERT_EQ(*p, test_enum_macro::Priority::High);
 }
 
-TEST_F(EnumMacroFixture, UntrackedEnumOnEntityRoundtrip) {
-    auto entity = world.entity();
-    entity.set<test_enum_macro::Alignment>(test_enum_macro::Alignment::Center);
-
-    const test_enum_macro::Alignment *a = entity.try_get<test_enum_macro::Alignment>();
-    ASSERT_NE(a, nullptr);
-    ASSERT_EQ(*a, test_enum_macro::Alignment::Center);
-}
-
 TEST_F(EnumMacroFixture, MultipleEnumsOnSameEntity) {
     auto entity = world.entity();
     entity.set<test_enum_macro::Direction>(test_enum_macro::Direction::West);
@@ -166,50 +136,24 @@ TEST_F(EnumMacroFixture, MultipleEnumsOnSameEntity) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// Change detection
-// ═══════════════════════════════════════════════════════════════════════════════
-
-TEST_F(EnumMacroFixture, TrackedEnumHasChangeDetectionRelation) {
-    auto comp = world.component<test_enum_macro::Direction>();
-    bool has_change_detection = false;
-    comp.each(flecs::With, [&has_change_detection](flecs::entity target) {
-        if (target.has<stagehand::IsChangeDetectionTag>()) {
-            has_change_detection = true;
-        }
-    });
-    ASSERT_TRUE(has_change_detection);
-}
-
-TEST_F(EnumMacroFixture, UntrackedEnumDoesNotHaveChangeDetection) {
-    auto comp = world.component<test_enum_macro::Alignment>();
-    bool has_change_detection = false;
-    comp.each(flecs::With, [&has_change_detection](flecs::entity target) {
-        if (target.has<stagehand::IsChangeDetectionTag>()) {
-            has_change_detection = true;
-        }
-    });
-    ASSERT_FALSE(has_change_detection);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // Getter/setter registration
 // ═══════════════════════════════════════════════════════════════════════════════
 
-TEST_F(EnumMacroFixture, TrackedEnumGetterIsRegistered) {
+TEST_F(EnumMacroFixture, EnumGetterIsRegistered) {
     auto &registry = stagehand::get_component_registry();
     auto it = registry.find("Direction");
     ASSERT_NE(it, registry.end());
     ASSERT_TRUE(static_cast<bool>(it->second.getter));
 }
 
-TEST_F(EnumMacroFixture, TrackedEnumSetterIsRegistered) {
+TEST_F(EnumMacroFixture, EnumSetterIsRegistered) {
     auto &registry = stagehand::get_component_registry();
     auto it = registry.find("Direction");
     ASSERT_NE(it, registry.end());
     ASSERT_TRUE(static_cast<bool>(it->second.setter));
 }
 
-TEST_F(EnumMacroFixture, UntrackedEnumGetterAndSetterAreRegistered) {
+TEST_F(EnumMacroFixture, EnumGetterAndSetterAreRegistered) {
     auto &registry = stagehand::get_component_registry();
     auto it = registry.find("Alignment");
     ASSERT_NE(it, registry.end());

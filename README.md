@@ -19,7 +19,7 @@ The `FlecsWorld` node <img src="assets/node_icons/FlecsWorld.svg" alt="FlecsWorl
 
 `InstancedRenderer3D`<img src="assets/node_icons/InstancedRenderer3D.svg" alt="InstancedRenderer3D" width="16" />, `MultiMeshRenderer2D`<img src="assets/node_icons/MultiMeshRenderer2D.svg" alt="MultiMeshRenderer2D" width="16" />, `MultiMeshRenderer3D`<img src="assets/node_icons/MultiMeshRenderer3D.svg" alt="MultiMeshRenderer3D" width="16" /> and `ComputeRenderer`<img src="assets/node_icons/ComputeRenderer.svg" alt="ComputeRenderer" width="16" /> (WIP) nodes provide high-performance bridges between the engine and ECS.
 
-For defining and registering ECS components without any boilerplate, a variety of macros are provided for all Godot variants in addition to  C++ primitives and collections (vector & array) - see [the Components manual](documentation/Components.md). Change detection can also be enabled on each component, which allows writing efficient systems that avoid redundant work via simple inclusion of the desired tags in queries - see the [Change Detection manual](documentation/ChangeDetection.md) for details.
+For defining and registering ECS components without any boilerplate, a variety of macros are provided for all Godot variants in addition to C++ primitives and collections (vector & array) - see [the Components manual](documentation/Components.md).
 
 For two-way data flow between ECS and the engine, Godot Signals, Flecs events are first-class citizens wrapped in helper methods - see the [Signals & Events manual](documentation/SignalsEvents.md). `FlecsWorld` also provides methods to read and write data of both entity and world (singleton) components.
 

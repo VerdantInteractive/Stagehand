@@ -11,14 +11,14 @@
 
 namespace stagehand_demos::surwave {
 
-    UINT32_(EnemyCount).then([](auto component) { component.add(flecs::Singleton); });
-    GODOT_VARIANT_(ProjectileData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
-    GODOT_VARIANT_(ShockwaveData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
+    UINT32(EnemyCount).then([](auto component) { component.add(flecs::Singleton); });
+    GODOT_VARIANT(ProjectileData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
+    GODOT_VARIANT(ShockwaveData, godot::Dictionary).then([](auto component) { component.add(flecs::Singleton); });
 
-    GODOT_VARIANT_(PlayerPosition, godot::Vector2).then([](auto component) { component.add(flecs::Singleton); });
-    FLOAT_(PlayerDamageCooldown, 0.3f).then([](auto component) { component.add(flecs::Singleton); });
+    GODOT_VARIANT(PlayerPosition, godot::Vector2).then([](auto component) { component.add(flecs::Singleton); });
+    FLOAT(PlayerDamageCooldown, 0.3f).then([](auto component) { component.add(flecs::Singleton); });
 
-    STRUCT_(EnemyBoidMovementSettings, {
+    STRUCT(EnemyBoidMovementSettings, {
         float player_attraction_weight = 1.0f;
         float player_engage_radius = 28.0f;
         float neighbor_radius = 110.0f;
@@ -33,7 +33,7 @@ namespace stagehand_demos::surwave {
         float separation_noise_intensity = 0.05f;
     }).then([](auto component) { component.add(flecs::Singleton); });
 
-    STRUCT_(EnemyAnimationSettings, {
+    STRUCT(EnemyAnimationSettings, {
         float animation_interval = 0.25f;
         float walk_animation_range = 5.0f;
         float death_animation_frame_count = 4.0f;
@@ -45,14 +45,14 @@ namespace stagehand_demos::surwave {
         float hit_reaction_duration = 0.1f;
     }).then([](auto component) { component.add(flecs::Singleton); });
 
-    STRUCT_(EnemyTakeDamageSettings, {
+    STRUCT(EnemyTakeDamageSettings, {
         float projectile_hit_cooldown = 0.2f;
         float shockwave_hit_cooldown = 1.0f;
         float projectile_damage = 1.0f;
         float shockwave_damage = 1.0f;
     }).then([](auto component) { component.add(flecs::Singleton); });
 
-    STRUCT_(PlayerTakeDamageSettings, {
+    STRUCT(PlayerTakeDamageSettings, {
         float damage_cooldown = 0.3f;
         float player_hit_radius = 9.0f;
     }).then([](auto component) { component.add(flecs::Singleton); });

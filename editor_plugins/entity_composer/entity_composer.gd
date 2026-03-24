@@ -327,8 +327,6 @@ func _show_component_selector(graph_node: GraphNode, button: Button = null) -> v
 	var component_list = {}
 	for path in ECS.SCHEMA.components:
 		var info = ECS.SCHEMA.components[path]
-		if info.get("is_change_detection_tag", false):
-			continue
 		var ns = info.get("namespace", "") # 'namespace' is a reserved keywork in GDScript, so we use 'ns'
 		if not component_list.has(ns):
 			component_list[ns] = []

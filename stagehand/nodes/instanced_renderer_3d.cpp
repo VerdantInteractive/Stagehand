@@ -7,7 +7,6 @@
 #include <godot_cpp/variant/string.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
-#include "stagehand/ecs/components/traits.h"
 #include "stagehand/ecs/components/transform.h"
 
 void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *renderer, stagehand::rendering::Renderers &renderers, int &renderer_count) {
@@ -48,7 +47,7 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     auto reconcile_query_builder = world.query_builder<const stagehand::transform::Transform3D>();
     add_prefab_filters(reconcile_query_builder);
 
-    auto transform_update_query_builder = world.query_builder<const stagehand::transform::Transform3D, const stagehand::transform::HasChangedTransform3D>();
+    auto transform_update_query_builder = world.query_builder<const stagehand::transform::Transform3D>();
     add_prefab_filters(transform_update_query_builder);
 
     std::vector<flecs::entity> found_instance_uniform_components;
@@ -102,13 +101,6 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
 
         _discovered_instance_uniforms.push_back(godot::String(instance_uniform_component_name_str.c_str()));
 
-        flecs::entity changed_tag;
-        instance_uniform_component.each(flecs::With, [&](flecs::entity target) {
-            if (target.has<stagehand::IsChangeDetectionTag>()) {
-                changed_tag = target;
-            }
-        });
-
         reconcile_query_builder.with(instance_uniform_component).in().optional();
 
         stagehand::rendering::InstancedRendererConfig::UniformInitConfig init_config;
@@ -120,9 +112,6 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
         auto uniform_update_query_builder = world.query_builder<>();
         add_prefab_filters(uniform_update_query_builder);
         uniform_update_query_builder.with(instance_uniform_component).in();
-        if (changed_tag) {
-            uniform_update_query_builder.with(changed_tag);
-        }
 
         stagehand::rendering::InstancedRendererConfig::UniformUpdateConfig update_config;
         update_config.value_field_index = static_cast<int>(prefab_entities.size());

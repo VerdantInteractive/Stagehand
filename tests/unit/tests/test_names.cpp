@@ -59,7 +59,6 @@ TEST(Names, SystemNamesArePrefixed) {
     assert_has_prefix(stagehand::names::systems::PHYSICS_SYNC_TRANSFORM_3D, "stagehand::", "PHYSICS_SYNC_TRANSFORM_3D");
     assert_has_prefix(stagehand::names::systems::PHYSICS_SYNC_VELOCITY_2D, "stagehand::", "PHYSICS_SYNC_VELOCITY_2D");
     assert_has_prefix(stagehand::names::systems::PHYSICS_SYNC_VELOCITY_3D, "stagehand::", "PHYSICS_SYNC_VELOCITY_3D");
-    assert_has_prefix(stagehand::names::systems::TAG_RESET_CHANGE_DETECTION, "stagehand::", "TAG_RESET_CHANGE_DETECTION");
     assert_has_prefix(stagehand::names::systems::TRANSFORM_COMPOSE_2D, "stagehand::", "TRANSFORM_COMPOSE_2D");
     assert_has_prefix(stagehand::names::systems::TRANSFORM_COMPOSE_3D, "stagehand::", "TRANSFORM_COMPOSE_3D");
     assert_has_prefix(stagehand::names::systems::TRANSFORM_DECOMPOSE_2D, "stagehand::", "TRANSFORM_DECOMPOSE_2D");
@@ -87,7 +86,6 @@ TEST(Names, AllSystemNamesAreUnique) {
         stagehand::names::systems::PHYSICS_SYNC_TRANSFORM_3D,
         stagehand::names::systems::PHYSICS_SYNC_VELOCITY_2D,
         stagehand::names::systems::PHYSICS_SYNC_VELOCITY_3D,
-        stagehand::names::systems::TAG_RESET_CHANGE_DETECTION,
         stagehand::names::systems::TRANSFORM_COMPOSE_2D,
         stagehand::names::systems::TRANSFORM_COMPOSE_3D,
         stagehand::names::systems::TRANSFORM_DECOMPOSE_2D,
