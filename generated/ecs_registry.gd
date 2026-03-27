@@ -63,6 +63,12 @@ class components:
 			const PhysicsSpaceRID = "stagehand::physics::PhysicsSpaceRID"
 			const Velocity2D = "stagehand::physics::Velocity2D"
 			const Velocity3D = "stagehand::physics::Velocity3D"
+			const XPBDCloth3DConfig = "stagehand::physics::XPBDCloth3DConfig"
+			const XPBDCloth3DEdgeIndices = "stagehand::physics::XPBDCloth3DEdgeIndices"
+			const XPBDCloth3DGrab = "stagehand::physics::XPBDCloth3DGrab"
+			const XPBDCloth3DState = "stagehand::physics::XPBDCloth3DState"
+			const XPBDCloth3DTriangleIndices = "stagehand::physics::XPBDCloth3DTriangleIndices"
+			const XPBDCloth3DVertices = "stagehand::physics::XPBDCloth3DVertices"
 
 		class rendering:
 			const CustomData = "stagehand::rendering::CustomData"
@@ -130,6 +136,7 @@ class prefabs:
 	class stagehand:
 		const Entity2D = "stagehand::Entity2D"
 		const Entity3D = "stagehand::Entity3D"
+		const XPBDCloth3D = "stagehand::XPBDCloth3D"
 
 	class stagehand_demos:
 		class game_of_life:
@@ -160,6 +167,8 @@ class systems:
 			const Sync_Transform_3D = "stagehand::physics::Sync Transform (3D)"
 			const Sync_Velocity_2D = "stagehand::physics::Sync Velocity (2D)"
 			const Sync_Velocity_3D = "stagehand::physics::Sync Velocity (3D)"
+			const XPBD3D_Bootstrap = "stagehand::physics::XPBD3D Bootstrap"
+			const XPBD3D_Simulation = "stagehand::physics::XPBD3D Simulation"
 
 		class rendering:
 			const Entity_Rendering_Instanced = "stagehand::rendering::Entity Rendering (Instanced)"
@@ -259,6 +268,12 @@ const SCHEMA := {
 		"stagehand::physics::PhysicsSpaceRID": {"name": "PhysicsSpaceRID", "namespace": "stagehand::physics", "data_type": "godot::RID", "is_change_detection_tag": false},
 		"stagehand::physics::Velocity2D": {"name": "Velocity2D", "namespace": "stagehand::physics", "data_type": "godot::Vector2", "is_change_detection_tag": false},
 		"stagehand::physics::Velocity3D": {"name": "Velocity3D", "namespace": "stagehand::physics", "data_type": "godot::Vector3", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DConfig": {"name": "XPBDCloth3DConfig", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DEdgeIndices": {"name": "XPBDCloth3DEdgeIndices", "namespace": "stagehand::physics", "data_type": "godot::PackedInt32Array", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DGrab": {"name": "XPBDCloth3DGrab", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DState": {"name": "XPBDCloth3DState", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DTriangleIndices": {"name": "XPBDCloth3DTriangleIndices", "namespace": "stagehand::physics", "data_type": "godot::PackedInt32Array", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DVertices": {"name": "XPBDCloth3DVertices", "namespace": "stagehand::physics", "data_type": "godot::PackedVector3Array", "is_change_detection_tag": false},
 		"stagehand::rendering::CustomData": {"name": "CustomData", "namespace": "stagehand::rendering", "data_type": "godot::Vector4", "is_change_detection_tag": false},
 		"stagehand::rendering::IsInstanceUniform": {"name": "IsInstanceUniform", "namespace": "stagehand::rendering", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand::rendering::Renderers": {"name": "Renderers", "namespace": "stagehand::rendering", "data_type": "struct", "is_change_detection_tag": false},
@@ -308,6 +323,7 @@ const SCHEMA := {
 	"prefabs": {
 		"stagehand::Entity2D": {"name": "Entity2D", "namespace": "stagehand"},
 		"stagehand::Entity3D": {"name": "Entity3D", "namespace": "stagehand"},
+		"stagehand::XPBDCloth3D": {"name": "XPBDCloth3D", "namespace": "stagehand"},
 		"stagehand_demos::game_of_life::Cell": {"name": "Cell", "namespace": "stagehand_demos::game_of_life"},
 		"stagehand_demos::surwave::Character2D": {"name": "Character2D", "namespace": "stagehand_demos::surwave"},
 		"stagehand_demos::surwave::Enemy": {"name": "Enemy", "namespace": "stagehand_demos::surwave"},
@@ -330,6 +346,8 @@ const SCHEMA := {
 		"stagehand::physics::Sync Transform (3D)": {"name": "Sync Transform (3D)", "namespace": "stagehand::physics"},
 		"stagehand::physics::Sync Velocity (2D)": {"name": "Sync Velocity (2D)", "namespace": "stagehand::physics"},
 		"stagehand::physics::Sync Velocity (3D)": {"name": "Sync Velocity (3D)", "namespace": "stagehand::physics"},
+		"stagehand::physics::XPBD3D Bootstrap": {"name": "XPBD3D Bootstrap", "namespace": "stagehand::physics"},
+		"stagehand::physics::XPBD3D Simulation": {"name": "XPBD3D Simulation", "namespace": "stagehand::physics"},
 		"stagehand::rendering::Entity Rendering (Instanced)": {"name": "Entity Rendering (Instanced)", "namespace": "stagehand::rendering"},
 		"stagehand::rendering::Entity Rendering (MultiMesh)": {"name": "Entity Rendering (MultiMesh)", "namespace": "stagehand::rendering"},
 		"stagehand::transform::Transform Compose (2D)": {"name": "Transform Compose (2D)", "namespace": "stagehand::transform"},

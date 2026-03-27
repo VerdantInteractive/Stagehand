@@ -6,6 +6,8 @@
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/classes/physics_server3d.hpp>
 #include <godot_cpp/godot.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -26,18 +28,19 @@ namespace stagehand::physics {
         Kinematic3D = 5,
         Rigid3D = 6,
         RigidLinear3D = 7,
+        XPBD3D = 8,
     };
 
-    static constexpr uint8_t PHYSICS_BODY_TYPE_COUNT = 8;
+    static constexpr uint8_t PHYSICS_BODY_TYPE_COUNT = 9;
 
     // ─── Compile-time body type property tables ──────────────────────────
 
     static constexpr std::array<bool, PHYSICS_BODY_TYPE_COUNT> body_type_is_2d = {
-        true, true, true, true, false, false, false, false,
+        true, true, true, true, false, false, false, false, false,
     };
 
     static constexpr std::array<bool, PHYSICS_BODY_TYPE_COUNT> body_type_is_dynamic = {
-        false, false, true, true, false, false, true, true,
+        false, false, true, true, false, false, true, true, true,
     };
 
     constexpr bool is_2d_body_type(PhysicsBodyType type) { return body_type_is_2d[static_cast<uint8_t>(type)]; }
@@ -72,6 +75,32 @@ namespace stagehand::physics {
     /// engine filter by dimension without runtime branching.
     TAG(PhysicsSpace2D);
     TAG(PhysicsSpace3D);
+
+    // ─── XPBD Cloth (3D) Components ────────────────────────────────────
+
+    STRUCT_(XPBDCloth3DConfig, {
+        int32_t num_x = 30;
+        int32_t num_y = 200;
+        int32_t num_substeps = 10;
+        float spacing = 0.01f;
+        float thickness = 0.01f;
+        float bending_compliance = 1.0f;
+        float gravity_y = -10.0f;
+        float ground_height = 0.0f;
+        float friction = 0.0f;
+        bool handle_collisions = true;
+        bool attach_corners = false;
+    });
+
+    STRUCT_(XPBDCloth3DGrab, {
+        int32_t particle_id = -1;
+        godot::Vector3 position = godot::Vector3();
+        godot::Vector3 velocity = godot::Vector3();
+    });
+
+    GODOT_VARIANT_(XPBDCloth3DVertices, godot::PackedVector3Array);
+    GODOT_VARIANT_(XPBDCloth3DTriangleIndices, godot::PackedInt32Array);
+    GODOT_VARIANT_(XPBDCloth3DEdgeIndices, godot::PackedInt32Array);
 
     // ─── PhysicsServer Traits ────────────────────────────────────────────
 
@@ -130,6 +159,9 @@ namespace stagehand::physics {
 
         template <typename Server> void free_body_thunk(const godot::RID &rid) { free_physics_body_rid<Server>(rid); }
 
+        inline godot::RID create_body_invalid() { return godot::RID(); }
+        inline void free_body_invalid(const godot::RID &) {}
+
         struct PhysicsBodyHandlers {
             godot::RID (*create)();
             void (*free)(const godot::RID &);
@@ -145,6 +177,7 @@ namespace stagehand::physics {
                 {create_body_thunk<godot::PhysicsServer3D, godot::PhysicsServer3D::BODY_MODE_KINEMATIC>, free_body_thunk<godot::PhysicsServer3D>},
                 {create_body_thunk<godot::PhysicsServer3D, godot::PhysicsServer3D::BODY_MODE_RIGID>, free_body_thunk<godot::PhysicsServer3D>},
                 {create_body_thunk<godot::PhysicsServer3D, godot::PhysicsServer3D::BODY_MODE_RIGID_LINEAR>, free_body_thunk<godot::PhysicsServer3D>},
+                {create_body_invalid, free_body_invalid},
             };
 
             size_t index = static_cast<size_t>(type);
@@ -175,7 +208,8 @@ namespace stagehand::physics {
                 .constant("Static3D", PhysicsBodyType::Static3D)
                 .constant("Kinematic3D", PhysicsBodyType::Kinematic3D)
                 .constant("Rigid3D", PhysicsBodyType::Rigid3D)
-                .constant("RigidLinear3D", PhysicsBodyType::RigidLinear3D);
+                .constant("RigidLinear3D", PhysicsBodyType::RigidLinear3D)
+                .constant("XPBD3D", PhysicsBodyType::XPBD3D);
         })
         .then([](auto c) {
             c.on_add([](flecs::entity entity, PhysicsBodyType &physics_body_type) {

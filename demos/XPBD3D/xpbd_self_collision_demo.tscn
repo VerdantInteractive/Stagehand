@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://qicacghu6foc"]
+
+[ext_resource type="Script" uid="uid://ub25yqi72gks" path="res://XPBD3D/xpbd_self_collision_demo.gd" id="1_demo"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_g70cr"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_l3vix"]
+sky_material = SubResource("ProceduralSkyMaterial_g70cr")
+
+[sub_resource type="Environment" id="Environment_4y7d3"]
+background_mode = 2
+sky = SubResource("Sky_l3vix")
+ambient_light_source = 1
+ambient_light_color = Color(0.22, 0.22, 0.24, 1)
+tonemap_mode = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_c4r4x"]
+albedo_color = Color(0.65, 0.7, 0.72, 1)
+roughness = 0.85
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_ebkq4"]
+size = Vector2(20, 20)
+orientation = 2
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_g70cr"]
+albedo_color = Color(0.23753911, 0.23753914, 0.23753911, 1)
+
+[node name="XPBDSelfCollisionDemo" type="Node3D" unique_id=1781180644]
+script = ExtResource("1_demo")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=2111444424]
+environment = SubResource("Environment_4y7d3")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=37466325]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 2, 3, 3)
+light_energy = 1.5
+shadow_enabled = true
+shadow_bias = 0.02
+shadow_normal_bias = 0.8
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=171206956]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.3, 0.55)
+current = true
+fov = 70.0
+near = 0.01
+far = 100.0
+
+[node name="Ground" type="MeshInstance3D" parent="." unique_id=1876193370]
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
+material_override = SubResource("StandardMaterial3D_c4r4x")
+mesh = SubResource("PlaneMesh_ebkq4")
+surface_material_override/0 = SubResource("StandardMaterial3D_g70cr")
+
+[node name="World" type="FlecsWorld" parent="." unique_id=1364444254]
+progress_tick = 2
