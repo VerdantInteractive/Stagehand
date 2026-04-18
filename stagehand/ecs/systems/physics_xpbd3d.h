@@ -20,6 +20,7 @@ namespace stagehand::physics {
 
     struct XPBDSpatialHash3D {
         float spacing = 0.01f;
+        float inv_spacing = 100.0f;
         int32_t table_size = 1;
         int32_t max_num_objects = 0;
         int32_t query_size = 0;
@@ -29,32 +30,35 @@ namespace stagehand::physics {
         std::vector<int32_t> query_ids;
         std::vector<int32_t> first_adj_id;
         std::vector<int32_t> adj_ids;
+        std::vector<float> adj_rest_dist2;
 
         void initialize(float in_spacing, int32_t in_max_num_objects) {
             spacing = std::max(in_spacing, 1e-5f);
+            inv_spacing = 1.0f / spacing;
             max_num_objects = std::max(in_max_num_objects, 0);
-            table_size = std::max(5 * std::max(max_num_objects, 1), 1);
+
+            table_size = 1;
+            while (table_size < 5 * std::max(max_num_objects, 1)) {
+                table_size <<= 1;
+            }
 
             cell_start.assign(static_cast<size_t>(table_size) + 1U, 0);
             cell_entries.assign(static_cast<size_t>(max_num_objects), 0);
             query_ids.assign(static_cast<size_t>(std::max(max_num_objects, 1)), 0);
             first_adj_id.assign(static_cast<size_t>(max_num_objects) + 1U, 0);
             adj_ids.assign(static_cast<size_t>(std::max(10 * max_num_objects, 1)), 0);
+            adj_rest_dist2.assign(static_cast<size_t>(std::max(10 * max_num_objects, 1)), 0.0f);
             query_size = 0;
         }
 
         [[nodiscard]] int32_t hash_coords(int32_t xi, int32_t yi, int32_t zi) const {
-            const int64_t h = (static_cast<int64_t>(xi) * 92837111LL) ^ (static_cast<int64_t>(yi) * 689287499LL) ^
-                              (static_cast<int64_t>(zi) * 283923481LL);
-            return static_cast<int32_t>(std::llabs(h) % static_cast<int64_t>(table_size));
+            const uint32_t h = (static_cast<uint32_t>(xi) * 73856093u) ^ (static_cast<uint32_t>(yi) * 19349663u) ^ (static_cast<uint32_t>(zi) * 83492791u);
+            return static_cast<int32_t>(h & static_cast<uint32_t>(table_size - 1));
         }
 
-        [[nodiscard]] int32_t int_coord(float coord) const { return static_cast<int32_t>(std::floor(coord / spacing)); }
+        [[nodiscard]] int32_t int_coord(float coord) const { return static_cast<int32_t>(std::floor(coord * inv_spacing)); }
 
-        [[nodiscard]] int32_t hash_pos(const std::vector<godot::Vector3> &pos, int32_t id) const {
-            const godot::Vector3 &p = pos[static_cast<size_t>(id)];
-            return hash_coords(int_coord(p.x), int_coord(p.y), int_coord(p.z));
-        }
+        [[nodiscard]] int32_t hash_vec(const godot::Vector3 &p) const { return hash_coords(int_coord(p.x), int_coord(p.y), int_coord(p.z)); }
 
         void create(const std::vector<godot::Vector3> &pos, int32_t num_objects) {
             num_objects = std::min(num_objects, max_num_objects);
@@ -66,7 +70,7 @@ namespace stagehand::physics {
             std::fill(cell_entries.begin(), cell_entries.end(), 0);
 
             for (int32_t i = 0; i < num_objects; ++i) {
-                const int32_t h = hash_pos(pos, i);
+                const int32_t h = hash_vec(pos[static_cast<size_t>(i)]);
                 cell_start[static_cast<size_t>(h)] += 1;
             }
 
@@ -78,7 +82,7 @@ namespace stagehand::physics {
             cell_start[static_cast<size_t>(table_size)] = start;
 
             for (int32_t i = 0; i < num_objects; ++i) {
-                const int32_t h = hash_pos(pos, i);
+                const int32_t h = hash_vec(pos[static_cast<size_t>(i)]);
                 int32_t &cell_begin = cell_start[static_cast<size_t>(h)];
                 cell_begin -= 1;
                 cell_entries[static_cast<size_t>(cell_begin)] = i;
@@ -117,7 +121,7 @@ namespace stagehand::physics {
             }
         }
 
-        void query_all(const std::vector<godot::Vector3> &pos, float max_dist, int32_t num_objects) {
+        void query_all(const std::vector<godot::Vector3> &pos, const std::vector<godot::Vector3> &rest_pos, float max_dist, int32_t num_objects) {
             num_objects = std::min(num_objects, max_num_objects);
             if (num_objects <= 0) {
                 return;
@@ -147,8 +151,10 @@ namespace stagehand::physics {
 
                     if (num >= static_cast<int32_t>(adj_ids.size())) {
                         adj_ids.resize(std::max(1, num * 2));
+                        adj_rest_dist2.resize(adj_ids.size());
                     }
                     adj_ids[static_cast<size_t>(num)] = id1;
+                    adj_rest_dist2[static_cast<size_t>(num)] = rest_pos[static_cast<size_t>(i)].distance_squared_to(rest_pos[static_cast<size_t>(id1)]);
                     num += 1;
                 }
             }
@@ -291,12 +297,7 @@ namespace stagehand::physics {
 
             constexpr int32_t num_constraint_types = 6;
             constexpr std::array<int32_t, 24> offsets = {
-                0, 0, 0, 1,
-                0, 0, 1, 0,
-                0, 0, 1, 1,
-                0, 1, 1, 0,
-                0, 0, 0, 2,
-                0, 0, 2, 0,
+                0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 0, 0, 0, 2, 0, 0, 2, 0,
             };
 
             state.ids.clear();
@@ -307,12 +308,7 @@ namespace stagehand::physics {
             const float stretch_compliance = 0.0f;
             const float shear_compliance = 0.0001f;
             const std::array<float, num_constraint_types> compliance_by_type = {
-                stretch_compliance,
-                stretch_compliance,
-                shear_compliance,
-                shear_compliance,
-                config.bending_compliance,
-                config.bending_compliance,
+                stretch_compliance, stretch_compliance, shear_compliance, shear_compliance, config.bending_compliance, config.bending_compliance,
             };
 
             state.ids.reserve(static_cast<size_t>(state.num_particles) * num_constraint_types * 2U);
@@ -390,6 +386,7 @@ namespace stagehand::physics {
 
         inline void solve_constraints(XPBDCloth3DState &state, float dt) {
             const int32_t num_constraints = static_cast<int32_t>(state.compliances.size());
+            const float inv_dt_sq = 1.0f / (dt * dt);
 
             for (int32_t i = 0; i < num_constraints; ++i) {
                 const int32_t id0 = state.ids[static_cast<size_t>(2 * i)];
@@ -402,19 +399,23 @@ namespace stagehand::physics {
                     continue;
                 }
 
-                godot::Vector3 dir = state.pos[static_cast<size_t>(id0)] - state.pos[static_cast<size_t>(id1)];
-                const float len = dir.length();
-                if (len <= 0.0f) {
+                godot::Vector3 &p0 = state.pos[static_cast<size_t>(id0)];
+                godot::Vector3 &p1 = state.pos[static_cast<size_t>(id1)];
+                godot::Vector3 grad = p0 - p1;
+
+                const float len_sq = grad.length_squared();
+                if (len_sq < 1e-12f) {
                     continue;
                 }
 
-                dir /= len;
+                const float len = std::sqrt(len_sq);
                 const float c = len - state.rest_lens[static_cast<size_t>(i)];
-                const float alpha = state.compliances[static_cast<size_t>(i)] / (dt * dt);
-                const float s = -c / (w + alpha);
+                const float alpha = state.compliances[static_cast<size_t>(i)] * inv_dt_sq;
+                const float lambda = -c / (w + alpha);
+                const godot::Vector3 corr = grad * (lambda / len);
 
-                state.pos[static_cast<size_t>(id0)] += dir * (s * w0);
-                state.pos[static_cast<size_t>(id1)] -= dir * (s * w1);
+                p0 += corr * w0;
+                p1 -= corr * w1;
             }
         }
 
@@ -441,7 +442,7 @@ namespace stagehand::physics {
                         continue;
                     }
 
-                    const float rest_dist2 = state.rest_pos[static_cast<size_t>(i)].distance_squared_to(state.rest_pos[static_cast<size_t>(id1)]);
+                    const float rest_dist2 = state.hash.adj_rest_dist2[static_cast<size_t>(j)];
                     if (dist2 > rest_dist2) {
                         continue;
                     }
@@ -460,15 +461,11 @@ namespace stagehand::physics {
                     state.pos[static_cast<size_t>(i)] -= correction * 0.5f;
                     state.pos[static_cast<size_t>(id1)] += correction * 0.5f;
 
-                    const godot::Vector3 v0 = state.pos[static_cast<size_t>(i)] - state.prev_pos[static_cast<size_t>(i)];
-                    const godot::Vector3 v1 = state.pos[static_cast<size_t>(id1)] - state.prev_pos[static_cast<size_t>(id1)];
-                    const godot::Vector3 v_avg = (v0 + v1) * 0.5f;
-
-                    const godot::Vector3 corr0 = v_avg - v0;
-                    const godot::Vector3 corr1 = v_avg - v1;
-
-                    state.pos[static_cast<size_t>(i)] += corr0 * config.friction;
-                    state.pos[static_cast<size_t>(id1)] += corr1 * config.friction;
+                    const godot::Vector3 rel_vel = (state.pos[static_cast<size_t>(id1)] - state.prev_pos[static_cast<size_t>(id1)]) -
+                                                   (state.pos[static_cast<size_t>(i)] - state.prev_pos[static_cast<size_t>(i)]);
+                    const godot::Vector3 friction_corr = rel_vel * (config.friction * 0.5f);
+                    state.pos[static_cast<size_t>(i)] += friction_corr;
+                    state.pos[static_cast<size_t>(id1)] -= friction_corr;
                 }
             }
         }
@@ -510,7 +507,7 @@ namespace stagehand::physics {
             if (config.handle_collisions) {
                 state.hash.create(state.pos, state.num_particles);
                 const float max_travel_dist = max_velocity * safe_frame_dt;
-                state.hash.query_all(state.pos, max_travel_dist, state.num_particles);
+                state.hash.query_all(state.pos, state.rest_pos, max_travel_dist, state.num_particles);
             }
 
             for (int32_t step = 0; step < config.num_substeps; ++step) {
@@ -590,6 +587,7 @@ namespace stagehand::physics {
                 const transform::Position3D
             >("stagehand::physics::XPBD3D Simulation")
             .kind(flecs::OnUpdate)
+            .without(flecs::Prefab)
             .run([](flecs::iter &it) {
                 // clang-format on
                 const float frame_dt = std::max(static_cast<float>(it.delta_time()), 1.0f / 60.0f);
@@ -606,11 +604,6 @@ namespace stagehand::physics {
 
                     for (auto i : it) {
                         if (!internal::is_xpbd3d_body(body_type_field[i])) {
-                            continue;
-                        }
-
-                        flecs::entity entity = it.entity(i);
-                        if (entity.has(flecs::Prefab)) {
                             continue;
                         }
 
