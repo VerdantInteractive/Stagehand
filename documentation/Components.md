@@ -1,6 +1,6 @@
 # Defining and Registering Components
 
-Through macros, boilerplate-free component definition and registration of components is possible. The macros also handle the per-component setup of [automatic change detection](ChangeDetection.md) behind the scenes. Appending an underscore to a macro name (e.g., `FLOAT_` instead of `FLOAT`) opts out of change detection for that component.
+Through macros, boilerplate-free component definition and registration of components is possible. The macros also handle the per-component setup of [automatic change detection](ChangeDetection.md) behind the scenes. Appending an underscore to a macro name (e.g., `FLOAT_` instead of `FLOAT`) opts in to change detection for that component.
 
 ## Method chaining with `.then`
 
@@ -112,7 +112,7 @@ enum class WeaponType : uint16_t { Sword, Axe, Bow };
 ENUM(WeaponType, uint16_t); // Specifies underlying type.
 
 enum class Weather { Sunny, Rainy };
-ENUM_(Weather); // Opt out of change detection.
+ENUM_(Weather); // Opt in to change detection.
 ```
 
 ### `POINTER(Name, Type, [DefaultValue])` / `POINTER_(Name, Type, [DefaultValue])`
@@ -145,14 +145,14 @@ Multi-field aggregate struct component with automatic member reflection via Boos
 ```cpp
 STRUCT(PlayerStats, { float age; int rank; }); // Members are default-initialised.
 STRUCT(ColoredPoint, { godot::Vector3 position = godot::Vector3(0, 0, 0); godot::Color color = godot::Color(1, 1, 1); }); // Members initialised with default values.
-STRUCT_(TrackedPosition, { float x = 0.0f; float y = 0.0f; float z = 0.0f; }); // Opt out of change detection.
+STRUCT_(TrackedPosition, { float x = 0.0f; float y = 0.0f; float z = 0.0f; }); // Opt in to change detection.
 ```
 
 ## Godot Variants
 
 ### `GODOT_VARIANT(Name, Type, [DefaultValue])` / `GODOT_VARIANT_(Name, Type, [DefaultValue])`
 
-These macros wrap Godot's built-in Variant types as components. They support both struct-based (Plain Old Data) types and class-based (handle) types. `GODOT_VARIANT` includes change detection; `GODOT_VARIANT_` opts out of it.
+These macros wrap Godot's built-in Variant types as components. They support both struct-based (Plain Old Data) types and class-based (handle) types. `GODOT_VARIANT` does not include change detection; `GODOT_VARIANT_` opts in to it.
 
 ### Struct-based (Plain Old Data) Variants
 ```cpp

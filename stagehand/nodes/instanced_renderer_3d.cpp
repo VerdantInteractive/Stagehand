@@ -180,27 +180,52 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     renderer_count++;
 }
 
+InstancedRenderer3D::InstancedRenderer3D() {
+    connect("tree_entered", callable_mp(this, &InstancedRenderer3D::on_enter_tree));
+    connect("tree_exiting", callable_mp(this, &InstancedRenderer3D::on_exit_tree));
+}
+
+void InstancedRenderer3D::on_enter_tree() {
+    const godot::Callable warnings_callable(this, "update_configuration_warnings");
+    for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+        if (lod_level.is_valid() && !lod_level->is_connected("changed", warnings_callable)) {
+            lod_level->connect("changed", warnings_callable);
+        }
+    }
+}
+
+void InstancedRenderer3D::on_exit_tree() {
+    const godot::Callable warnings_callable(this, "update_configuration_warnings");
+    for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+        if (lod_level.is_valid() && lod_level->is_connected("changed", warnings_callable)) {
+            lod_level->disconnect("changed", warnings_callable);
+        }
+    }
+}
+
 void InstancedRenderer3D::set_prefabs_rendered(const godot::PackedStringArray &p_prefabs) {
     prefabs_rendered = p_prefabs;
     update_configuration_warnings();
 }
 
 void InstancedRenderer3D::set_lod_levels(const godot::TypedArray<InstancedRenderer3DLODConfiguration> &p_lod_levels) {
-    const godot::Callable warnings_callable = callable_mp(static_cast<godot::Node *>(this), &godot::Node::update_configuration_warnings);
-
-    for (int i = 0; i < lod_levels.size(); ++i) {
-        godot::Ref<InstancedRenderer3DLODConfiguration> previous_lod_level = lod_levels[i];
-        if (previous_lod_level.is_valid() && previous_lod_level->is_connected("changed", warnings_callable)) {
-            previous_lod_level->disconnect("changed", warnings_callable);
+    if (is_inside_tree()) {
+        const godot::Callable warnings_callable(this, "update_configuration_warnings");
+        for (const godot::Ref<InstancedRenderer3DLODConfiguration> &previous_lod : lod_levels) {
+            if (previous_lod.is_valid() && previous_lod->is_connected("changed", warnings_callable)) {
+                previous_lod->disconnect("changed", warnings_callable);
+            }
         }
     }
 
     lod_levels = p_lod_levels;
 
-    for (int i = 0; i < lod_levels.size(); ++i) {
-        godot::Ref<InstancedRenderer3DLODConfiguration> lod_level = lod_levels[i];
-        if (lod_level.is_valid() && !lod_level->is_connected("changed", warnings_callable)) {
-            lod_level->connect("changed", warnings_callable);
+    if (is_inside_tree()) {
+        const godot::Callable warnings_callable(this, "update_configuration_warnings");
+        for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+            if (lod_level.is_valid() && !lod_level->is_connected("changed", warnings_callable)) {
+                lod_level->connect("changed", warnings_callable);
+            }
         }
     }
 
@@ -292,86 +317,4 @@ void InstancedRenderer3D::_bind_methods() {
                                  godot::PropertyInfo(godot::Variant::PACKED_STRING_ARRAY, "discovered_instance_uniforms", godot::PROPERTY_HINT_NONE, "",
                                                      godot::PROPERTY_USAGE_EDITOR | godot::PROPERTY_USAGE_READ_ONLY),
                                  "set_discovered_instance_uniforms", "get_discovered_instance_uniforms");
-}
-
-void InstancedRenderer3DLODConfiguration::set_mesh(const godot::Ref<godot::Mesh> &p_mesh) {
-    mesh = p_mesh;
-    emit_changed();
-}
-
-void InstancedRenderer3DLODConfiguration::set_visibility_range_begin(float p_value) {
-    visibility_range_begin = p_value;
-    emit_changed();
-}
-
-void InstancedRenderer3DLODConfiguration::set_visibility_range_end(float p_value) {
-    visibility_range_end = p_value;
-    emit_changed();
-}
-
-void InstancedRenderer3DLODConfiguration::set_visibility_range_begin_margin(float p_value) {
-    visibility_range_begin_margin = p_value;
-    emit_changed();
-}
-
-void InstancedRenderer3DLODConfiguration::set_visibility_range_end_margin(float p_value) {
-    visibility_range_end_margin = p_value;
-    emit_changed();
-}
-
-void InstancedRenderer3DLODConfiguration::set_visibility_range_fade_mode(godot::RenderingServer::VisibilityRangeFadeMode p_value) {
-    visibility_range_fade_mode = p_value;
-    emit_changed();
-}
-
-void InstancedRenderer3DLODConfiguration::_bind_methods() {
-    godot::ClassDB::bind_method(godot::D_METHOD("set_mesh", "mesh"), &InstancedRenderer3DLODConfiguration::set_mesh);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_mesh"), &InstancedRenderer3DLODConfiguration::get_mesh);
-
-    godot::ClassDB::bind_method(godot::D_METHOD("set_visibility_range_begin", "visibility_range_begin"),
-                                &InstancedRenderer3DLODConfiguration::set_visibility_range_begin);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_visibility_range_begin"), &InstancedRenderer3DLODConfiguration::get_visibility_range_begin);
-
-    godot::ClassDB::bind_method(godot::D_METHOD("set_visibility_range_end", "visibility_range_end"),
-                                &InstancedRenderer3DLODConfiguration::set_visibility_range_end);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_visibility_range_end"), &InstancedRenderer3DLODConfiguration::get_visibility_range_end);
-
-    godot::ClassDB::bind_method(godot::D_METHOD("set_visibility_range_begin_margin", "visibility_range_begin_margin"),
-                                &InstancedRenderer3DLODConfiguration::set_visibility_range_begin_margin);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_visibility_range_begin_margin"), &InstancedRenderer3DLODConfiguration::get_visibility_range_begin_margin);
-
-    godot::ClassDB::bind_method(godot::D_METHOD("set_visibility_range_end_margin", "visibility_range_end_margin"),
-                                &InstancedRenderer3DLODConfiguration::set_visibility_range_end_margin);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_visibility_range_end_margin"), &InstancedRenderer3DLODConfiguration::get_visibility_range_end_margin);
-
-    godot::ClassDB::bind_method(godot::D_METHOD("set_visibility_range_fade_mode", "visibility_range_fade_mode"),
-                                &InstancedRenderer3DLODConfiguration::set_visibility_range_fade_mode);
-    godot::ClassDB::bind_method(godot::D_METHOD("get_visibility_range_fade_mode"), &InstancedRenderer3DLODConfiguration::get_visibility_range_fade_mode);
-
-    godot::ClassDB::add_property("InstancedRenderer3DLODConfiguration",
-                                 godot::PropertyInfo(godot::Variant::OBJECT, "mesh", godot::PROPERTY_HINT_RESOURCE_TYPE, "Mesh"), "set_mesh", "get_mesh");
-    godot::ClassDB::add_property("InstancedRenderer3DLODConfiguration",
-                                 godot::PropertyInfo(godot::Variant::FLOAT, "visibility_range_begin", godot::PROPERTY_HINT_RANGE, "0,10000,0.1,or_greater"),
-                                 "set_visibility_range_begin", "get_visibility_range_begin");
-    godot::ClassDB::add_property(
-        "InstancedRenderer3DLODConfiguration",
-        godot::PropertyInfo(godot::Variant::FLOAT, "visibility_range_begin_margin", godot::PROPERTY_HINT_RANGE, "0,1000,0.1,or_greater"),
-        "set_visibility_range_begin_margin", "get_visibility_range_begin_margin");
-    godot::ClassDB::add_property("InstancedRenderer3DLODConfiguration",
-                                 godot::PropertyInfo(godot::Variant::FLOAT, "visibility_range_end", godot::PROPERTY_HINT_RANGE, "0,10000,0.1,or_greater"),
-                                 "set_visibility_range_end", "get_visibility_range_end");
-    godot::ClassDB::add_property("InstancedRenderer3DLODConfiguration",
-                                 godot::PropertyInfo(godot::Variant::FLOAT, "visibility_range_end_margin", godot::PROPERTY_HINT_RANGE, "0,1000,0.1,or_greater"),
-                                 "set_visibility_range_end_margin", "get_visibility_range_end_margin");
-    godot::ClassDB::add_property(
-        "InstancedRenderer3DLODConfiguration",
-        godot::PropertyInfo(godot::Variant::INT, "visibility_range_fade_mode", godot::PROPERTY_HINT_ENUM, "Disabled:0,Self:1,Dependencies:2"),
-        "set_visibility_range_fade_mode", "get_visibility_range_fade_mode");
-
-    godot::ClassDB::bind_integer_constant(InstancedRenderer3DLODConfiguration::get_class_static(), godot::StringName(), "VISIBILITY_RANGE_FADE_DISABLED",
-                                          godot::RenderingServer::VISIBILITY_RANGE_FADE_DISABLED);
-    godot::ClassDB::bind_integer_constant(InstancedRenderer3DLODConfiguration::get_class_static(), godot::StringName(), "VISIBILITY_RANGE_FADE_SELF",
-                                          godot::RenderingServer::VISIBILITY_RANGE_FADE_SELF);
-    godot::ClassDB::bind_integer_constant(InstancedRenderer3DLODConfiguration::get_class_static(), godot::StringName(), "VISIBILITY_RANGE_FADE_DEPENDENCIES",
-                                          godot::RenderingServer::VISIBILITY_RANGE_FADE_DEPENDENCIES);
 }

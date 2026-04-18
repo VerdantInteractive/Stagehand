@@ -33,7 +33,7 @@ namespace stagehand {
 #if defined(DEBUG_ENABLED)
         godot::UtilityFunctions::print(godot::String("Debug build. Enabling extra logging and Flecs Explorer: https://www.flecs.dev/explorer/?host=localhost"));
         world.set<flecs::Rest>({});
-        world.import<flecs::stats>();
+        world.import <flecs::stats>();
         // flecs::log::set_level(1);
 #endif
 
@@ -46,10 +46,8 @@ namespace stagehand {
         for (const auto &[component_name, funcs] : get_component_registry()) {
             godot::StringName name(component_name.c_str());
 
-            // Cache the component entity ID for fast lookups in has/add/remove.
-            // Prefer the entity_id stored during registration (always correct),
-            // falling back to world.lookup() for components registered without
-            // register_component_with_world_name.
+            // Cache the component entity ID for fast lookups in has/add/remove. Prefer the entity_id stored during registration (always correct),
+            // falling back to world.lookup() for components registered without register_component_with_world_name.
             flecs::entity_t comp_id = funcs.entity_id;
             if (comp_id == 0) {
                 comp_id = world.lookup(component_name.c_str()).id();
@@ -66,9 +64,11 @@ namespace stagehand {
             }
         }
 
-        connect("tree_entered", callable_mp(this, &FlecsWorld::_enter_tree));
-        connect("ready", callable_mp(this, &FlecsWorld::run_post_tree_setup));
-        connect("tree_exiting", callable_mp(this, &FlecsWorld::_exit_tree));
+        // Use lifecycle signals instead of virtual callbacks so native setup and teardown still run when a GDScript subclass overrides _enter_tree, _ready, or
+        // _exit_tree without calling super().
+        connect("tree_entered", callable_mp(this, &FlecsWorld::on_enter_tree));
+        connect("ready", callable_mp(this, &FlecsWorld::on_ready));
+        connect("tree_exiting", callable_mp(this, &FlecsWorld::on_exit_tree));
 
         is_initialised = true;
     }
@@ -366,6 +366,61 @@ namespace stagehand {
 
     godot::TypedArray<godot::String> FlecsWorld::get_modules_to_import() const { return modules_to_import; }
 
+    void FlecsWorld::on_enter_tree() {
+        if (enter_tree_setup_completed) {
+            return;
+        }
+
+        enter_tree_setup_completed = true;
+        post_tree_setup_completed = false;
+
+        register_signal_observer();
+        import_configured_modules();
+        script_loader.run_all(world, modules_to_import);
+        set_world_configuration(world_configuration);
+        set_progress_tick(progress_tick);
+    }
+
+    void FlecsWorld::register_signal_observer() {
+        world.observer("stagehand::SignalObserver")
+            .event<EventPayload>()
+            .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
+            .each([this](flecs::iter &it, size_t index) {
+                const EventPayload *signal = it.param<EventPayload>();
+                if (likely(signal)) {
+                    this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
+                }
+            });
+    }
+
+    void FlecsWorld::import_configured_modules() {
+        for (int i = 0; i < modules_to_import.size(); ++i) {
+            godot::String module_entry = modules_to_import[i];
+            std::string module_name = module_entry.utf8().get_data();
+
+            if (stagehand::has_module_callbacks_for(module_name)) {
+                stagehand::run_module_callbacks_for(world, module_name);
+                continue;
+            }
+
+            godot::UtilityFunctions::push_error(godot::String("Failed to import Flecs module: '") + module_entry);
+        }
+    }
+
+    void FlecsWorld::on_ready() { run_post_tree_setup(); }
+
+    void FlecsWorld::run_post_tree_setup() {
+        if (post_tree_setup_completed || !is_inside_tree()) {
+            return;
+        }
+
+        post_tree_setup_completed = true;
+
+        populate_scene_children_singleton();
+        setup_entity_renderers_instanced();
+        setup_entity_renderers_multimesh();
+    }
+
     void FlecsWorld::populate_scene_children_singleton() {
         Dictionary children;
         godot::TypedArray<Node> child_nodes = get_children();
@@ -404,27 +459,6 @@ namespace stagehand {
         }
     }
 
-    void FlecsWorld::cleanup_instanced_renderer_rids() {
-        const rendering::Renderers *renderers_ptr = world.try_get<rendering::Renderers>();
-        if (!renderers_ptr) {
-            return;
-        }
-
-        godot::RenderingServer *rendering_server = godot::RenderingServer::get_singleton();
-        if (!rendering_server) {
-            return;
-        }
-
-        // Free all RenderingServer instance RIDs created by the instanced rendering system
-        for (const rendering::InstancedRendererConfig &renderer : renderers_ptr->instanced_renderers) {
-            for (const godot::RID &rid : renderer.instance_rids) {
-                if (rid.is_valid()) {
-                    rendering_server->free_rid(rid);
-                }
-            }
-        }
-    }
-
     void FlecsWorld::setup_entity_renderers_multimesh() {
         rendering::Renderers renderers;
         int renderer_count = 0;
@@ -449,65 +483,6 @@ namespace stagehand {
         }
     }
 
-    void FlecsWorld::register_signal_observer() {
-        world.observer("stagehand::SignalObserver")
-            .event<EventPayload>()
-            .with(flecs::Any) // Tells the observer: "I don't care what components the entity has. If any entity emits this event, trigger the callback."
-            .each([this](flecs::iter &it, size_t index) {
-                const EventPayload *signal = it.param<EventPayload>();
-                if (likely(signal)) {
-                    this->emit_signal("stagehand_signal_emitted", signal->name, signal->data);
-                }
-            });
-    }
-
-    void FlecsWorld::import_configured_modules() {
-        for (int i = 0; i < modules_to_import.size(); ++i) {
-            godot::String module_entry = modules_to_import[i];
-            std::string module_name = module_entry.utf8().get_data();
-
-            if (stagehand::has_module_callbacks_for(module_name)) {
-                stagehand::run_module_callbacks_for(world, module_name);
-                continue;
-            }
-
-            godot::UtilityFunctions::push_error(godot::String("Failed to import Flecs module: '") + module_entry);
-        }
-    }
-
-    void FlecsWorld::_enter_tree() {
-        if (enter_tree_setup_completed) {
-            return;
-        }
-
-        enter_tree_setup_completed = true;
-        post_tree_setup_completed = false;
-
-        register_signal_observer();
-        import_configured_modules();
-        script_loader.run_all(world, modules_to_import);
-        set_world_configuration(world_configuration);
-        set_progress_tick(progress_tick);
-
-        // GDScript subclasses can override _ready() without calling super, so
-        // schedule the shared post-tree setup independently of script method dispatch.
-        callable_mp(this, &FlecsWorld::run_post_tree_setup).call_deferred();
-    }
-
-    void FlecsWorld::run_post_tree_setup() {
-        if (post_tree_setup_completed || !is_inside_tree()) {
-            return;
-        }
-
-        post_tree_setup_completed = true;
-
-        populate_scene_children_singleton();
-        setup_entity_renderers_instanced();
-        setup_entity_renderers_multimesh();
-    }
-
-    void FlecsWorld::_ready() { run_post_tree_setup(); }
-
     void FlecsWorld::_process(double p_delta) {
         if (progress_tick == ProgressTick::PROGRESS_TICK_RENDERING) {
             progress(p_delta);
@@ -520,13 +495,34 @@ namespace stagehand {
         }
     }
 
-    void FlecsWorld::_exit_tree() {
+    void FlecsWorld::on_exit_tree() {
         enter_tree_setup_completed = false;
         post_tree_setup_completed = false;
 
         if (is_initialised) {
             cleanup_instanced_renderer_rids();
             is_initialised = false;
+        }
+    }
+
+    void FlecsWorld::cleanup_instanced_renderer_rids() {
+        const rendering::Renderers *renderers_ptr = world.try_get<rendering::Renderers>();
+        if (!renderers_ptr) {
+            return;
+        }
+
+        godot::RenderingServer *rendering_server = godot::RenderingServer::get_singleton();
+        if (!rendering_server) {
+            return;
+        }
+
+        // Free all RenderingServer instance RIDs created by the instanced rendering system
+        for (const rendering::InstancedRendererConfig &renderer : renderers_ptr->instanced_renderers) {
+            for (const godot::RID &rid : renderer.instance_rids) {
+                if (rid.is_valid()) {
+                    rendering_server->free_rid(rid);
+                }
+            }
         }
     }
 

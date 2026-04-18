@@ -63,6 +63,12 @@ class components:
 			const PhysicsSpaceRID = "stagehand::physics::PhysicsSpaceRID"
 			const Velocity2D = "stagehand::physics::Velocity2D"
 			const Velocity3D = "stagehand::physics::Velocity3D"
+			const XPBDCloth3DConfig = "stagehand::physics::XPBDCloth3DConfig"
+			const XPBDCloth3DEdgeIndices = "stagehand::physics::XPBDCloth3DEdgeIndices"
+			const XPBDCloth3DGrab = "stagehand::physics::XPBDCloth3DGrab"
+			const XPBDCloth3DState = "stagehand::physics::XPBDCloth3DState"
+			const XPBDCloth3DTriangleIndices = "stagehand::physics::XPBDCloth3DTriangleIndices"
+			const XPBDCloth3DVertices = "stagehand::physics::XPBDCloth3DVertices"
 
 		class rendering:
 			const CustomData = "stagehand::rendering::CustomData"
@@ -98,6 +104,9 @@ class components:
 			const AliveNeighbourCount = "stagehand_demos::game_of_life::AliveNeighbourCount"
 			const GridNeighbours = "stagehand_demos::game_of_life::GridNeighbours"
 			const GridPosition = "stagehand_demos::game_of_life::GridPosition"
+			const HasChangedAliveNeighbourCount = "stagehand_demos::game_of_life::HasChangedAliveNeighbourCount"
+			const HasChangedGridNeighbours = "stagehand_demos::game_of_life::HasChangedGridNeighbours"
+			const HasChangedGridPosition = "stagehand_demos::game_of_life::HasChangedGridPosition"
 			const IsAlive = "stagehand_demos::game_of_life::IsAlive"
 			const IsInActiveNeighbourhood = "stagehand_demos::game_of_life::IsInActiveNeighbourhood"
 			const WasAlive = "stagehand_demos::game_of_life::WasAlive"
@@ -110,6 +119,26 @@ class components:
 			const EnemyCount = "stagehand_demos::surwave::EnemyCount"
 			const EnemyTakeDamageSettings = "stagehand_demos::surwave::EnemyTakeDamageSettings"
 			const HFlipTimer = "stagehand_demos::surwave::HFlipTimer"
+			const HasChangedAnimationFrameOffset = "stagehand_demos::surwave::HasChangedAnimationFrameOffset"
+			const HasChangedDeathTimer = "stagehand_demos::surwave::HasChangedDeathTimer"
+			const HasChangedEnemyAnimationSettings = "stagehand_demos::surwave::HasChangedEnemyAnimationSettings"
+			const HasChangedEnemyBoidMovementSettings = "stagehand_demos::surwave::HasChangedEnemyBoidMovementSettings"
+			const HasChangedEnemyCount = "stagehand_demos::surwave::HasChangedEnemyCount"
+			const HasChangedEnemyTakeDamageSettings = "stagehand_demos::surwave::HasChangedEnemyTakeDamageSettings"
+			const HasChangedHFlipTimer = "stagehand_demos::surwave::HasChangedHFlipTimer"
+			const HasChangedHitPoints = "stagehand_demos::surwave::HasChangedHitPoints"
+			const HasChangedHitRadius = "stagehand_demos::surwave::HasChangedHitRadius"
+			const HasChangedHitReactionTimer = "stagehand_demos::surwave::HasChangedHitReactionTimer"
+			const HasChangedMeleeDamage = "stagehand_demos::surwave::HasChangedMeleeDamage"
+			const HasChangedMovementSpeed = "stagehand_demos::surwave::HasChangedMovementSpeed"
+			const HasChangedPlayerDamageCooldown = "stagehand_demos::surwave::HasChangedPlayerDamageCooldown"
+			const HasChangedPlayerPosition = "stagehand_demos::surwave::HasChangedPlayerPosition"
+			const HasChangedPlayerTakeDamageSettings = "stagehand_demos::surwave::HasChangedPlayerTakeDamageSettings"
+			const HasChangedProjectileData = "stagehand_demos::surwave::HasChangedProjectileData"
+			const HasChangedProjectileHitTimeout = "stagehand_demos::surwave::HasChangedProjectileHitTimeout"
+			const HasChangedShockwaveData = "stagehand_demos::surwave::HasChangedShockwaveData"
+			const HasChangedShockwaveHitTimeout = "stagehand_demos::surwave::HasChangedShockwaveHitTimeout"
+			const HasChangedVFlipTimer = "stagehand_demos::surwave::HasChangedVFlipTimer"
 			const HitPoints = "stagehand_demos::surwave::HitPoints"
 			const HitRadius = "stagehand_demos::surwave::HitRadius"
 			const HitReactionTimer = "stagehand_demos::surwave::HitReactionTimer"
@@ -130,6 +159,7 @@ class prefabs:
 	class stagehand:
 		const Entity2D = "stagehand::Entity2D"
 		const Entity3D = "stagehand::Entity3D"
+		const XPBDCloth3D = "stagehand::XPBDCloth3D"
 
 	class stagehand_demos:
 		class game_of_life:
@@ -160,6 +190,8 @@ class systems:
 			const Sync_Transform_3D = "stagehand::physics::Sync Transform (3D)"
 			const Sync_Velocity_2D = "stagehand::physics::Sync Velocity (2D)"
 			const Sync_Velocity_3D = "stagehand::physics::Sync Velocity (3D)"
+			const XPBD3D_Bootstrap = "stagehand::physics::XPBD3D Bootstrap"
+			const XPBD3D_Simulation = "stagehand::physics::XPBD3D Simulation"
 
 		class rendering:
 			const Entity_Rendering_Instanced = "stagehand::rendering::Entity Rendering (Instanced)"
@@ -259,6 +291,12 @@ const SCHEMA := {
 		"stagehand::physics::PhysicsSpaceRID": {"name": "PhysicsSpaceRID", "namespace": "stagehand::physics", "data_type": "godot::RID", "is_change_detection_tag": false},
 		"stagehand::physics::Velocity2D": {"name": "Velocity2D", "namespace": "stagehand::physics", "data_type": "godot::Vector2", "is_change_detection_tag": false},
 		"stagehand::physics::Velocity3D": {"name": "Velocity3D", "namespace": "stagehand::physics", "data_type": "godot::Vector3", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DConfig": {"name": "XPBDCloth3DConfig", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DEdgeIndices": {"name": "XPBDCloth3DEdgeIndices", "namespace": "stagehand::physics", "data_type": "godot::PackedInt32Array", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DGrab": {"name": "XPBDCloth3DGrab", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DState": {"name": "XPBDCloth3DState", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DTriangleIndices": {"name": "XPBDCloth3DTriangleIndices", "namespace": "stagehand::physics", "data_type": "godot::PackedInt32Array", "is_change_detection_tag": false},
+		"stagehand::physics::XPBDCloth3DVertices": {"name": "XPBDCloth3DVertices", "namespace": "stagehand::physics", "data_type": "godot::PackedVector3Array", "is_change_detection_tag": false},
 		"stagehand::rendering::CustomData": {"name": "CustomData", "namespace": "stagehand::rendering", "data_type": "godot::Vector4", "is_change_detection_tag": false},
 		"stagehand::rendering::IsInstanceUniform": {"name": "IsInstanceUniform", "namespace": "stagehand::rendering", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand::rendering::Renderers": {"name": "Renderers", "namespace": "stagehand::rendering", "data_type": "struct", "is_change_detection_tag": false},
@@ -281,6 +319,9 @@ const SCHEMA := {
 		"stagehand_demos::game_of_life::AliveNeighbourCount": {"name": "AliveNeighbourCount", "namespace": "stagehand_demos::game_of_life", "data_type": "uint8_t", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::GridNeighbours": {"name": "GridNeighbours", "namespace": "stagehand_demos::game_of_life", "data_type": "stagehand_demos::game_of_life::GridNeighbours", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::GridPosition": {"name": "GridPosition", "namespace": "stagehand_demos::game_of_life", "data_type": "godot::Vector2i", "is_change_detection_tag": false},
+		"stagehand_demos::game_of_life::HasChangedAliveNeighbourCount": {"name": "HasChangedAliveNeighbourCount", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::game_of_life::HasChangedGridNeighbours": {"name": "HasChangedGridNeighbours", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::game_of_life::HasChangedGridPosition": {"name": "HasChangedGridPosition", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": true},
 		"stagehand_demos::game_of_life::IsAlive": {"name": "IsAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::IsInActiveNeighbourhood": {"name": "IsInActiveNeighbourhood", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::WasAlive": {"name": "WasAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
@@ -291,6 +332,26 @@ const SCHEMA := {
 		"stagehand_demos::surwave::EnemyCount": {"name": "EnemyCount", "namespace": "stagehand_demos::surwave", "data_type": "uint32_t", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::EnemyTakeDamageSettings": {"name": "EnemyTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::HFlipTimer": {"name": "HFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
+		"stagehand_demos::surwave::HasChangedAnimationFrameOffset": {"name": "HasChangedAnimationFrameOffset", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedDeathTimer": {"name": "HasChangedDeathTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyAnimationSettings": {"name": "HasChangedEnemyAnimationSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyBoidMovementSettings": {"name": "HasChangedEnemyBoidMovementSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyCount": {"name": "HasChangedEnemyCount", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyTakeDamageSettings": {"name": "HasChangedEnemyTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHFlipTimer": {"name": "HasChangedHFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHitPoints": {"name": "HasChangedHitPoints", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHitRadius": {"name": "HasChangedHitRadius", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHitReactionTimer": {"name": "HasChangedHitReactionTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedMeleeDamage": {"name": "HasChangedMeleeDamage", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedMovementSpeed": {"name": "HasChangedMovementSpeed", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedPlayerDamageCooldown": {"name": "HasChangedPlayerDamageCooldown", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedPlayerPosition": {"name": "HasChangedPlayerPosition", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedPlayerTakeDamageSettings": {"name": "HasChangedPlayerTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedProjectileData": {"name": "HasChangedProjectileData", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedProjectileHitTimeout": {"name": "HasChangedProjectileHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedShockwaveData": {"name": "HasChangedShockwaveData", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedShockwaveHitTimeout": {"name": "HasChangedShockwaveHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedVFlipTimer": {"name": "HasChangedVFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
 		"stagehand_demos::surwave::HitPoints": {"name": "HitPoints", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::HitRadius": {"name": "HitRadius", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::HitReactionTimer": {"name": "HitReactionTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
@@ -308,6 +369,7 @@ const SCHEMA := {
 	"prefabs": {
 		"stagehand::Entity2D": {"name": "Entity2D", "namespace": "stagehand"},
 		"stagehand::Entity3D": {"name": "Entity3D", "namespace": "stagehand"},
+		"stagehand::XPBDCloth3D": {"name": "XPBDCloth3D", "namespace": "stagehand"},
 		"stagehand_demos::game_of_life::Cell": {"name": "Cell", "namespace": "stagehand_demos::game_of_life"},
 		"stagehand_demos::surwave::Character2D": {"name": "Character2D", "namespace": "stagehand_demos::surwave"},
 		"stagehand_demos::surwave::Enemy": {"name": "Enemy", "namespace": "stagehand_demos::surwave"},
@@ -330,6 +392,8 @@ const SCHEMA := {
 		"stagehand::physics::Sync Transform (3D)": {"name": "Sync Transform (3D)", "namespace": "stagehand::physics"},
 		"stagehand::physics::Sync Velocity (2D)": {"name": "Sync Velocity (2D)", "namespace": "stagehand::physics"},
 		"stagehand::physics::Sync Velocity (3D)": {"name": "Sync Velocity (3D)", "namespace": "stagehand::physics"},
+		"stagehand::physics::XPBD3D Bootstrap": {"name": "XPBD3D Bootstrap", "namespace": "stagehand::physics"},
+		"stagehand::physics::XPBD3D Simulation": {"name": "XPBD3D Simulation", "namespace": "stagehand::physics"},
 		"stagehand::rendering::Entity Rendering (Instanced)": {"name": "Entity Rendering (Instanced)", "namespace": "stagehand::rendering"},
 		"stagehand::rendering::Entity Rendering (MultiMesh)": {"name": "Entity Rendering (MultiMesh)", "namespace": "stagehand::rendering"},
 		"stagehand::transform::Transform Compose (2D)": {"name": "Transform Compose (2D)", "namespace": "stagehand::transform"},

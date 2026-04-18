@@ -8,18 +8,18 @@ To enable these features, components must be defined using Stagehand's macros th
 
 ### How Change Tags Work
 
-For every component defined with a change-tracking macro, Stagehand automatically generates an empty tag struct named `HasChanged<Name>`. For example, `FLOAT(Health)` generates `HasChangedHealth`. This tag is registered with Flecs using `flecs::With`, so it is added to every entity that has the component and is disabled by default. When a modification is detected, Stagehand enables the tag on the affected entity. At the end of each frame (in the `PostRender` pipeline phase), a built-in Stagehand system automatically disables all change tags on all entities, giving them per-frame semantics.
+For every component defined with a change-tracking macro, Stagehand automatically generates an empty tag struct named `HasChanged<Name>`. For example, `FLOAT_(Health)` generates `HasChangedHealth`. This tag is registered with Flecs using `flecs::With`, so it is added to every entity that has the component and is disabled by default. When a modification is detected, Stagehand enables the tag on the affected entity. At the end of each frame (in the `PostRender` pipeline phase), a built-in Stagehand system automatically disables all change tags on all entities, giving them per-frame semantics.
 
 Change tracking can be enabled or disabled at component definition time:
 
-- Use normal macros (e.g. `FLOAT`, `GODOT_VARIANT`, `VECTOR`) to enable change tracking.
-- Use underscore macros (e.g. `FLOAT_`, `GODOT_VARIANT_`, `VECTOR_`) to opt out of change tracking and avoid the extra overhead.
+- Use normal macros (e.g. `FLOAT`, `GODOT_VARIANT`, `VECTOR`) when you do not need change tracking.
+- Use underscore macros (e.g. `FLOAT_`, `GODOT_VARIANT_`, `VECTOR_`) to opt in to change tracking.
 
 ### The `stagehand::entity` Wrapper
 
 `stagehand::entity` is a lightweight wrapper around `flecs::entity` and can be used in its place. It intercepts component modifications to handle change detection logic. It has the same memory layout as `flecs::entity` and incurs no runtime overhead in optimized builds.
 
-If a component was defined with an underscore macro (`*_`), `stagehand::entity` methods still work normally but skip change-tag toggling for that component.
+If a component was defined without an underscore macro, `stagehand::entity` methods still work normally but skip change-tag toggling for that component.
 
 #### Usage in Systems
 

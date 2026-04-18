@@ -31,6 +31,8 @@ TEST(PhysicsHelpers, Rigid3DIsNot2D) { ASSERT_FALSE(is_2d_body_type(PhysicsBodyT
 
 TEST(PhysicsHelpers, RigidLinear3DIsNot2D) { ASSERT_FALSE(is_2d_body_type(PhysicsBodyType::RigidLinear3D)); }
 
+TEST(PhysicsHelpers, XPBD3DIsNot2D) { ASSERT_FALSE(is_2d_body_type(PhysicsBodyType::XPBD3D)); }
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Dynamic body type classification
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -51,6 +53,8 @@ TEST(PhysicsHelpers, Rigid3DIsDynamic) { ASSERT_TRUE(is_dynamic_body_type(Physic
 
 TEST(PhysicsHelpers, RigidLinear3DIsDynamic) { ASSERT_TRUE(is_dynamic_body_type(PhysicsBodyType::RigidLinear3D)); }
 
+TEST(PhysicsHelpers, XPBD3DIsDynamic) { ASSERT_TRUE(is_dynamic_body_type(PhysicsBodyType::XPBD3D)); }
+
 // ═══════════════════════════════════════════════════════════════════════════════
 // Enum numeric values
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -64,9 +68,10 @@ TEST(PhysicsHelpers, EnumValuesAreContiguous) {
     ASSERT_EQ(static_cast<uint8_t>(PhysicsBodyType::Kinematic3D), 5);
     ASSERT_EQ(static_cast<uint8_t>(PhysicsBodyType::Rigid3D), 6);
     ASSERT_EQ(static_cast<uint8_t>(PhysicsBodyType::RigidLinear3D), 7);
+    ASSERT_EQ(static_cast<uint8_t>(PhysicsBodyType::XPBD3D), 8);
 }
 
-TEST(PhysicsHelpers, BodyTypeCountIsCorrect) { ASSERT_EQ(PHYSICS_BODY_TYPE_COUNT, 8); }
+TEST(PhysicsHelpers, BodyTypeCountIsCorrect) { ASSERT_EQ(PHYSICS_BODY_TYPE_COUNT, 9); }
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Lookup table consistency
@@ -90,11 +95,11 @@ TEST(PhysicsHelpers, LookupTableAndFunctionConsistency) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 TEST(PhysicsHelpers, AllTypesAreEither2DOr3D) {
-    // First 4 are 2D, last 4 are 3D
+    // First 4 are 2D, all following types are 3D.
     for (uint8_t i = 0; i < 4; ++i) {
         ASSERT_TRUE(is_2d_body_type(static_cast<PhysicsBodyType>(i)));
     }
-    for (uint8_t i = 4; i < 8; ++i) {
+    for (uint8_t i = 4; i < PHYSICS_BODY_TYPE_COUNT; ++i) {
         ASSERT_FALSE(is_2d_body_type(static_cast<PhysicsBodyType>(i)));
     }
 }

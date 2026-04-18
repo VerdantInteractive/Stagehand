@@ -49,6 +49,7 @@ namespace stagehand::names {
         constexpr const char *INSTANCE = NAMESPACE_STR "::Instance";
         constexpr const char *INSTANCE_2D = NAMESPACE_STR "::Instance2D";
         constexpr const char *INSTANCE_3D = NAMESPACE_STR "::Instance3D";
+        constexpr const char *XPBD_CLOTH_3D = NAMESPACE_STR "::XPBDCloth3D";
 
         constexpr const char *SEGMENT = NAMESPACE_STR "::Segment";
         constexpr const char *SEGMENT_2D = NAMESPACE_STR "::Segment2D";

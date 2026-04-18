@@ -199,9 +199,10 @@ template <typename T> void register_projection_members(flecs::component<T> c) { 
     })
 
 #define GODOT_VARIANT(Name, Base, ...)                                                                                                                         \
-    STAGEHAND_GODOT_VARIANT_IMPL(Name, Base, variant, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
+    STAGEHAND_GODOT_VARIANT_IMPL(Name, Base, variant_no_change, , , __VA_ARGS__)
 
-#define GODOT_VARIANT_(Name, Base, ...) STAGEHAND_GODOT_VARIANT_IMPL(Name, Base, variant_no_change, , , __VA_ARGS__)
+#define GODOT_VARIANT_(Name, Base, ...)                                                                                                                        \
+    STAGEHAND_GODOT_VARIANT_IMPL(Name, Base, variant, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
 
 // Dispatcher overloads to automatically select the correct registration function
 // Struct type
