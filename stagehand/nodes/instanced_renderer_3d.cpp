@@ -180,13 +180,54 @@ void register_instanced_renderer(flecs::world &world, InstancedRenderer3D *rende
     renderer_count++;
 }
 
+InstancedRenderer3D::InstancedRenderer3D() {
+    connect("tree_entered", callable_mp(this, &InstancedRenderer3D::on_enter_tree));
+    connect("tree_exiting", callable_mp(this, &InstancedRenderer3D::on_exit_tree));
+}
+
+void InstancedRenderer3D::on_enter_tree() {
+    const godot::Callable warnings_callable(this, "update_configuration_warnings");
+    for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+        if (lod_level.is_valid() && !lod_level->is_connected("changed", warnings_callable)) {
+            lod_level->connect("changed", warnings_callable);
+        }
+    }
+}
+
+void InstancedRenderer3D::on_exit_tree() {
+    const godot::Callable warnings_callable(this, "update_configuration_warnings");
+    for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+        if (lod_level.is_valid() && lod_level->is_connected("changed", warnings_callable)) {
+            lod_level->disconnect("changed", warnings_callable);
+        }
+    }
+}
+
 void InstancedRenderer3D::set_prefabs_rendered(const godot::PackedStringArray &p_prefabs) {
     prefabs_rendered = p_prefabs;
     update_configuration_warnings();
 }
 
 void InstancedRenderer3D::set_lod_levels(const godot::TypedArray<InstancedRenderer3DLODConfiguration> &p_lod_levels) {
+    if (is_inside_tree()) {
+        const godot::Callable warnings_callable(this, "update_configuration_warnings");
+        for (const godot::Ref<InstancedRenderer3DLODConfiguration> &previous_lod : lod_levels) {
+            if (previous_lod.is_valid() && previous_lod->is_connected("changed", warnings_callable)) {
+                previous_lod->disconnect("changed", warnings_callable);
+            }
+        }
+    }
+
     lod_levels = p_lod_levels;
+
+    if (is_inside_tree()) {
+        const godot::Callable warnings_callable(this, "update_configuration_warnings");
+        for (const godot::Ref<InstancedRenderer3DLODConfiguration> &lod_level : lod_levels) {
+            if (lod_level.is_valid() && !lod_level->is_connected("changed", warnings_callable)) {
+                lod_level->connect("changed", warnings_callable);
+            }
+        }
+    }
 
     update_configuration_warnings();
 }
