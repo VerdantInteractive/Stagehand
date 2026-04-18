@@ -104,6 +104,9 @@ class components:
 			const AliveNeighbourCount = "stagehand_demos::game_of_life::AliveNeighbourCount"
 			const GridNeighbours = "stagehand_demos::game_of_life::GridNeighbours"
 			const GridPosition = "stagehand_demos::game_of_life::GridPosition"
+			const HasChangedAliveNeighbourCount = "stagehand_demos::game_of_life::HasChangedAliveNeighbourCount"
+			const HasChangedGridNeighbours = "stagehand_demos::game_of_life::HasChangedGridNeighbours"
+			const HasChangedGridPosition = "stagehand_demos::game_of_life::HasChangedGridPosition"
 			const IsAlive = "stagehand_demos::game_of_life::IsAlive"
 			const IsInActiveNeighbourhood = "stagehand_demos::game_of_life::IsInActiveNeighbourhood"
 			const WasAlive = "stagehand_demos::game_of_life::WasAlive"
@@ -116,6 +119,26 @@ class components:
 			const EnemyCount = "stagehand_demos::surwave::EnemyCount"
 			const EnemyTakeDamageSettings = "stagehand_demos::surwave::EnemyTakeDamageSettings"
 			const HFlipTimer = "stagehand_demos::surwave::HFlipTimer"
+			const HasChangedAnimationFrameOffset = "stagehand_demos::surwave::HasChangedAnimationFrameOffset"
+			const HasChangedDeathTimer = "stagehand_demos::surwave::HasChangedDeathTimer"
+			const HasChangedEnemyAnimationSettings = "stagehand_demos::surwave::HasChangedEnemyAnimationSettings"
+			const HasChangedEnemyBoidMovementSettings = "stagehand_demos::surwave::HasChangedEnemyBoidMovementSettings"
+			const HasChangedEnemyCount = "stagehand_demos::surwave::HasChangedEnemyCount"
+			const HasChangedEnemyTakeDamageSettings = "stagehand_demos::surwave::HasChangedEnemyTakeDamageSettings"
+			const HasChangedHFlipTimer = "stagehand_demos::surwave::HasChangedHFlipTimer"
+			const HasChangedHitPoints = "stagehand_demos::surwave::HasChangedHitPoints"
+			const HasChangedHitRadius = "stagehand_demos::surwave::HasChangedHitRadius"
+			const HasChangedHitReactionTimer = "stagehand_demos::surwave::HasChangedHitReactionTimer"
+			const HasChangedMeleeDamage = "stagehand_demos::surwave::HasChangedMeleeDamage"
+			const HasChangedMovementSpeed = "stagehand_demos::surwave::HasChangedMovementSpeed"
+			const HasChangedPlayerDamageCooldown = "stagehand_demos::surwave::HasChangedPlayerDamageCooldown"
+			const HasChangedPlayerPosition = "stagehand_demos::surwave::HasChangedPlayerPosition"
+			const HasChangedPlayerTakeDamageSettings = "stagehand_demos::surwave::HasChangedPlayerTakeDamageSettings"
+			const HasChangedProjectileData = "stagehand_demos::surwave::HasChangedProjectileData"
+			const HasChangedProjectileHitTimeout = "stagehand_demos::surwave::HasChangedProjectileHitTimeout"
+			const HasChangedShockwaveData = "stagehand_demos::surwave::HasChangedShockwaveData"
+			const HasChangedShockwaveHitTimeout = "stagehand_demos::surwave::HasChangedShockwaveHitTimeout"
+			const HasChangedVFlipTimer = "stagehand_demos::surwave::HasChangedVFlipTimer"
 			const HitPoints = "stagehand_demos::surwave::HitPoints"
 			const HitRadius = "stagehand_demos::surwave::HitRadius"
 			const HitReactionTimer = "stagehand_demos::surwave::HitReactionTimer"
@@ -296,6 +319,9 @@ const SCHEMA := {
 		"stagehand_demos::game_of_life::AliveNeighbourCount": {"name": "AliveNeighbourCount", "namespace": "stagehand_demos::game_of_life", "data_type": "uint8_t", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::GridNeighbours": {"name": "GridNeighbours", "namespace": "stagehand_demos::game_of_life", "data_type": "stagehand_demos::game_of_life::GridNeighbours", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::GridPosition": {"name": "GridPosition", "namespace": "stagehand_demos::game_of_life", "data_type": "godot::Vector2i", "is_change_detection_tag": false},
+		"stagehand_demos::game_of_life::HasChangedAliveNeighbourCount": {"name": "HasChangedAliveNeighbourCount", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::game_of_life::HasChangedGridNeighbours": {"name": "HasChangedGridNeighbours", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::game_of_life::HasChangedGridPosition": {"name": "HasChangedGridPosition", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": true},
 		"stagehand_demos::game_of_life::IsAlive": {"name": "IsAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::IsInActiveNeighbourhood": {"name": "IsInActiveNeighbourhood", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand_demos::game_of_life::WasAlive": {"name": "WasAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
@@ -306,6 +332,26 @@ const SCHEMA := {
 		"stagehand_demos::surwave::EnemyCount": {"name": "EnemyCount", "namespace": "stagehand_demos::surwave", "data_type": "uint32_t", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::EnemyTakeDamageSettings": {"name": "EnemyTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::HFlipTimer": {"name": "HFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
+		"stagehand_demos::surwave::HasChangedAnimationFrameOffset": {"name": "HasChangedAnimationFrameOffset", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedDeathTimer": {"name": "HasChangedDeathTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyAnimationSettings": {"name": "HasChangedEnemyAnimationSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyBoidMovementSettings": {"name": "HasChangedEnemyBoidMovementSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyCount": {"name": "HasChangedEnemyCount", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedEnemyTakeDamageSettings": {"name": "HasChangedEnemyTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHFlipTimer": {"name": "HasChangedHFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHitPoints": {"name": "HasChangedHitPoints", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHitRadius": {"name": "HasChangedHitRadius", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedHitReactionTimer": {"name": "HasChangedHitReactionTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedMeleeDamage": {"name": "HasChangedMeleeDamage", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedMovementSpeed": {"name": "HasChangedMovementSpeed", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedPlayerDamageCooldown": {"name": "HasChangedPlayerDamageCooldown", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedPlayerPosition": {"name": "HasChangedPlayerPosition", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedPlayerTakeDamageSettings": {"name": "HasChangedPlayerTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedProjectileData": {"name": "HasChangedProjectileData", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedProjectileHitTimeout": {"name": "HasChangedProjectileHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedShockwaveData": {"name": "HasChangedShockwaveData", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedShockwaveHitTimeout": {"name": "HasChangedShockwaveHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
+		"stagehand_demos::surwave::HasChangedVFlipTimer": {"name": "HasChangedVFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": true},
 		"stagehand_demos::surwave::HitPoints": {"name": "HitPoints", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::HitRadius": {"name": "HitRadius", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
 		"stagehand_demos::surwave::HitReactionTimer": {"name": "HitReactionTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},

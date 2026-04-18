@@ -49,19 +49,19 @@ namespace stagehand::physics {
 
     // ─── Components ──────────────────────────────────────────────────────
 
-    GODOT_VARIANT_(PhysicsBodyRID, godot::RID);
+    GODOT_VARIANT(PhysicsBodyRID, godot::RID);
 
     /// Physics space RID.  Used as a singleton with dimension tags
     /// (PhysicsSpace2D / PhysicsSpace3D) applied to the singleton entity.
-    GODOT_VARIANT_(PhysicsSpaceRID, godot::RID);
+    GODOT_VARIANT(PhysicsSpaceRID, godot::RID);
 
-    GODOT_VARIANT(Velocity2D, godot::Vector2);
-    FLOAT(AngularVelocity2D);
-    GODOT_VARIANT(Velocity3D, godot::Vector3);
-    GODOT_VARIANT(AngularVelocity3D, godot::Vector3);
+    GODOT_VARIANT_(Velocity2D, godot::Vector2);
+    FLOAT_(AngularVelocity2D);
+    GODOT_VARIANT_(Velocity3D, godot::Vector3);
+    GODOT_VARIANT_(AngularVelocity3D, godot::Vector3);
 
-    UINT32(CollisionLayer, 1);
-    UINT32(CollisionMask, 1);
+    UINT32_(CollisionLayer, 1);
+    UINT32_(CollisionMask, 1);
 
     /// Tag indicating that a physics body has been assigned to a physics space.
     TAG(PhysicsBodyInSpace);
@@ -78,7 +78,7 @@ namespace stagehand::physics {
 
     // ─── XPBD Cloth (3D) Components ────────────────────────────────────
 
-    STRUCT_(XPBDCloth3DConfig, {
+    STRUCT(XPBDCloth3DConfig, {
         int32_t num_x = 30;
         int32_t num_y = 200;
         int32_t num_substeps = 10;
@@ -92,15 +92,15 @@ namespace stagehand::physics {
         bool attach_corners = false;
     });
 
-    STRUCT_(XPBDCloth3DGrab, {
+    STRUCT(XPBDCloth3DGrab, {
         int32_t particle_id = -1;
         godot::Vector3 position = godot::Vector3();
         godot::Vector3 velocity = godot::Vector3();
     });
 
-    GODOT_VARIANT_(XPBDCloth3DVertices, godot::PackedVector3Array);
-    GODOT_VARIANT_(XPBDCloth3DTriangleIndices, godot::PackedInt32Array);
-    GODOT_VARIANT_(XPBDCloth3DEdgeIndices, godot::PackedInt32Array);
+    GODOT_VARIANT(XPBDCloth3DVertices, godot::PackedVector3Array);
+    GODOT_VARIANT(XPBDCloth3DTriangleIndices, godot::PackedInt32Array);
+    GODOT_VARIANT(XPBDCloth3DEdgeIndices, godot::PackedInt32Array);
 
     // ─── PhysicsServer Traits ────────────────────────────────────────────
 
@@ -199,7 +199,7 @@ namespace stagehand::physics {
         internal::get_physics_body_handlers(body_type).free(rid);
     }
 
-    ENUM_(PhysicsBodyType)
+    ENUM(PhysicsBodyType)
         .then([](auto c) {
             c.constant("Static2D", PhysicsBodyType::Static2D)
                 .constant("Kinematic2D", PhysicsBodyType::Kinematic2D)
