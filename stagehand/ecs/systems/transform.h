@@ -102,23 +102,4 @@ namespace stagehand::transform {
             });
     }
 
-    // ─── Transform Decompose (PostLoad) ──────────────────────────────────
-    // When a Transform2D/3D component is changed (e.g. by physics feedback or user code setting the composite transform directly),
-    // decompose it into Position, Rotation, and Scale components.
-    // Runs at PostLoad so it executes before user-facing OnUpdate systems.
-
-    REGISTER([](flecs::world &world) {
-        register_transform_decompose_system<Transform2D>(world);
-        register_transform_decompose_system<Transform3D>(world);
-    });
-
-    // ─── Transform Compose (PreRender) ───────────────────────────────────
-    // When Position, Rotation, or Scale components change, recompose the Transform2D/3D component.
-    // This feeds rendering and other downstream systems that consume the composite transform.
-
-    REGISTER([](flecs::world &world) {
-        register_transform_compose_system<Transform2D>(world);
-        register_transform_compose_system<Transform3D>(world);
-    });
-
 } // namespace stagehand::transform

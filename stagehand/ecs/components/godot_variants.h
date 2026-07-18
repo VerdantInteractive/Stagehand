@@ -349,3 +349,4 @@ REGISTER([](flecs::world &world) {
     world.component<Signal>();
     stagehand::register_component<Signal>("Signal");
 });
+
