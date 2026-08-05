@@ -4,16 +4,16 @@
 
 namespace stagehand_demos::surwave {
 
-    FLOAT_(HitPoints);
-    FLOAT_(HitRadius);
-    FLOAT_(MovementSpeed);
-    FLOAT_(MeleeDamage);
-    FLOAT_(AnimationFrameOffset);
-    FLOAT_(DeathTimer);
-    FLOAT_(HitReactionTimer);
-    FLOAT_(HFlipTimer);
-    FLOAT_(VFlipTimer);
-    FLOAT_(ProjectileHitTimeout);
-    FLOAT_(ShockwaveHitTimeout);
+    FLOAT(HitPoints);
+    FLOAT(HitRadius);
+    FLOAT(MovementSpeed);
+    FLOAT(MeleeDamage);
+    FLOAT(AnimationFrameOffset);
+    FLOAT(DeathTimer);
+    FLOAT(HitReactionTimer);
+    FLOAT(HFlipTimer);
+    FLOAT(VFlipTimer);
+    FLOAT(ProjectileHitTimeout);
+    FLOAT(ShockwaveHitTimeout);
 
 } // namespace stagehand_demos::surwave

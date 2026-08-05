@@ -18,26 +18,26 @@ namespace stagehand::physics {
 
     template <typename ServerT> struct PhysicsSystemNames {
         static constexpr const char *BODY_SPACE_ASSIGNMENT = std::is_same_v<ServerT, godot::PhysicsServer2D>
-                                                                 ? stagehand::names::systems::PHYSICS_BODY_SPACE_ASSIGNMENT_2D
-                                                                 : stagehand::names::systems::PHYSICS_BODY_SPACE_ASSIGNMENT_3D;
+                                                                  ? stagehand::names::systems::PHYSICS_BODY_SPACE_ASSIGNMENT_2D
+                                                                  : stagehand::names::systems::PHYSICS_BODY_SPACE_ASSIGNMENT_3D;
         static constexpr const char *FEEDBACK_TRANSFORM = std::is_same_v<ServerT, godot::PhysicsServer2D>
-                                                              ? stagehand::names::systems::PHYSICS_FEEDBACK_TRANSFORM_2D
-                                                              : stagehand::names::systems::PHYSICS_FEEDBACK_TRANSFORM_3D;
+                                                               ? stagehand::names::systems::PHYSICS_FEEDBACK_TRANSFORM_2D
+                                                               : stagehand::names::systems::PHYSICS_FEEDBACK_TRANSFORM_3D;
         static constexpr const char *FEEDBACK_VELOCITY = std::is_same_v<ServerT, godot::PhysicsServer2D>
-                                                             ? stagehand::names::systems::PHYSICS_FEEDBACK_VELOCITY_2D
-                                                             : stagehand::names::systems::PHYSICS_FEEDBACK_VELOCITY_3D;
+                                                              ? stagehand::names::systems::PHYSICS_FEEDBACK_VELOCITY_2D
+                                                              : stagehand::names::systems::PHYSICS_FEEDBACK_VELOCITY_3D;
         static constexpr const char *FEEDBACK_ANGULAR_VELOCITY = std::is_same_v<ServerT, godot::PhysicsServer2D>
-                                                                     ? stagehand::names::systems::PHYSICS_FEEDBACK_ANGULAR_VELOCITY_2D
-                                                                     : stagehand::names::systems::PHYSICS_FEEDBACK_ANGULAR_VELOCITY_3D;
+                                                                      ? stagehand::names::systems::PHYSICS_FEEDBACK_ANGULAR_VELOCITY_2D
+                                                                      : stagehand::names::systems::PHYSICS_FEEDBACK_ANGULAR_VELOCITY_3D;
         static constexpr const char *SYNC_TRANSFORM = std::is_same_v<ServerT, godot::PhysicsServer2D> ? stagehand::names::systems::PHYSICS_SYNC_TRANSFORM_2D
-                                                                                                      : stagehand::names::systems::PHYSICS_SYNC_TRANSFORM_3D;
+                                                                                                       : stagehand::names::systems::PHYSICS_SYNC_TRANSFORM_3D;
         static constexpr const char *SYNC_VELOCITY = std::is_same_v<ServerT, godot::PhysicsServer2D> ? stagehand::names::systems::PHYSICS_SYNC_VELOCITY_2D
-                                                                                                     : stagehand::names::systems::PHYSICS_SYNC_VELOCITY_3D;
+                                                                                                      : stagehand::names::systems::PHYSICS_SYNC_VELOCITY_3D;
         static constexpr const char *SYNC_ANGULAR_VELOCITY = std::is_same_v<ServerT, godot::PhysicsServer2D>
-                                                                 ? stagehand::names::systems::PHYSICS_SYNC_ANGULAR_VELOCITY_2D
-                                                                 : stagehand::names::systems::PHYSICS_SYNC_ANGULAR_VELOCITY_3D;
+                                                                  ? stagehand::names::systems::PHYSICS_SYNC_ANGULAR_VELOCITY_2D
+                                                                  : stagehand::names::systems::PHYSICS_SYNC_ANGULAR_VELOCITY_3D;
         static constexpr const char *SYNC_COLLISION = std::is_same_v<ServerT, godot::PhysicsServer2D> ? stagehand::names::systems::PHYSICS_SYNC_COLLISION_2D
-                                                                                                      : stagehand::names::systems::PHYSICS_SYNC_COLLISION_3D;
+                                                                                                       : stagehand::names::systems::PHYSICS_SYNC_COLLISION_3D;
         static constexpr const char *BODY_SPACE_CLEANUP =
             std::is_same_v<ServerT, godot::PhysicsServer2D> ? "stagehand::physics::Body Space Cleanup (2D)" : "stagehand::physics::Body Space Cleanup (3D)";
     };
@@ -59,13 +59,8 @@ namespace stagehand::physics {
         using Rotation = std::conditional_t<IS_2D, transform::Rotation2D, transform::Rotation3D>;
         using Scale = std::conditional_t<IS_2D, transform::Scale2D, transform::Scale3D>;
         using Transform = std::conditional_t<IS_2D, transform::Transform2D, transform::Transform3D>;
-        using HasChangedPosition = std::conditional_t<IS_2D, transform::HasChangedPosition2D, transform::HasChangedPosition3D>;
-        using HasChangedRotation = std::conditional_t<IS_2D, transform::HasChangedRotation2D, transform::HasChangedRotation3D>;
-        using HasChangedScale = std::conditional_t<IS_2D, transform::HasChangedScale2D, transform::HasChangedScale3D>;
         using Velocity = std::conditional_t<IS_2D, Velocity2D, Velocity3D>;
-        using HasChangedVelocity = std::conditional_t<IS_2D, HasChangedVelocity2D, HasChangedVelocity3D>;
         using AngularVelocity = std::conditional_t<IS_2D, AngularVelocity2D, AngularVelocity3D>;
-        using HasChangedAngularVelocity = std::conditional_t<IS_2D, HasChangedAngularVelocity2D, HasChangedAngularVelocity3D>;
         using SpaceDimensionTag = std::conditional_t<IS_2D, PhysicsSpace2D, PhysicsSpace3D>;
 
         using GodotTransform = std::conditional_t<IS_2D, godot::Transform2D, godot::Transform3D>;
@@ -182,12 +177,11 @@ namespace stagehand::physics {
             });
     }
 
-    template <typename ServerT, typename ValueComponent, typename ChangedTag, auto BodyState, godot::Variant (*ToVariant)(const ValueComponent &)>
+    template <typename ServerT, typename ValueComponent, auto BodyState, godot::Variant (*ToVariant)(const ValueComponent &)>
     void register_sync_state_system(flecs::world &world, const char *name) {
         world.system<const PhysicsBodyRID, const ValueComponent>(name)
             .kind(stagehand::OnLateUpdate)
             .template with<PhysicsBodyInSpace>()
-            .template with<ChangedTag>()
             .each([](const PhysicsBodyRID &rid, const ValueComponent &value) {
                 if (!rid.is_valid()) {
                     return;
@@ -202,10 +196,10 @@ namespace stagehand::physics {
 
     template <typename ServerT>
     void write_transform_state(ServerT *server,
-                               const PhysicsBodyRID &rid,
-                               const typename PhysicsDimensionTraits<ServerT>::Position &position,
-                               const typename PhysicsDimensionTraits<ServerT>::Rotation &rotation,
-                               const typename PhysicsDimensionTraits<ServerT>::Scale &scale) {
+                                const PhysicsBodyRID &rid,
+                                const typename PhysicsDimensionTraits<ServerT>::Position &position,
+                                const typename PhysicsDimensionTraits<ServerT>::Rotation &rotation,
+                                const typename PhysicsDimensionTraits<ServerT>::Scale &scale) {
         using Traits = PhysicsDimensionTraits<ServerT>;
         godot::Variant transform = Traits::compose_transform(position, rotation, scale);
         server->body_set_state(rid, Traits::BODY_STATE_TRANSFORM, transform);
@@ -221,11 +215,6 @@ namespace stagehand::physics {
         world.system<const PhysicsBodyRID, const Position, const Rotation, const Scale>(name)
             .kind(stagehand::OnLateUpdate)
             .template with<PhysicsBodyInSpace>()
-            .template with<typename Traits::HasChangedPosition>()
-                .or_()
-            .template with<typename Traits::HasChangedRotation>()
-                .or_()
-            .template with<typename Traits::HasChangedScale>()
             .each([](
                 const PhysicsBodyRID &rid,
                 const Position &position,
@@ -250,9 +239,6 @@ namespace stagehand::physics {
         world.system<const PhysicsBodyRID, const PhysicsBodyType, const CollisionLayer, const CollisionMask>(name)
             .kind(stagehand::OnLateUpdate)
             .template with<PhysicsBodyInSpace>()
-            .template with<HasChangedCollisionLayer>()
-                .or_()
-            .template with<HasChangedCollisionMask>()
             .each([](
                 const PhysicsBodyRID &rid,
                 const PhysicsBodyType &body_type,
@@ -403,7 +389,7 @@ namespace stagehand::physics {
         // -- Physics Feedback (Angular Velocity) --------------------------
         {
             register_feedback_system<ServerT, AngularVelocity, &feedback_angular_velocity<ServerT>>(world,
-                                                                                                    PhysicsSystemNames<ServerT>::FEEDBACK_ANGULAR_VELOCITY);
+                                                                                                     PhysicsSystemNames<ServerT>::FEEDBACK_ANGULAR_VELOCITY);
         }
 
         // -- Transform to Physics Sync ------------------------------------
@@ -413,13 +399,13 @@ namespace stagehand::physics {
 
         // -- Linear Velocity to Physics Sync ------------------------------
         {
-            register_sync_state_system<ServerT, Velocity, typename Traits::HasChangedVelocity, Traits::BODY_STATE_LINEAR_VELOCITY,
+            register_sync_state_system<ServerT, Velocity, Traits::BODY_STATE_LINEAR_VELOCITY,
                                        &Traits::linear_velocity_to_variant>(world, PhysicsSystemNames<ServerT>::SYNC_VELOCITY);
         }
 
         // -- Angular Velocity to Physics Sync -----------------------------
         {
-            register_sync_state_system<ServerT, AngularVelocity, typename Traits::HasChangedAngularVelocity, Traits::BODY_STATE_ANGULAR_VELOCITY,
+            register_sync_state_system<ServerT, AngularVelocity, Traits::BODY_STATE_ANGULAR_VELOCITY,
                                        &Traits::angular_velocity_to_variant>(world, PhysicsSystemNames<ServerT>::SYNC_ANGULAR_VELOCITY);
         }
 

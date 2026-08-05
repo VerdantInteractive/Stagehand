@@ -90,11 +90,11 @@ TEST(PhysicsHelpers, LookupTableAndFunctionConsistency) {
 // ═══════════════════════════════════════════════════════════════════════════════
 
 TEST(PhysicsHelpers, AllTypesAreEither2DOr3D) {
-    // First 4 are 2D, last 4 are 3D
+    // First 4 are 2D, all following types are 3D.
     for (uint8_t i = 0; i < 4; ++i) {
         ASSERT_TRUE(is_2d_body_type(static_cast<PhysicsBodyType>(i)));
     }
-    for (uint8_t i = 4; i < 8; ++i) {
+    for (uint8_t i = 4; i < PHYSICS_BODY_TYPE_COUNT; ++i) {
         ASSERT_FALSE(is_2d_body_type(static_cast<PhysicsBodyType>(i)));
     }
 }

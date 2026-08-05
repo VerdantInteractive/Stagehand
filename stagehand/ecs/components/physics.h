@@ -6,6 +6,8 @@
 #include <godot_cpp/classes/physics_server2d.hpp>
 #include <godot_cpp/classes/physics_server3d.hpp>
 #include <godot_cpp/godot.hpp>
+#include <godot_cpp/variant/packed_int32_array.hpp>
+#include <godot_cpp/variant/packed_vector3_array.hpp>
 #include <godot_cpp/variant/rid.hpp>
 #include <godot_cpp/variant/utility_functions.hpp>
 
@@ -46,11 +48,11 @@ namespace stagehand::physics {
 
     // ─── Components ──────────────────────────────────────────────────────
 
-    GODOT_VARIANT_(PhysicsBodyRID, godot::RID);
+    GODOT_VARIANT(PhysicsBodyRID, godot::RID);
 
     /// Physics space RID.  Used as a singleton with dimension tags
     /// (PhysicsSpace2D / PhysicsSpace3D) applied to the singleton entity.
-    GODOT_VARIANT_(PhysicsSpaceRID, godot::RID);
+    GODOT_VARIANT(PhysicsSpaceRID, godot::RID);
 
     GODOT_VARIANT(Velocity2D, godot::Vector2);
     FLOAT(AngularVelocity2D);
@@ -130,6 +132,9 @@ namespace stagehand::physics {
 
         template <typename Server> void free_body_thunk(const godot::RID &rid) { free_physics_body_rid<Server>(rid); }
 
+        inline godot::RID create_body_invalid() { return godot::RID(); }
+        inline void free_body_invalid(const godot::RID &) {}
+
         struct PhysicsBodyHandlers {
             godot::RID (*create)();
             void (*free)(const godot::RID &);
@@ -166,7 +171,7 @@ namespace stagehand::physics {
         internal::get_physics_body_handlers(body_type).free(rid);
     }
 
-    ENUM_(PhysicsBodyType)
+    ENUM(PhysicsBodyType)
         .then([](auto c) {
             c.constant("Static2D", PhysicsBodyType::Static2D)
                 .constant("Kinematic2D", PhysicsBodyType::Kinematic2D)

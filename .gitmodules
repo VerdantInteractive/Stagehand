@@ -1,9 +1,9 @@
 [submodule "dependencies/godot-cpp"]
 	path = dependencies/godot-cpp
-	url = https://github.com/VerdantInteractive/godot-cpp.git
+	url = https://github.com/godotengine/godot-cpp.git
 [submodule "dependencies/flecs"]
 	path = dependencies/flecs
-	url = https://github.com/VerdantInteractive/flecs.git
+	url = https://github.com/SanderMertens/flecs.git
 [submodule "dependencies/googletest"]
 	path = dependencies/googletest
 	url = https://github.com/google/googletest.git

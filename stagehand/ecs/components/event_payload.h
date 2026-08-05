@@ -18,3 +18,4 @@ namespace stagehand {
 
     REGISTER([](flecs::world &world) { world.component<EventPayload>("stagehand::EventPayload"); });
 } // namespace stagehand
+

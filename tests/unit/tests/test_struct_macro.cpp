@@ -1,38 +1,31 @@
-/// Unit tests for the STRUCT and STRUCT_ component macros.
+/// Unit tests for the STRUCT component macro.
 /// Tests verify:
 ///   1. Struct definition, default values, and aggregate initialization.
 ///   2. Flecs component and member registration via PFR reflection.
 ///   3. Getter/setter and data_type registration for GDScript integration.
-///   4. Change detection (STRUCT) and no change detection (STRUCT_).
-///   5. ComponentRegistrar::then() chaining.
+///   4. ComponentRegistrar::then() chaining.
 
 #include <flecs.h>
 #include <gtest/gtest.h>
 
 #include "stagehand/ecs/components/macros.h"
-#include "stagehand/ecs/components/traits.h"
 #include "stagehand/registry.h"
 
 namespace test_struct {
-    STRUCT_(SimpleStruct, {
+    STRUCT(SimpleStruct, {
         float x = 1.0f;
         float y = 2.0f;
     });
 
-    STRUCT_(DefaultValues, {
+    STRUCT(DefaultValues, {
         float damage_cooldown = 0.3f;
         int player_hit_radius = 5;
         double precision = 0.001;
     });
 
-    STRUCT_(SingleField, { int32_t count = 42; });
+    STRUCT(SingleField, { int32_t count = 42; });
 
-    STRUCT(TrackedStruct, {
-        float speed = 10.0f;
-        int32_t health = 100;
-    });
-
-    STRUCT_(AsSingleton, {
+    STRUCT(AsSingleton, {
         float global_speed = 1.0f;
         int32_t max_entities = 1000;
     }).then([](auto component) { component.add(flecs::Singleton); });
@@ -48,16 +41,6 @@ namespace {
 
         void SetUp() override { stagehand::register_components_and_systems_with_world(world); }
     };
-
-    bool component_has_change_detection_relation(flecs::entity component_entity) {
-        bool has_change_detection = false;
-        component_entity.each(flecs::With, [&has_change_detection](flecs::entity target) {
-            if (target.has<stagehand::IsChangeDetectionTag>()) {
-                has_change_detection = true;
-            }
-        });
-        return has_change_detection;
-    }
 } // namespace
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -183,26 +166,6 @@ TEST_F(StructMacroFixture, EntityRoundtripSetAndGet) {
 TEST_F(StructMacroFixture, NonSingletonStructIsNotSeededOnWorldEntity) {
     const test_struct::SimpleStruct *data = world.try_get<test_struct::SimpleStruct>();
     ASSERT_EQ(data, nullptr);
-}
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// Change detection
-// ═══════════════════════════════════════════════════════════════════════════════
-
-TEST_F(StructMacroFixture, StructWithoutChangeDetectionDoesNotRegisterRelation) {
-    ASSERT_FALSE(component_has_change_detection_relation(world.component<test_struct::SimpleStruct>()));
-    ASSERT_FALSE(component_has_change_detection_relation(world.component<test_struct::DefaultValues>()));
-    ASSERT_FALSE(component_has_change_detection_relation(world.component<test_struct::SingleField>()));
-}
-
-TEST_F(StructMacroFixture, StructWithChangeDetectionRegistersRelation) {
-    ASSERT_TRUE(component_has_change_detection_relation(world.component<test_struct::TrackedStruct>()));
-}
-
-TEST_F(StructMacroFixture, HasChangedTagExistsForTrackedStruct) {
-    flecs::component<test_struct::HasChangedTrackedStruct> tag = world.component<test_struct::HasChangedTrackedStruct>();
-    ASSERT_NE(tag.id(), 0u);
-    ASSERT_TRUE(tag.has<stagehand::IsChangeDetectionTag>());
 }
 
 TEST_F(StructMacroFixture, SingletonIsSeededWithDefaultValueAfterRegistration) {

@@ -48,12 +48,6 @@ class components:
 			const AngularVelocity3D = "stagehand::physics::AngularVelocity3D"
 			const CollisionLayer = "stagehand::physics::CollisionLayer"
 			const CollisionMask = "stagehand::physics::CollisionMask"
-			const HasChangedAngularVelocity2D = "stagehand::physics::HasChangedAngularVelocity2D"
-			const HasChangedAngularVelocity3D = "stagehand::physics::HasChangedAngularVelocity3D"
-			const HasChangedCollisionLayer = "stagehand::physics::HasChangedCollisionLayer"
-			const HasChangedCollisionMask = "stagehand::physics::HasChangedCollisionMask"
-			const HasChangedVelocity2D = "stagehand::physics::HasChangedVelocity2D"
-			const HasChangedVelocity3D = "stagehand::physics::HasChangedVelocity3D"
 			const OwnedPhysicsSpace = "stagehand::physics::OwnedPhysicsSpace"
 			const PhysicsBodyInSpace = "stagehand::physics::PhysicsBodyInSpace"
 			const PhysicsBodyRID = "stagehand::physics::PhysicsBodyRID"
@@ -70,14 +64,6 @@ class components:
 			const Renderers = "stagehand::rendering::Renderers"
 
 		class transform:
-			const HasChangedPosition2D = "stagehand::transform::HasChangedPosition2D"
-			const HasChangedPosition3D = "stagehand::transform::HasChangedPosition3D"
-			const HasChangedRotation2D = "stagehand::transform::HasChangedRotation2D"
-			const HasChangedRotation3D = "stagehand::transform::HasChangedRotation3D"
-			const HasChangedScale2D = "stagehand::transform::HasChangedScale2D"
-			const HasChangedScale3D = "stagehand::transform::HasChangedScale3D"
-			const HasChangedTransform2D = "stagehand::transform::HasChangedTransform2D"
-			const HasChangedTransform3D = "stagehand::transform::HasChangedTransform3D"
 			const Position2D = "stagehand::transform::Position2D"
 			const Position3D = "stagehand::transform::Position3D"
 			const Rotation2D = "stagehand::transform::Rotation2D"
@@ -88,8 +74,6 @@ class components:
 			const Transform3D_ = "stagehand::transform::Transform3D"
 
 		const EventPayload = "stagehand::EventPayload"
-		const HasChangedWorldConfiguration = "stagehand::HasChangedWorldConfiguration"
-		const IsChangeDetectionTag = "stagehand::IsChangeDetectionTag"
 		const SceneChildren = "stagehand::SceneChildren"
 		const WorldConfiguration = "stagehand::WorldConfiguration"
 
@@ -171,7 +155,6 @@ class systems:
 			const Transform_Decompose_2D = "stagehand::transform::Transform Decompose (2D)"
 			const Transform_Decompose_3D = "stagehand::transform::Transform Decompose (3D)"
 
-		const Tag_Reset_Change_Detection = "stagehand::Tag Reset (Change Detection)"
 
 	class stagehand_demos:
 		class game_of_life:
@@ -200,110 +183,94 @@ class systems:
 
 const SCHEMA := {
 	"components": {
-		"godot::AABB": {"name": "AABB", "namespace": "godot", "data_type": "godot::AABB", "is_change_detection_tag": false},
-		"godot::Array": {"name": "Array", "namespace": "godot", "data_type": "godot::Array", "is_change_detection_tag": false},
-		"godot::Basis": {"name": "Basis", "namespace": "godot", "data_type": "godot::Basis", "is_change_detection_tag": false},
-		"godot::Callable": {"name": "Callable", "namespace": "godot", "data_type": "godot::Callable", "is_change_detection_tag": false},
-		"godot::Color": {"name": "Color", "namespace": "godot", "data_type": "godot::Color", "is_change_detection_tag": false},
-		"godot::Dictionary": {"name": "Dictionary", "namespace": "godot", "data_type": "godot::Dictionary", "is_change_detection_tag": false},
-		"godot::NodePath": {"name": "NodePath", "namespace": "godot", "data_type": "godot::NodePath", "is_change_detection_tag": false},
-		"godot::PackedByteArray": {"name": "PackedByteArray", "namespace": "godot", "data_type": "godot::PackedByteArray", "is_change_detection_tag": false},
-		"godot::PackedColorArray": {"name": "PackedColorArray", "namespace": "godot", "data_type": "godot::PackedColorArray", "is_change_detection_tag": false},
-		"godot::PackedFloat32Array": {"name": "PackedFloat32Array", "namespace": "godot", "data_type": "godot::PackedFloat32Array", "is_change_detection_tag": false},
-		"godot::PackedFloat64Array": {"name": "PackedFloat64Array", "namespace": "godot", "data_type": "godot::PackedFloat64Array", "is_change_detection_tag": false},
-		"godot::PackedInt32Array": {"name": "PackedInt32Array", "namespace": "godot", "data_type": "godot::PackedInt32Array", "is_change_detection_tag": false},
-		"godot::PackedInt64Array": {"name": "PackedInt64Array", "namespace": "godot", "data_type": "godot::PackedInt64Array", "is_change_detection_tag": false},
-		"godot::PackedStringArray": {"name": "PackedStringArray", "namespace": "godot", "data_type": "godot::PackedStringArray", "is_change_detection_tag": false},
-		"godot::PackedVector2Array": {"name": "PackedVector2Array", "namespace": "godot", "data_type": "godot::PackedVector2Array", "is_change_detection_tag": false},
-		"godot::PackedVector3Array": {"name": "PackedVector3Array", "namespace": "godot", "data_type": "godot::PackedVector3Array", "is_change_detection_tag": false},
-		"godot::PackedVector4Array": {"name": "PackedVector4Array", "namespace": "godot", "data_type": "godot::PackedVector4Array", "is_change_detection_tag": false},
-		"godot::Plane": {"name": "Plane", "namespace": "godot", "data_type": "godot::Plane", "is_change_detection_tag": false},
-		"godot::Projection": {"name": "Projection", "namespace": "godot", "data_type": "godot::Projection", "is_change_detection_tag": false},
-		"godot::Quaternion": {"name": "Quaternion", "namespace": "godot", "data_type": "godot::Quaternion", "is_change_detection_tag": false},
-		"godot::RID": {"name": "RID", "namespace": "godot", "data_type": "godot::RID", "is_change_detection_tag": false},
-		"godot::Rect2": {"name": "Rect2", "namespace": "godot", "data_type": "godot::Rect2", "is_change_detection_tag": false},
-		"godot::Rect2i": {"name": "Rect2i", "namespace": "godot", "data_type": "godot::Rect2i", "is_change_detection_tag": false},
-		"godot::Signal": {"name": "Signal", "namespace": "godot", "data_type": "godot::Signal", "is_change_detection_tag": false},
-		"godot::String": {"name": "String", "namespace": "godot", "data_type": "godot::String", "is_change_detection_tag": false},
-		"godot::StringName": {"name": "StringName", "namespace": "godot", "data_type": "godot::StringName", "is_change_detection_tag": false},
-		"godot::Transform2D": {"name": "Transform2D", "namespace": "godot", "data_type": "godot::Transform2D", "is_change_detection_tag": false},
-		"godot::Transform3D": {"name": "Transform3D", "namespace": "godot", "data_type": "godot::Transform3D", "is_change_detection_tag": false},
-		"godot::TypedDictionary<String, Variant>": {"name": "TypedDictionary<String, Variant>", "namespace": "godot", "data_type": "struct", "is_change_detection_tag": false},
-		"godot::Vector2": {"name": "Vector2", "namespace": "godot", "data_type": "godot::Vector2", "is_change_detection_tag": false},
-		"godot::Vector2i": {"name": "Vector2i", "namespace": "godot", "data_type": "godot::Vector2i", "is_change_detection_tag": false},
-		"godot::Vector3": {"name": "Vector3", "namespace": "godot", "data_type": "godot::Vector3", "is_change_detection_tag": false},
-		"godot::Vector3i": {"name": "Vector3i", "namespace": "godot", "data_type": "godot::Vector3i", "is_change_detection_tag": false},
-		"godot::Vector4": {"name": "Vector4", "namespace": "godot", "data_type": "godot::Vector4", "is_change_detection_tag": false},
-		"godot::Vector4i": {"name": "Vector4i", "namespace": "godot", "data_type": "godot::Vector4i", "is_change_detection_tag": false},
-		"stagehand::EventPayload": {"name": "EventPayload", "namespace": "stagehand", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::HasChangedWorldConfiguration": {"name": "HasChangedWorldConfiguration", "namespace": "stagehand", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::IsChangeDetectionTag": {"name": "IsChangeDetectionTag", "namespace": "stagehand", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::SceneChildren": {"name": "SceneChildren", "namespace": "stagehand", "data_type": "godot::Dictionary", "is_change_detection_tag": false},
-		"stagehand::WorldConfiguration": {"name": "WorldConfiguration", "namespace": "stagehand", "data_type": "godot::TypedDictionary<String, Variant>", "is_change_detection_tag": false},
-		"stagehand::physics::AngularVelocity2D": {"name": "AngularVelocity2D", "namespace": "stagehand::physics", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand::physics::AngularVelocity3D": {"name": "AngularVelocity3D", "namespace": "stagehand::physics", "data_type": "godot::Vector3", "is_change_detection_tag": false},
-		"stagehand::physics::CollisionLayer": {"name": "CollisionLayer", "namespace": "stagehand::physics", "data_type": "uint32_t", "is_change_detection_tag": false},
-		"stagehand::physics::CollisionMask": {"name": "CollisionMask", "namespace": "stagehand::physics", "data_type": "uint32_t", "is_change_detection_tag": false},
-		"stagehand::physics::HasChangedAngularVelocity2D": {"name": "HasChangedAngularVelocity2D", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::physics::HasChangedAngularVelocity3D": {"name": "HasChangedAngularVelocity3D", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::physics::HasChangedCollisionLayer": {"name": "HasChangedCollisionLayer", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::physics::HasChangedCollisionMask": {"name": "HasChangedCollisionMask", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::physics::HasChangedVelocity2D": {"name": "HasChangedVelocity2D", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::physics::HasChangedVelocity3D": {"name": "HasChangedVelocity3D", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::physics::OwnedPhysicsSpace": {"name": "OwnedPhysicsSpace", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::physics::PhysicsBodyInSpace": {"name": "PhysicsBodyInSpace", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::physics::PhysicsBodyRID": {"name": "PhysicsBodyRID", "namespace": "stagehand::physics", "data_type": "godot::RID", "is_change_detection_tag": false},
-		"stagehand::physics::PhysicsBodyType": {"name": "PhysicsBodyType", "namespace": "stagehand::physics", "data_type": "uint8_t", "is_change_detection_tag": false},
-		"stagehand::physics::PhysicsSpace2D": {"name": "PhysicsSpace2D", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::physics::PhysicsSpace3D": {"name": "PhysicsSpace3D", "namespace": "stagehand::physics", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::physics::PhysicsSpaceRID": {"name": "PhysicsSpaceRID", "namespace": "stagehand::physics", "data_type": "godot::RID", "is_change_detection_tag": false},
-		"stagehand::physics::Velocity2D": {"name": "Velocity2D", "namespace": "stagehand::physics", "data_type": "godot::Vector2", "is_change_detection_tag": false},
-		"stagehand::physics::Velocity3D": {"name": "Velocity3D", "namespace": "stagehand::physics", "data_type": "godot::Vector3", "is_change_detection_tag": false},
-		"stagehand::rendering::CustomData": {"name": "CustomData", "namespace": "stagehand::rendering", "data_type": "godot::Vector4", "is_change_detection_tag": false},
-		"stagehand::rendering::IsInstanceUniform": {"name": "IsInstanceUniform", "namespace": "stagehand::rendering", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::rendering::Renderers": {"name": "Renderers", "namespace": "stagehand::rendering", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand::transform::HasChangedPosition2D": {"name": "HasChangedPosition2D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::HasChangedPosition3D": {"name": "HasChangedPosition3D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::HasChangedRotation2D": {"name": "HasChangedRotation2D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::HasChangedRotation3D": {"name": "HasChangedRotation3D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::HasChangedScale2D": {"name": "HasChangedScale2D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::HasChangedScale3D": {"name": "HasChangedScale3D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::HasChangedTransform2D": {"name": "HasChangedTransform2D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::HasChangedTransform3D": {"name": "HasChangedTransform3D", "namespace": "stagehand::transform", "data_type": "struct", "is_change_detection_tag": true},
-		"stagehand::transform::Position2D": {"name": "Position2D", "namespace": "stagehand::transform", "data_type": "godot::Vector2", "is_change_detection_tag": false},
-		"stagehand::transform::Position3D": {"name": "Position3D", "namespace": "stagehand::transform", "data_type": "godot::Vector3", "is_change_detection_tag": false},
-		"stagehand::transform::Rotation2D": {"name": "Rotation2D", "namespace": "stagehand::transform", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand::transform::Rotation3D": {"name": "Rotation3D", "namespace": "stagehand::transform", "data_type": "godot::Quaternion", "is_change_detection_tag": false},
-		"stagehand::transform::Scale2D": {"name": "Scale2D", "namespace": "stagehand::transform", "data_type": "godot::Vector2", "is_change_detection_tag": false},
-		"stagehand::transform::Scale3D": {"name": "Scale3D", "namespace": "stagehand::transform", "data_type": "godot::Vector3", "is_change_detection_tag": false},
-		"stagehand::transform::Transform2D": {"name": "Transform2D", "namespace": "stagehand::transform", "data_type": "godot::Transform2D", "is_change_detection_tag": false},
-		"stagehand::transform::Transform3D": {"name": "Transform3D", "namespace": "stagehand::transform", "data_type": "godot::Transform3D", "is_change_detection_tag": false},
-		"stagehand_demos::game_of_life::AliveNeighbourCount": {"name": "AliveNeighbourCount", "namespace": "stagehand_demos::game_of_life", "data_type": "uint8_t", "is_change_detection_tag": false},
-		"stagehand_demos::game_of_life::GridNeighbours": {"name": "GridNeighbours", "namespace": "stagehand_demos::game_of_life", "data_type": "stagehand_demos::game_of_life::GridNeighbours", "is_change_detection_tag": false},
-		"stagehand_demos::game_of_life::GridPosition": {"name": "GridPosition", "namespace": "stagehand_demos::game_of_life", "data_type": "godot::Vector2i", "is_change_detection_tag": false},
-		"stagehand_demos::game_of_life::IsAlive": {"name": "IsAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand_demos::game_of_life::IsInActiveNeighbourhood": {"name": "IsInActiveNeighbourhood", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand_demos::game_of_life::WasAlive": {"name": "WasAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::AnimationFrameOffset": {"name": "AnimationFrameOffset", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::DeathTimer": {"name": "DeathTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::EnemyAnimationSettings": {"name": "EnemyAnimationSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::EnemyBoidMovementSettings": {"name": "EnemyBoidMovementSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::EnemyCount": {"name": "EnemyCount", "namespace": "stagehand_demos::surwave", "data_type": "uint32_t", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::EnemyTakeDamageSettings": {"name": "EnemyTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::HFlipTimer": {"name": "HFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::HitPoints": {"name": "HitPoints", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::HitRadius": {"name": "HitRadius", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::HitReactionTimer": {"name": "HitReactionTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::MeleeDamage": {"name": "MeleeDamage", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::MovementSpeed": {"name": "MovementSpeed", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::PlayerDamageCooldown": {"name": "PlayerDamageCooldown", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::PlayerPosition": {"name": "PlayerPosition", "namespace": "stagehand_demos::surwave", "data_type": "godot::Vector2", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::PlayerTakeDamageSettings": {"name": "PlayerTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::ProjectileData": {"name": "ProjectileData", "namespace": "stagehand_demos::surwave", "data_type": "godot::Dictionary", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::ProjectileHitTimeout": {"name": "ProjectileHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::ShockwaveData": {"name": "ShockwaveData", "namespace": "stagehand_demos::surwave", "data_type": "godot::Dictionary", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::ShockwaveHitTimeout": {"name": "ShockwaveHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
-		"stagehand_demos::surwave::VFlipTimer": {"name": "VFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "float", "is_change_detection_tag": false},
+		"godot::AABB": {"name": "AABB", "namespace": "godot", "data_type": "godot::AABB"},
+		"godot::Array": {"name": "Array", "namespace": "godot", "data_type": "godot::Array"},
+		"godot::Basis": {"name": "Basis", "namespace": "godot", "data_type": "godot::Basis"},
+		"godot::Callable": {"name": "Callable", "namespace": "godot", "data_type": "godot::Callable"},
+		"godot::Color": {"name": "Color", "namespace": "godot", "data_type": "godot::Color"},
+		"godot::Dictionary": {"name": "Dictionary", "namespace": "godot", "data_type": "godot::Dictionary"},
+		"godot::NodePath": {"name": "NodePath", "namespace": "godot", "data_type": "godot::NodePath"},
+		"godot::PackedByteArray": {"name": "PackedByteArray", "namespace": "godot", "data_type": "godot::PackedByteArray"},
+		"godot::PackedColorArray": {"name": "PackedColorArray", "namespace": "godot", "data_type": "godot::PackedColorArray"},
+		"godot::PackedFloat32Array": {"name": "PackedFloat32Array", "namespace": "godot", "data_type": "godot::PackedFloat32Array"},
+		"godot::PackedFloat64Array": {"name": "PackedFloat64Array", "namespace": "godot", "data_type": "godot::PackedFloat64Array"},
+		"godot::PackedInt32Array": {"name": "PackedInt32Array", "namespace": "godot", "data_type": "godot::PackedInt32Array"},
+		"godot::PackedInt64Array": {"name": "PackedInt64Array", "namespace": "godot", "data_type": "godot::PackedInt64Array"},
+		"godot::PackedStringArray": {"name": "PackedStringArray", "namespace": "godot", "data_type": "godot::PackedStringArray"},
+		"godot::PackedVector2Array": {"name": "PackedVector2Array", "namespace": "godot", "data_type": "godot::PackedVector2Array"},
+		"godot::PackedVector3Array": {"name": "PackedVector3Array", "namespace": "godot", "data_type": "godot::PackedVector3Array"},
+		"godot::PackedVector4Array": {"name": "PackedVector4Array", "namespace": "godot", "data_type": "godot::PackedVector4Array"},
+		"godot::Plane": {"name": "Plane", "namespace": "godot", "data_type": "godot::Plane"},
+		"godot::Projection": {"name": "Projection", "namespace": "godot", "data_type": "godot::Projection"},
+		"godot::Quaternion": {"name": "Quaternion", "namespace": "godot", "data_type": "godot::Quaternion"},
+		"godot::RID": {"name": "RID", "namespace": "godot", "data_type": "godot::RID"},
+		"godot::Rect2": {"name": "Rect2", "namespace": "godot", "data_type": "godot::Rect2"},
+		"godot::Rect2i": {"name": "Rect2i", "namespace": "godot", "data_type": "godot::Rect2i"},
+		"godot::Signal": {"name": "Signal", "namespace": "godot", "data_type": "godot::Signal"},
+		"godot::String": {"name": "String", "namespace": "godot", "data_type": "godot::String"},
+		"godot::StringName": {"name": "StringName", "namespace": "godot", "data_type": "godot::StringName"},
+		"godot::Transform2D": {"name": "Transform2D", "namespace": "godot", "data_type": "godot::Transform2D"},
+		"godot::Transform3D": {"name": "Transform3D", "namespace": "godot", "data_type": "godot::Transform3D"},
+		"godot::TypedDictionary<String, Variant>": {"name": "TypedDictionary<String, Variant>", "namespace": "godot", "data_type": "struct"},
+		"godot::Vector2": {"name": "Vector2", "namespace": "godot", "data_type": "godot::Vector2"},
+		"godot::Vector2i": {"name": "Vector2i", "namespace": "godot", "data_type": "godot::Vector2i"},
+		"godot::Vector3": {"name": "Vector3", "namespace": "godot", "data_type": "godot::Vector3"},
+		"godot::Vector3i": {"name": "Vector3i", "namespace": "godot", "data_type": "godot::Vector3i"},
+		"godot::Vector4": {"name": "Vector4", "namespace": "godot", "data_type": "godot::Vector4"},
+		"godot::Vector4i": {"name": "Vector4i", "namespace": "godot", "data_type": "godot::Vector4i"},
+		"stagehand::EventPayload": {"name": "EventPayload", "namespace": "stagehand", "data_type": "struct"},
+		"stagehand::SceneChildren": {"name": "SceneChildren", "namespace": "stagehand", "data_type": "godot::Dictionary"},
+		"stagehand::WorldConfiguration": {"name": "WorldConfiguration", "namespace": "stagehand", "data_type": "godot::TypedDictionary<String, Variant>"},
+		"stagehand::physics::AngularVelocity2D": {"name": "AngularVelocity2D", "namespace": "stagehand::physics", "data_type": "float"},
+		"stagehand::physics::AngularVelocity3D": {"name": "AngularVelocity3D", "namespace": "stagehand::physics", "data_type": "godot::Vector3"},
+		"stagehand::physics::CollisionLayer": {"name": "CollisionLayer", "namespace": "stagehand::physics", "data_type": "uint32_t"},
+		"stagehand::physics::CollisionMask": {"name": "CollisionMask", "namespace": "stagehand::physics", "data_type": "uint32_t"},
+		"stagehand::physics::OwnedPhysicsSpace": {"name": "OwnedPhysicsSpace", "namespace": "stagehand::physics", "data_type": "struct"},
+		"stagehand::physics::PhysicsBodyInSpace": {"name": "PhysicsBodyInSpace", "namespace": "stagehand::physics", "data_type": "struct"},
+		"stagehand::physics::PhysicsBodyRID": {"name": "PhysicsBodyRID", "namespace": "stagehand::physics", "data_type": "godot::RID"},
+		"stagehand::physics::PhysicsBodyType": {"name": "PhysicsBodyType", "namespace": "stagehand::physics", "data_type": "uint8_t"},
+		"stagehand::physics::PhysicsSpace2D": {"name": "PhysicsSpace2D", "namespace": "stagehand::physics", "data_type": "struct"},
+		"stagehand::physics::PhysicsSpace3D": {"name": "PhysicsSpace3D", "namespace": "stagehand::physics", "data_type": "struct"},
+		"stagehand::physics::PhysicsSpaceRID": {"name": "PhysicsSpaceRID", "namespace": "stagehand::physics", "data_type": "godot::RID"},
+		"stagehand::physics::Velocity2D": {"name": "Velocity2D", "namespace": "stagehand::physics", "data_type": "godot::Vector2"},
+		"stagehand::physics::Velocity3D": {"name": "Velocity3D", "namespace": "stagehand::physics", "data_type": "godot::Vector3"},
+		"stagehand::rendering::CustomData": {"name": "CustomData", "namespace": "stagehand::rendering", "data_type": "godot::Vector4"},
+		"stagehand::rendering::IsInstanceUniform": {"name": "IsInstanceUniform", "namespace": "stagehand::rendering", "data_type": "struct"},
+		"stagehand::rendering::Renderers": {"name": "Renderers", "namespace": "stagehand::rendering", "data_type": "struct"},
+		"stagehand::transform::Position2D": {"name": "Position2D", "namespace": "stagehand::transform", "data_type": "godot::Vector2"},
+		"stagehand::transform::Position3D": {"name": "Position3D", "namespace": "stagehand::transform", "data_type": "godot::Vector3"},
+		"stagehand::transform::Rotation2D": {"name": "Rotation2D", "namespace": "stagehand::transform", "data_type": "float"},
+		"stagehand::transform::Rotation3D": {"name": "Rotation3D", "namespace": "stagehand::transform", "data_type": "godot::Quaternion"},
+		"stagehand::transform::Scale2D": {"name": "Scale2D", "namespace": "stagehand::transform", "data_type": "godot::Vector2"},
+		"stagehand::transform::Scale3D": {"name": "Scale3D", "namespace": "stagehand::transform", "data_type": "godot::Vector3"},
+		"stagehand::transform::Transform2D": {"name": "Transform2D", "namespace": "stagehand::transform", "data_type": "godot::Transform2D"},
+		"stagehand::transform::Transform3D": {"name": "Transform3D", "namespace": "stagehand::transform", "data_type": "godot::Transform3D"},
+		"stagehand_demos::game_of_life::AliveNeighbourCount": {"name": "AliveNeighbourCount", "namespace": "stagehand_demos::game_of_life", "data_type": "uint8_t"},
+		"stagehand_demos::game_of_life::GridNeighbours": {"name": "GridNeighbours", "namespace": "stagehand_demos::game_of_life", "data_type": "stagehand_demos::game_of_life::GridNeighbours"},
+		"stagehand_demos::game_of_life::GridPosition": {"name": "GridPosition", "namespace": "stagehand_demos::game_of_life", "data_type": "godot::Vector2i"},
+		"stagehand_demos::game_of_life::IsAlive": {"name": "IsAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct"},
+		"stagehand_demos::game_of_life::IsInActiveNeighbourhood": {"name": "IsInActiveNeighbourhood", "namespace": "stagehand_demos::game_of_life", "data_type": "struct"},
+		"stagehand_demos::game_of_life::WasAlive": {"name": "WasAlive", "namespace": "stagehand_demos::game_of_life", "data_type": "struct"},
+		"stagehand_demos::surwave::AnimationFrameOffset": {"name": "AnimationFrameOffset", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::DeathTimer": {"name": "DeathTimer", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::EnemyAnimationSettings": {"name": "EnemyAnimationSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct"},
+		"stagehand_demos::surwave::EnemyBoidMovementSettings": {"name": "EnemyBoidMovementSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct"},
+		"stagehand_demos::surwave::EnemyCount": {"name": "EnemyCount", "namespace": "stagehand_demos::surwave", "data_type": "uint32_t"},
+		"stagehand_demos::surwave::EnemyTakeDamageSettings": {"name": "EnemyTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct"},
+		"stagehand_demos::surwave::HFlipTimer": {"name": "HFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::HitPoints": {"name": "HitPoints", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::HitRadius": {"name": "HitRadius", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::HitReactionTimer": {"name": "HitReactionTimer", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::MeleeDamage": {"name": "MeleeDamage", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::MovementSpeed": {"name": "MovementSpeed", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::PlayerDamageCooldown": {"name": "PlayerDamageCooldown", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::PlayerPosition": {"name": "PlayerPosition", "namespace": "stagehand_demos::surwave", "data_type": "godot::Vector2"},
+		"stagehand_demos::surwave::PlayerTakeDamageSettings": {"name": "PlayerTakeDamageSettings", "namespace": "stagehand_demos::surwave", "data_type": "struct"},
+		"stagehand_demos::surwave::ProjectileData": {"name": "ProjectileData", "namespace": "stagehand_demos::surwave", "data_type": "godot::Dictionary"},
+		"stagehand_demos::surwave::ProjectileHitTimeout": {"name": "ProjectileHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::ShockwaveData": {"name": "ShockwaveData", "namespace": "stagehand_demos::surwave", "data_type": "godot::Dictionary"},
+		"stagehand_demos::surwave::ShockwaveHitTimeout": {"name": "ShockwaveHitTimeout", "namespace": "stagehand_demos::surwave", "data_type": "float"},
+		"stagehand_demos::surwave::VFlipTimer": {"name": "VFlipTimer", "namespace": "stagehand_demos::surwave", "data_type": "float"},
 	},
 	"prefabs": {
 		"stagehand::Entity2D": {"name": "Entity2D", "namespace": "stagehand"},
@@ -313,7 +280,6 @@ const SCHEMA := {
 		"stagehand_demos::surwave::Enemy": {"name": "Enemy", "namespace": "stagehand_demos::surwave"},
 	},
 	"systems": {
-		"stagehand::Tag Reset (Change Detection)": {"name": "Tag Reset (Change Detection)", "namespace": "stagehand"},
 		"stagehand::physics::Body Space Assignment (2D)": {"name": "Body Space Assignment (2D)", "namespace": "stagehand::physics"},
 		"stagehand::physics::Body Space Assignment (3D)": {"name": "Body Space Assignment (3D)", "namespace": "stagehand::physics"},
 		"stagehand::physics::Feedback Angular Velocity (2D)": {"name": "Feedback Angular Velocity (2D)", "namespace": "stagehand::physics"},

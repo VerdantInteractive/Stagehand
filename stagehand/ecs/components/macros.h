@@ -7,7 +7,7 @@
 #include <string>
 #include <utility>
 
-#include "stagehand/ecs/components/traits.h" // IWYU pragma: keep
+#include "stagehand/registry.h"
 
 using std::int8_t;
 using std::int16_t;
@@ -46,71 +46,37 @@ using std::uint64_t;
     }
 
 /// Macro that defines a component wrapping a single-precision floating-point number.
-#define STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, Type, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                       \
+#define STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, Type, RegisterSuffix, ...)                                                                                    \
     struct Name;                                                                                                                                               \
     constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
-    ChangeTagDecl struct Name {                                                                                                                                \
-        ChangeTagAlias Type value{__VA_ARGS__};                                                                                                                \
+    struct Name {                                                                                                                                                \
+        Type value{__VA_ARGS__};                                                                                                                               \
         Name() = default;                                                                                                                                      \
         Name(Type v) : value(v) {}                                                                                                                             \
         NUMERIC_COMPONENT_OPERATORS(Name, Type)                                                                                                                \
     };                                                                                                                                                         \
-    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
-        e.set<Name>(value);                                                                                                                                    \
-        stagehand::internal::mark_component_changed_if_needed<Name>(e);                                                                                        \
-        return e;                                                                                                                                              \
-    }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>().member<Type>("value");                                                                                                         \
         stagehand::register_component_with_world_name<Name, Type>(world, #Name);                                                                               \
-        stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 
-#define FLOAT(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, float, float, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define FLOAT_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, float, float_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping a double-precision floating-point number.
-#define DOUBLE(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, double, double, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define DOUBLE_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, double, double_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping a signed 8-bit integer (-128 to 127).
-#define INT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int8_t, int8, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define INT8_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int8_t, int8_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping an unsigned 8-bit integer (0 to 255).
-#define UINT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint8_t, uint8, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define UINT8_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint8_t, uint8_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping a signed 16-bit integer (-32,768 to 32,767).
-#define INT16(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int16_t, int16, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define INT16_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int16_t, int16_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping an unsigned 16-bit integer (0 to 65,535).
-#define UINT16(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint16_t, uint16, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define UINT16_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint16_t, uint16_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping a signed 32-bit integer.
-#define INT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int32_t, int32, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define INT32_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int32_t, int32_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping an unsigned 32-bit integer.
-#define UINT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint32_t, uint32, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define UINT32_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint32_t, uint32_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping a signed 64-bit integer.
-#define INT64(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int64_t, int64, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define INT64_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int64_t, int64_no_change, , , __VA_ARGS__)
-
-/// Macro that defines a component wrapping an unsigned 64-bit integer.
-#define UINT64(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint64_t, uint64, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define UINT64_(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint64_t, uint64_no_change, , , __VA_ARGS__)
+#define FLOAT(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, float, float, __VA_ARGS__)
+#define DOUBLE(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, double, double, __VA_ARGS__)
+#define INT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int8_t, int8, __VA_ARGS__)
+#define UINT8(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint8_t, uint8, __VA_ARGS__)
+#define INT16(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int16_t, int16, __VA_ARGS__)
+#define UINT16(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint16_t, uint16, __VA_ARGS__)
+#define INT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int32_t, int32, __VA_ARGS__)
+#define UINT32(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint32_t, uint32, __VA_ARGS__)
+#define INT64(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, int64_t, int64, __VA_ARGS__)
+#define UINT64(Name, ...) STAGEHAND_NUMERIC_COMPONENT_IMPL(Name, uint64_t, uint64, __VA_ARGS__)
 
 /// Macro that defines a component wrapping a pointer type.
-#define STAGEHAND_POINTER_COMPONENT_IMPL(Name, Type, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                       \
+#define STAGEHAND_POINTER_COMPONENT_IMPL(Name, Type, RegisterSuffix, ...)                                                                                        \
     struct Name;                                                                                                                                               \
     constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
-    ChangeTagDecl struct Name {                                                                                                                                \
-        ChangeTagAlias Type *ptr{__VA_ARGS__};                                                                                                                 \
+    struct Name {                                                                                                                                                \
+        Type *ptr{__VA_ARGS__};                                                                                                                                \
         Name() = default;                                                                                                                                      \
         Name(Type *p) : ptr(p) {}                                                                                                                              \
         Name(std::uintptr_t p) : ptr(reinterpret_cast<Type *>(p)) {}                                                                                           \
@@ -126,40 +92,22 @@ using std::uint64_t;
         bool operator!=(const Name &other) const { return ptr != other.ptr; }                                                                                  \
         explicit operator bool() const { return ptr != nullptr; }                                                                                              \
     };                                                                                                                                                         \
-    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
-        e.set<Name>(value);                                                                                                                                    \
-        stagehand::internal::mark_component_changed_if_needed<Name>(e);                                                                                        \
-        return e;                                                                                                                                              \
-    }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>().member<std::uintptr_t>("ptr");                                                                                                 \
         stagehand::register_component_with_world_name<Name, uint64_t>(world, #Name);                                                                           \
-        stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 
-#define POINTER(Name, Type, ...)                                                                                                                               \
-    STAGEHAND_POINTER_COMPONENT_IMPL(Name, Type, pointer, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define POINTER_(Name, Type, ...) STAGEHAND_POINTER_COMPONENT_IMPL(Name, Type, pointer_no_change, , , __VA_ARGS__)
+#define POINTER(Name, Type, ...) STAGEHAND_POINTER_COMPONENT_IMPL(Name, Type, pointer, __VA_ARGS__)
 
 /// Macro that defines a tag component (empty struct).
 #define TAG(Name)                                                                                                                                              \
     struct Name {};                                                                                                                                            \
     inline auto register_##Name##_tag = stagehand::ComponentRegistrar<Name>([](flecs::world &world) { world.component<Name>(); })
-// Change detection doesn't apply to tags
-#define TAG_(Name) TAG(Name)
 
 /// Macro that defines an enum component wrapper.
 /// Usage: ENUM(Name) or ENUM(Name, UnderlyingType). Default UnderlyingType is uint8_t.
 #define ENUM_IMPL(Name, Type)                                                                                                                                  \
-    struct HasChanged##Name {};                                                                                                                                \
     inline auto register_##Name##_enum = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                         \
-        world.component<Name>();                                                                                                                               \
-        stagehand::register_component_with_world_name<Name, Type>(world, #Name);                                                                               \
-        stagehand::internal::register_change_detection_for_component<Name, HasChanged##Name>(world);                                                           \
-    })
-
-#define ENUM_IMPL_(Name, Type)                                                                                                                                 \
-    inline auto register_##Name##_enum_no_change = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                               \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component_with_world_name<Name, Type>(world, #Name);                                                                               \
     })
@@ -169,10 +117,7 @@ using std::uint64_t;
 #define GET_ENUM_MACRO(_1, _2, NAME, ...) NAME
 #define ENUM(...) GET_ENUM_MACRO(__VA_ARGS__, ENUM_2, ENUM_1)(__VA_ARGS__)
 
-#define ENUM__1(Name) ENUM_IMPL_(Name, uint8_t)
-#define ENUM__2(Name, Type) ENUM_IMPL_(Name, Type)
-#define GET_ENUM_MACRO_(_1, _2, NAME, ...) NAME
-#define ENUM_(...) GET_ENUM_MACRO_(__VA_ARGS__, ENUM__2, ENUM__1)(__VA_ARGS__)
+#define ENUM_(...) ENUM(__VA_ARGS__)
 
 /// Macros that wrap various std:: container types
 /// The components work fully with Flecs ECS operations (add, remove, get, queries, systems).
@@ -204,28 +149,20 @@ using std::uint64_t;
 /// @param ... Optional initializer for the vector (e.g., {1, 2, 3}).
 ///
 /// Example: VECTOR(MyVectorComponent, float, {1.0f, 2.0f, 3.0f})
-#define STAGEHAND_VECTOR_COMPONENT_IMPL(Name, ElementType, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                                 \
+#define STAGEHAND_VECTOR_COMPONENT_IMPL(Name, ElementType, RegisterSuffix, ...)                                                                                \
     struct Name;                                                                                                                                               \
     constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
-    ChangeTagDecl struct Name {                                                                                                                                \
-        ChangeTagAlias std::vector<ElementType> value{__VA_ARGS__};                                                                                            \
+    struct Name {                                                                                                                                                \
+        std::vector<ElementType> value{__VA_ARGS__};                                                                                                           \
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::vector<ElementType>)                                                                                  \
         std::size_t size() const { return value.size(); }                                                                                                      \
     };                                                                                                                                                         \
-    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
-        e.set<Name>(value);                                                                                                                                    \
-        stagehand::internal::mark_component_changed_if_needed<Name>(e);                                                                                        \
-        return e;                                                                                                                                              \
-    }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component_with_world_name<Name>(world, #Name);                                                                                     \
-        stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 
-#define VECTOR(Name, ElementType, ...)                                                                                                                         \
-    STAGEHAND_VECTOR_COMPONENT_IMPL(Name, ElementType, vector, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define VECTOR_(Name, ElementType, ...) STAGEHAND_VECTOR_COMPONENT_IMPL(Name, ElementType, vector_no_change, , , __VA_ARGS__)
+#define VECTOR(Name, ElementType, ...) STAGEHAND_VECTOR_COMPONENT_IMPL(Name, ElementType, vector, __VA_ARGS__)
 
 /// Macro that defines a component wrapping a std::array.
 /// @param Name The name of the component struct.
@@ -234,28 +171,20 @@ using std::uint64_t;
 /// @param ... Optional initializer for the array (e.g., {1, 2, 3}).
 ///
 /// Example: ARRAY(MyArrayComponent, int, 5, {10, 20, 30, 40, 50})
-#define STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, RegisterSuffix, ChangeTagDecl, ChangeTagAlias, ...)                                            \
+#define STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, RegisterSuffix, ...)                                                                           \
     struct Name;                                                                                                                                               \
     constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
-    ChangeTagDecl struct Name {                                                                                                                                \
-        ChangeTagAlias std::array<ElementType, Size> value{__VA_ARGS__};                                                                                       \
+    struct Name {                                                                                                                                                \
+        std::array<ElementType, Size> value{__VA_ARGS__};                                                                                                      \
         CONTAINER_COMPONENT_BODY(Name, ElementType, std::array<ElementType, Size>)                                                                             \
         constexpr std::size_t size() const { return Size; }                                                                                                    \
     };                                                                                                                                                         \
-    inline flecs::entity operator<<(flecs::entity e, const Name &value) {                                                                                      \
-        e.set<Name>(value);                                                                                                                                    \
-        stagehand::internal::mark_component_changed_if_needed<Name>(e);                                                                                        \
-        return e;                                                                                                                                              \
-    }                                                                                                                                                          \
     inline auto register_##Name##_##RegisterSuffix = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                             \
         world.component<Name>();                                                                                                                               \
         stagehand::register_component_with_world_name<Name>(world, #Name);                                                                                     \
-        stagehand::internal::register_change_detection_if_needed<Name>(world);                                                                                 \
     })
 
-#define ARRAY(Name, ElementType, Size, ...)                                                                                                                    \
-    STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, array, struct HasChanged##Name{};, using ChangeTag = HasChanged##Name;, __VA_ARGS__)
-#define ARRAY_(Name, ElementType, Size, ...) STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, array_no_change, , , __VA_ARGS__)
+#define ARRAY(Name, ElementType, Size, ...) STAGEHAND_ARRAY_COMPONENT_IMPL(Name, ElementType, Size, array, __VA_ARGS__)
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // Struct component macros — PFR-based reflection for multi-field aggregates
@@ -351,27 +280,16 @@ namespace stagehand {
 /// All fields of the struct are automatically registered as Flecs members for
 /// web UI visibility. A Dictionary-based getter/setter is registered for GDScript.
 ///
-/// STRUCT registers with change detection. STRUCT_ registers without change detection.
-///
 /// The struct must be an aggregate (no user-declared constructors, no virtual functions,
 /// no private/protected non-static data members).
 ///
 /// Example:
-///   STRUCT_(PlayerSettings, {
+///   STRUCT(PlayerSettings, {
 ///       float speed = 5.0f;
 ///       int health = 100;
 ///   }).then([](auto c) { c.add(flecs::Singleton); });
-#define STRUCT(Name, ...)                                                                                                                                      \
+#define STRUCT(Name, __VA_ARGS__)                                                                                                                                \
     struct Name __VA_ARGS__;                                                                                                                                   \
     constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
-    struct HasChanged##Name {};                                                                                                                                \
-    inline auto register_##Name##_struct = stagehand::ComponentRegistrar<Name>([](flecs::world &world) {                                                       \
-        stagehand::register_struct_component<Name>(world, #Name);                                                                                              \
-        stagehand::internal::register_change_detection_for_component<Name, HasChanged##Name>(world);                                                           \
-    })
-
-#define STRUCT_(Name, ...)                                                                                                                                     \
-    struct Name __VA_ARGS__;                                                                                                                                   \
-    constexpr bool stagehand_auto_seed_singleton(Name *) { return true; }                                                                                      \
-    inline auto register_##Name##_struct_no_change =                                                                                                           \
+    inline auto register_##Name##_struct =                                                                                                                     \
         stagehand::ComponentRegistrar<Name>([](flecs::world &world) { stagehand::register_struct_component<Name>(world, #Name); })

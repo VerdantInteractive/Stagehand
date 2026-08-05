@@ -48,12 +48,12 @@ namespace stagehand_tests {
 
     // ─── Struct component macros ────────────────────────────────────────────────
 
-    STRUCT_(TestStruct, {
+    STRUCT(TestStruct, {
         float x = 1.0f;
         float y = 2.0f;
     });
 
-    STRUCT_(TestStructSingleton, {
+    STRUCT(TestStructSingleton, {
         float speed = 1.5f;
         int32_t count = 10;
     }).then([](auto c) { c.add(flecs::Singleton); });
