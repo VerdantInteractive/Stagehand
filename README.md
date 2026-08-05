@@ -28,22 +28,6 @@ Flecs Script is supported with an automatic loader that is also Flecs module-awa
 🚧 **Early Development Notice** 🚧  
 Stagehand is in the early stages of development. APIs may change, features may be incomplete, and documentation is still being written. Use at your own risk and expect breaking changes.
 
-## Roadmap
-
-### alpha (current)
-
-Most of the core features are already implemented.
-
-### beta (Q2 2026)
-
-- ComputeRenderer: Build fully custom rendering pipelines with compute shaders that tightly integrate with ECS code
-- Documentation: Complete set of manuals and other documentation.
-- Demo #3 with InstancedRenderer3D.
-
-### v1.0 (Q3 2026)
-- Entity Composer: Design entity (prefab) hierarchies visually in the Godot editor using graphs, similar to a visual shader.
-- Demo #4 with ComputeRenderer.
-
 ## Demos
 
 Stagehand currently ships with two demos that cover different aspects of the framework: a compact, data-oriented simulation and a full single-level game with deeper Godot scene integration and orchestration. These are excellent for learning the framework's workflows and patterns.
